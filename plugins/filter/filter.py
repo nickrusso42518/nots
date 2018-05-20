@@ -104,18 +104,18 @@ class FilterModule(object):
         return_dict.update({'process': process})
         
         area_pattern = r"""
-            Area\s+(?:BACKBONE\()?(?P<area_id>\d+)(?:\))?\s+
+            Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
             Number\s+of\s+interfaces\s+in\s+this\s+area\s+is\s+(?P<num_intfs>\d+).*\n
-            \s+(?:It\s+is\s+a\s+(?P<area_type>\w+)\s+area)?
+            \s+(?:It\s+is\s+a\s+(?P<type>\w+)\s+area)?
         """
 
         regex = re.compile(area_pattern, re.VERBOSE)
         areas = [match.groupdict() for match in regex.finditer(text)]
         for area in areas:
-            if not area['area_type']:
-                area['area_type'] = 'standard'
+            if not area['type']:
+                area['type'] = 'standard'
             else:
-                area['area_type'] = area['area_type'].lower()
+                area['type'] = area['type'].lower()
 
         return_dict.update({'areas': areas})
         return return_dict
@@ -196,7 +196,7 @@ class FilterModule(object):
         return_dict.update({'process': process})
 
         area_pattern = r"""
-            Area\s+(?P<area_id>\d+)\s+database\s+summary\s+
+            Area\s+(?P<id>\d+)\s+database\s+summary\s+
             (?:LSA\s+Type\s+Count\s+Delete\s+Maxage\s+)
             Router\s+(?P<num_lsa1>\d+).*\n\s+
             Network\s+(?P<num_lsa2>\d+).*\n\s+

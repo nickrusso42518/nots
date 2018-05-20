@@ -1,22 +1,29 @@
 ---
 # tasks_area_checks.yml
-- name: "SYS >> Check area id {{ item.0.area_id }}"
-  assert:
-    that: "item.0.area_id | int == item.1.area_id"
-    msg: "expected area_id {{ item.0.area_id }}, saw {{ item.1.area_id }}"
+- block:
+  - name: "SYS >> Check area id {{ item.0.id }}"
+    assert:
+      that: "item.0.id | int == item.1.id"
+      msg: "expected id {{ item.0.id }}, saw {{ item.1.id }}"
+  
+  - name: "SYS >> Check router count (LSA1) in area {{ item.0.id }}"
+    assert:
+      that: "item.0.routers | int == item.1.num_lsa1"
+      msg: "expected routers {{ item.0.routers }}, saw {{ item.1.num_lsa1 }}"
+  
+  - name: "SYS >> Check DR count (LSA2) in area {{ item.0.id }}"
+    assert:
+      that: "item.0.drs | int == item.1.num_lsa2"
+      msg: "expected drs {{ item.0.drs }}, saw {{ item.1.num_lsa2 }}"
+  
+  - name: "SYS >> Check type {{ item.0.type }} in area {{ item.0.id }}"
+    assert:
+      that: "item.0.type | lower == item.2.type"
+      msg: "expected type {{ item.0.type }}, saw {{ item.2.type }}"
 
-- name: "SYS >> Check router count (LSA1) in area {{ item.0.area_id }}"
-  assert:
-    that: "item.0.routers | int == item.1.num_lsa1"
-    msg: "expected routers {{ item.0.routers }}, saw {{ item.1.num_lsa1 }}"
+  when: "item.1.id is defined and item.1.id in my_areas"
 
-- name: "SYS >> Check DR count (LSA2) in area {{ item.0.area_id }}"
-  assert:
-    that: "item.0.drs | int == item.1.num_lsa2"
-    msg: "expected drs {{ item.0.drs }}, saw {{ item.1.num_lsa2 }}"
-
-- name: "SYS >> Check type {{ item.0.type }} in area {{ item.0.area_id }}"
-  assert:
-    that: "item.0.type | lower == item.1.type"
-    msg: "expected type {{ item.0.type }}, saw {{ item.1.type }}"
+# TODO: logic is pretty bad. the list of areas in the group is all
+# the areas in the network. individual nodes are only in a subset.
+# with_together is probably not the right approach. 
 ...

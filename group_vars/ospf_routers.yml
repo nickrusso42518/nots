@@ -1,18 +1,18 @@
 ---
 login_creds:
   host: "{{ inventory_hostname }}"
-  username: ansible
-  password: ansible
+  username: "ansible"
+  password: "ansible"
 process:
   process_id: 1
   ref_bw: 1000
 areas:  # must be listed in numerically ascending order (0, 1, 4, etc.)
   - id: 0
-    type: normal  # valid values: normal, stub, nssa
+    type: standard  # valid values: standard, stub, nssa
     routers: 2
-    bcast_nets: 1
-  - id: 1
+    drs: 1
+  - id: 51
     type: nssa
-    routers: 3
-    bcast_nets: 0
+    routers: 1
+    drs: 0
 ...
