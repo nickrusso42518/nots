@@ -1,0 +1,65 @@
+---
+#show ip ospf 1 database  da
+#
+#            OSPF Router with ID (10.0.0.1) (Process ID 1)
+#
+#Area 0 database summary
+#  LSA Type      Count    Delete   Maxage
+#  Router        9        0        0
+#  Network       1        0        0
+#  Summary Net   54       0        0
+#  Summary ASBR  4        0        0
+#  Type-7 Ext    0        0        0
+#    Prefixes redistributed in Type-7  0
+#  Opaque Link   0        0        0
+#  Opaque Area   0        0        0
+#  Subtotal      68       0        0
+#
+#Area 3 database summary
+#  LSA Type      Count    Delete   Maxage
+#  Router        4        0        0
+#  Network       0        0        0
+#  Summary Net   64       0        0
+#  Summary ASBR  6        0        0
+#  Type-7 Ext    0        0        0
+#    Prefixes redistributed in Type-7  0
+#  Opaque Link   0        0        0
+#  Opaque Area   0        0        0
+#  Subtotal      74       0        0
+#
+#Process 1 database summary
+#  LSA Type      Count    Delete   Maxage
+#  Router        13       0        0
+#  Network       1        0        0
+#  Summary Net   118      0        0
+#  Summary ASBR  10       0        0
+#  Type-7 Ext    0        0        0
+#  Opaque Link   0        0        0
+#  Opaque Area   0        0        0
+#  Type-5 Ext    1        0        0
+#      Prefixes redistributed in Type-5  0
+#  Opaque AS     0        0        0
+#  Non-self      99
+#  Total         143      0        0
+#
+process:
+  id: 1
+  total_lsa1: 13
+  total_lsa2: 1
+  total_lsa3: 118
+  total_lsa4: 10
+  total_lsa5: 1
+  total_lsa7: 0
+areas:
+  - id: 0
+    num_lsa1: 9
+    num_lsa2: 1
+    num_lsa3: 54
+    num_lsa4: 4
+    num_lsa7: 0
+  - id: 3
+    num_lsa1: 4
+    num_lsa2: 0
+    num_lsa3: 64
+    num_lsa4: 6
+    num_lsa7: 0

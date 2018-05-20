@@ -1,0 +1,85 @@
+---
+# tasks_ios.yml
+# show ip ospf: Get RID, area type, and ref bw info
+# show ip ospf neighbor: Get OSPF neighbor info
+# show ip ospf db db-sum: Get LSA1 and LSA2 counts
+- name: "IOS >> Collect OSPF PID {{ process.process_id }} info from routers"
+  ios_command:
+    provider: "{{ login_creds }}"
+    commands:
+      - "show ip ospf {{ process.process_id }}"
+      - "show ip ospf {{ process.process_id }} neighbor"
+      - "show ip ospf {{ process.process_id }} database database-summary"
+  register: IOS_OUTPUT
+
+- name: "DEBUG >> Dump IOS text output (stdout)"
+  debug:
+    var: IOS_OUTPUT.stdout
+    verbosity: 1
+
+- name: "SYS >> Parse IOS text output into structured data"
+  set_fact:
+    OSPF_BASIC: "{{ IOS_OUTPUT | ios_ospf_basic }}"
+    OSPF_NBR: "{{ IOS_OUTPUT | ios_ospf_neighbor }}"
+    OSPF_DB: "{{ IOS_OUTPUT | ios_ospf_dbsum }}"
+
+- name: "DEBUG >> Dump OSPF_BASIC structured data"
+  debug:
+    var: OSPF_BASIC
+    verbosity: 1
+
+- name: "DEBUG >> Dump OSPF_NBR structured data"
+  debug:
+    var: OSPF_NBR
+    verbosity: 1
+
+- name: "DEBUG >> Dump OSPF_DB structured data"
+  debug:
+    var: OSPF_DB
+    verbosity: 1
+
+#- name: "SYS >> Extract area IDs from actual areas parsed"
+#  set_fact:
+#    OSPF_DB_AREA_IDS: "{{ OSPF_DB.areas | map(attribute='id') | list }}"
+#
+#- name: "SYS >> Sort the lists to reduce chance of false negatives"
+#  set_fact:
+#    ACTUAL_AREAS_SORTED: "{{ sorted(OSPF_DB_AREA_IDS) }}"
+#    EXPECTED_AREAS_SORTED: "{{ sorted(my_areas) }}"
+#
+#- name: "SYS >> Assert expected and actual areas match exactly"
+#  assert:
+#    that: "ACTUAL_AREAS_SORTED == EXPECTED_AREAS_SORTED"
+#    msg: |-
+#      ACTUAL_AREAS_SORTED does not match EXPECTED_AREAS_SORTED
+#      ACTUAL_AREAS_SORTED:{{ ACTUAL_AREAS_SORTED }}
+#      EXPECTED_AREAS_SORTED:{{ EXPECTED_AREAS_SORTED }}
+
+- name: "SYS >> Assert that all neighbors are healthy"
+  assert:
+    that: >-
+      item.adj | lower == 'full' or
+      (item.adj | lower == '2way' and item.state | lower == 'drother')
+    msg: |-
+      Invalid neighbor. state must be full or a combination of 2way/drother
+      to be considered valid.
+      saw {{ item }}
+  with_items: "{{ OSPF_NBR }}"
+  loop_control:
+    label: "rid:{{ item.rid }}"
+
+- name: "SYS >> Assert that the router has the correct number of neighbors"
+  assert:
+    that: "my_nbr_count | int == OSPF_NBR | length"
+    msg: |-
+      Expected neighbor count did not match actual neighbors seen
+      expected {{ my_nbr_count }}, saw {{ OSPF_NBR | length }}
+
+- name: "INCLUDE >> Perform iterative checks on area-specific parameters"
+  include_tasks: tasks_area_checks.yml
+  with_together:
+    - "{{ areas }}"
+    - "{{ OSPF_DB.areas }}"
+  loop_control:
+    label: "area:{{ item.0.area_id }}"
+...

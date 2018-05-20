@@ -1,0 +1,22 @@
+---
+# tasks_area_checks.yml
+- name: "SYS >> Check area id {{ item.0.area_id }}"
+  assert:
+    that: "item.0.area_id | int == item.1.area_id"
+    msg: "expected area_id {{ item.0.area_id }}, saw {{ item.1.area_id }}"
+
+- name: "SYS >> Check router count (LSA1) in area {{ item.0.area_id }}"
+  assert:
+    that: "item.0.routers | int == item.1.num_lsa1"
+    msg: "expected routers {{ item.0.routers }}, saw {{ item.1.num_lsa1 }}"
+
+- name: "SYS >> Check DR count (LSA2) in area {{ item.0.area_id }}"
+  assert:
+    that: "item.0.drs | int == item.1.num_lsa2"
+    msg: "expected drs {{ item.0.drs }}, saw {{ item.1.num_lsa2 }}"
+
+- name: "SYS >> Check type {{ item.0.type }} in area {{ item.0.area_id }}"
+  assert:
+    that: "item.0.type | lower == item.1.type"
+    msg: "expected type {{ item.0.type }}, saw {{ item.1.type }}"
+...
