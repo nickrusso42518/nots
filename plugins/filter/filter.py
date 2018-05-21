@@ -26,7 +26,9 @@ class FilterModule(object):
         return {
             'ios_ospf_neighbor': FilterModule.ios_ospf_neighbor,
             'ios_ospf_basic': FilterModule.ios_ospf_basic,
-            'ios_ospf_dbsum': FilterModule.ios_ospf_dbsum
+            'ios_ospf_dbsum': FilterModule.ios_ospf_dbsum,
+            'ios_ospf_traffic': FilterModule.ios_ospf_traffic,
+            'ios_ospf_frr': FilterModule.ios_ospf_frr
         }
 
     @staticmethod
@@ -229,10 +231,76 @@ class FilterModule(object):
 
         return_dict.update({'areas': areas})
         return return_dict
-#Area 0 database summary
-#  LSA Type      Count    Delete   Maxage
-#  Router        9        0        0
-#  Network       1        0        0
-#  Summary Net   54       0        0
-#  Summary ASBR  4        0        0
-#  Type-7 Ext    0        0        0
+
+    @staticmethod
+    def ios_ospf_traffic(text):
+        '''
+        '''
+
+        interface_pattern = r"""
+            Interface\s+(?P<intf>[a-zA-Z0-9_-]+)\s+
+            .*?
+            OSPF\s+header\s+errors
+            \s+Length\s+(?P<length>\d+),
+            \s+Instance\s+ID\s+(?P<instance_id>\d+),
+            \s+Checksum\s+(?P<checksum>\d+),
+            \s+Auth\s+Type\s+(?P<auth_type>\d+),
+            \s+Version\s+(?P<version>\d+),
+            \s+Bad\s+Source\s+(?P<bad_src>\d+),
+            \s+No\s+Virtual\s+Link\s+(?P<no_vl>\d+),
+            \s+Area\s+Mismatch\s+(?P<area_mismatch>\d+),
+            \s+No\s+Sham\s+Link\s+(?P<no_sl>\d+),
+            \s+Self\s+Originated\s+(?P<self_orig>\d+),
+            \s+Duplicate\s+ID\s+(?P<dup_rid>\d+),
+            \s+Hello\s+(?P<hello_pkt>\d+),
+            \s+MTU\s+Mismatch\s+(?P<mtu_mismatch>\d+),
+            \s+Nbr\s+Ignored\s+(?P<nbr_ignored>\d+),
+            \s+LLS\s+(?P<lls>\d+),
+            \s+Unknown\s+Neighbor\s+(?P<unk_nbr>\d+),
+            \s+Authentication\s+(?P<auth>\d+),
+            \s+TTL\s+Check\s+Fail\s+(?P<ttlsec_fail>\d+),
+            \s+Adjacency\s+Throttle\s+(?P<adj_throttle>\d+),
+            \s+BFD\s+(?P<bfd>\d+),
+            \s+Test\s+discard\s+(?P<test_discard>\d+)
+            \s*OSPF\s+LSA\s+errors
+            \s+Type\s+(?P<lsa_type>\d+),
+            \s+Length\s+(?P<lsa_length>\d+),
+            \s+Data\s+(?P<lsa_data>\d+),
+            \s+Checksum\s+(?P<lsa_checksum>\d+)
+        """
+
+        regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
+        intfs = [match.groupdict() for match in regex.finditer(text)]
+        for intf in intfs:
+            for key in intf.keys():
+                intf[key] = FilterModule._try_int(intf[key])
+
+        return intfs
+
+    @staticmethod
+    def ios_ospf_frr(text):
+        '''
+        '''
+        pattern = r"""
+            (?P<id>\d+)\s+
+            (?P<topology>\w+)\s+
+            (?P<pref_pri>(High|Low))\s+
+            (?P<rlfa>(Yes|No))\s+
+            (?P<tilfa>(Yes|No))
+        """
+        regex = re.compile(pattern, re.VERBOSE)
+        frr_area_dict = {}
+        for s in text.split('\n'):
+            m = regex.search(s)
+            if m:
+                d = m.groupdict()
+                area = 'area' + d['id']
+                d['id'] = FilterModule._try_int(d['id'])
+                d['rlfa'] = d['rlfa'].lower() == 'yes'
+                d['tilfa'] = d['tilfa'].lower() == 'yes'
+                d['pref_pri'] = d['pref_pri'].lower()
+                d['topology'] = d['topology'].lower()
+
+                frr_area_dict.update({area: d})
+
+        return frr_area_dict

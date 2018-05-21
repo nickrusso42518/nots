@@ -10,6 +10,8 @@
       - "show ip ospf {{ process.id }}"
       - "show ip ospf {{ process.id }} neighbor"
       - "show ip ospf {{ process.id }} database database-summary"
+      - "show ip ospf {{ process.id }} traffic"
+      - "show ip ospf {{ process.id }} fast-reroute"
   register: IOS_OUTPUT
 
 - name: "DEBUG >> Dump IOS text output (stdout)"
@@ -22,6 +24,8 @@
     OSPF_BASIC: "{{ IOS_OUTPUT.stdout[0] | ios_ospf_basic }}"
     OSPF_NBR: "{{ IOS_OUTPUT.stdout[1] | ios_ospf_neighbor }}"
     OSPF_DB: "{{ IOS_OUTPUT.stdout[2] | ios_ospf_dbsum }}"
+    OSPF_TRAF: "{{ IOS_OUTPUT.stdout[3] | ios_ospf_traffic }}"
+    OSPF_FRR: "{{ IOS_OUTPUT.stdout[4] | ios_ospf_frr }}"
 
 - name: "DEBUG >> Dump OSPF_BASIC structured data"
   debug:
@@ -36,6 +40,16 @@
 - name: "DEBUG >> Dump OSPF_DB structured data"
   debug:
     var: OSPF_DB
+    verbosity: 1
+
+- name: "DEBUG >> Dump OSPF_TRAF structured data"
+  debug:
+    var: OSPF_TRAF
+    verbosity: 1
+
+- name: "DEBUG >> Dump OSPF_FRR structured data"
+  debug:
+    var: OSPF_FRR
     verbosity: 1
 
 - name: "SYS >> Assert that all neighbors are healthy"
@@ -104,6 +118,44 @@
       config, saw {{ OSPF_BASIC.process.is_stub_rtr }} on the actual device
   when: "should_be_stub_rtr is defined"
 
+- name: "SYS >> Check the interfaces for header/LSA errors"
+  assert:
+    that:
+      - "item.adj_throttle == 0"
+      - "item.area_mismatch == 0"
+      - "item.auth == 0"
+      - "item.auth_type == 0"
+      - "item.bad_src == 0"
+      - "item.bfd == 0"
+      - "item.checksum == 0"
+      - "item.dup_rid == 0"
+      - "item.hello_pkt == 0"
+      - "item.instance_id == 0"
+      - "item.length == 0"
+      - "item.lls == 0"
+      - "item.lsa_checksum == 0"
+      - "item.lsa_data == 0"
+      - "item.lsa_length == 0"
+      - "item.lsa_type == 0"
+      - "item.mtu_mismatch == 0"
+      - "item.nbr_ignored == 0"
+      - "item.no_sl == 0"
+      - "item.no_vl == 0"
+      - "item.self_orig == 0"
+      - "item.test_discard == 0"
+      - "item.ttlsec_fail == 0"
+      - "item.unk_nbr == 0"
+      - "item.version == 0"
+    msg: |-
+      Non-zero errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      saw {{ item }}
+  with_items: "{{ OSPF_TRAF }}"
+  loop_control:
+    label: "intf:{{ item.intf }}"
+
 - name: "SYS >> Ensure iteration area lists are equal length"
   assert:
     that:
@@ -111,7 +163,9 @@
       - "my_areas | length == OSPF_BASIC.areas | length"
     msg: |-
       Iteration lists must be same length, where the length is
-      the number of areas that exist on a router.
+      the number of areas that exist on a router. Ensure that
+      the 'my_areas' list actually contains all of the areas expected
+      to appear on a given router, no more and no less.
       saw my_areas:{{ my_areas | length }}
       saw OSPF_DB.areas:{{ OSPF_DB.areas | length }}
       saw OSPF_BASIC.areas:{{ OSPF_BASIC.areas | length }}
@@ -124,4 +178,20 @@
     - "{{ OSPF_BASIC.areas }}"
   loop_control:
     label: "area_id:{{ item.0 }}"
+
+- name: "Check FRR status in each relevant area"
+  assert:
+    that:
+      - "item.value.frr.has_lfa == OSPF_FRR[item.key] is defined"
+      - "item.value.frr.has_rlfa == OSPF_FRR[item.key].rlfa"
+      - "item.value.frr.has_tilfa == OSPF_FRR[item.key].tilfa"
+      - "item.value.frr.pref_pri | lower == OSPF_FRR[item.key].pref_pri"
+    msg: |-
+      FRR config mismatches between expected and actual
+      expected {{ OSPF_FRR[item.key] }}
+      saw {{ item.value.frr }}
+  when: "item.value.frr is defined and item.key[4:] | int in my_areas"
+  with_dict: "{{ all_areas }}"
+  loop_control:
+    label: "area_id:{{ item.key }}"
 ...

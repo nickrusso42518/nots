@@ -115,3 +115,66 @@
 
     - debug:
         var: data
+
+
+    - set_fact:
+        text: |-
+          Interface statistics
+
+              Interface Tunnel102
+
+          Last clearing of interface traffic counters never
+
+          OSPF packets received/sent
+            Type          Packets              Bytes
+            RX Invalid    0                    0
+            RX Hello      49                   2348
+            RX DB des     2                    84
+            RX LS req     0                    0
+            RX LS upd     6                    524
+            RX LS ack     3                    152
+            RX Total      60                   3108
+
+            TX Failed     0                    0
+            TX Hello      49                   4504
+            TX DB des     4                    336
+            TX LS req     0                    0
+            TX LS upd     3                    448
+            TX LS ack     2                    188
+            TX Total      58                   5476
+
+          OSPF header errors
+            Length 1, Instance ID 2, Checksum 3, Auth Type 4,
+            Version 5, Bad Source 6, No Virtual Link 7,
+            Area Mismatch 8, No Sham Link 9, Self Originated 10,
+            Duplicate ID 11, Hello 12, MTU Mismatch 13,
+            Nbr Ignored 14, LLS 15, Unknown Neighbor 16,
+            Authentication 17, TTL Check Fail 18, Adjacency Throttle 19,
+            BFD 20, Test discard 21
+
+          OSPF LSA errors
+            Type 22, Length 23, Data 24, Checksum 25
+
+    - set_fact:
+        data: "{{ text | ios_ospf_traffic }}"
+
+    - debug:
+        var: data
+
+    - set_fact:
+        text: |-
+          OSPF Router with ID (10.0.0.2) (Process ID 1)
+
+          Microloop avoidance is enabled for protected prefixes, delay 5000 msec
+
+          Loop-free Fast Reroute protected prefixes
+
+          Area  Topology name   Priority   Remote LFA Enabled  TI-LFA Enabled
+             0           Base       High                  Yes              No
+            51           Base        Low                   No              No
+
+    - set_fact:
+        data: "{{ text | ios_ospf_frr }}"
+
+    - debug:
+        var: data

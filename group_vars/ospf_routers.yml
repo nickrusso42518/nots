@@ -15,10 +15,20 @@ all_areas:  # must be listed in numerically ascending order (0, 1, 4, etc.)
     type: standard  # valid values: standard, stub, nssa
     routers: 2
     drs: 1
+    frr:
+      pref_pri: 'high'
+      has_lfa: true
+      has_rlfa: true
+      has_tilfa: false
   area51:
     type: nssa
     routers: 1
     drs: 0
+    frr:
+      pref_pri: 'low'
+      has_lfa: true
+      has_rlfa: false
+      has_tilfa: false
   area300:
     type: stub
     routers: 1
