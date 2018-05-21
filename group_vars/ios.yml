@@ -1,0 +1,9 @@
+---
+commands:
+  - "show ip ospf {{ process.id }}"
+  - "show ip ospf {{ process.id }} neighbor"
+  - "show ip ospf {{ process.id }} database database-summary"
+  - "show ip ospf {{ process.id }} traffic"
+  - "show ip ospf {{ process.id }} fast-reroute"
+  - "show bfd neighbor client ospf"
+...

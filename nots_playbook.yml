@@ -1,33 +1,47 @@
 ---
 # nots_playbook.yaml
+- name: "Perform basic setup"
+  hosts: localhost
+  tasks:
+    - name: "Get ansible date/time facts"
+      setup:
+        filter: "ansible_date_time"
+        gather_subset: "!all"
+
+    - name: "Store DTG as fact"
+      set_fact:
+        DTG: "{{ ansible_date_time.iso8601_basic_short }}"
+
+    - name: "SYS >> Ensure output logging directory exists"
+      file:
+        path: "logs"
+        state: directory
+
 - name: "Collect network information and perform device-specific tests"
   hosts: ospf_routers
   tasks:
     - name: "INCLUDE >> Use correct commands for {{ device_type }} device"
       include_tasks: "tasks_{{ device_type }}.yml"
 
-# - name: "Perform network-wide validation tests"
-#   hosts: localhost
-#   tasks:
-#     - name: "SYS >> Assemble list of all OSPF router IDs"
-#       set_fact:
-#         OSPF_RIDS: "{{ hostvars | map(attribute='get the rid') | list }}"
-#
-#     - name: "SYS >> Assert that there are no duplicate OSPF RIDs"
-#       assert:
-#         that: "OSPF_RIDS | unique | length == OSPF_RIDS | length"
-#         msg: "OSPF_RIDS contained duplicates: {{ OSPF_RIDS }}"
-#
-#     - name: "SYS >> Assemble list of all OSPF reference bandwidths"
-#       set_fact:
-#         OSPF_REF_BW: "{{ hostvars | map(attribute='get the refbw') | list }}"
-#
-#     - name: "SYS >> Assert that a common reference bandwidth is used"
-#       assert:
-#         that:
-#           - "OSPF_REF_BW | unique | length == 1"
-#           - "(OSPF_REF_BW | unique)[0] == process.ref_bw"
-#         msg: |-
-#           Wrong reference bandwidth, either inconsistent or incorrect config
-#           OSPF_REF_BW:{{ OSPF_REF_BW }}, process.ref_bw:{{ process.ref_bw }}
+- name: "Perform network-wide validation tests"
+  hosts: localhost
+  tasks:
+    - name: "SYS >> Store empty OSPF RID list for future comparison"
+      set_fact:
+        OSPF_RIDS: []
+
+    - name: "SYS >> Build OSPF RID list by iterating through hostvars"
+      set_fact:
+        OSPF_RIDS: "{{ OSPF_RIDS + [item.value.OSPF_BASIC.process.rid] }}"
+      when: "item.key in groups.ospf_routers"
+      with_dict: "{{ hostvars }}"
+      loop_control:
+        label: "host:{{ item.key }}"
+
+    - name: "SYS >> Assert that there are no duplicate OSPF RIDs"
+      assert:
+        that: "OSPF_RIDS | unique | length == OSPF_RIDS | length"
+        msg: |-
+          OSPF_RIDS contained duplicates. Check the logs to find the bad nodes.
+          {{ OSPF_RIDS | to_nice_json }}
 ...
