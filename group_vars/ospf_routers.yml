@@ -3,14 +3,18 @@ login_creds:
   host: "{{ inventory_hostname }}"
   username: "ansible"
   password: "ansible"
+
 process:
   id: 1
   has_ispf: false
+  has_bfd: true
+  has_ttlsec: true
   ref_bw: 100
   init_spf: 50
   min_spf: 200
   max_spf: 5000
-all_areas:  # must be listed in numerically ascending order (0, 1, 4, etc.)
+
+all_areas:
   area0:
     type: standard  # valid values: standard, stub, nssa
     routers: 2

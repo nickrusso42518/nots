@@ -28,7 +28,9 @@ class FilterModule(object):
             'ios_ospf_basic': FilterModule.ios_ospf_basic,
             'ios_ospf_dbsum': FilterModule.ios_ospf_dbsum,
             'ios_ospf_traffic': FilterModule.ios_ospf_traffic,
-            'ios_ospf_frr': FilterModule.ios_ospf_frr
+            'ios_ospf_frr': FilterModule.ios_ospf_frr,
+            'ios_bfd_neighbor': FilterModule.ios_bfd_neighbor,
+            'check_bfd_up': FilterModule.check_bfd_up
         }
 
     @staticmethod
@@ -110,12 +112,16 @@ class FilterModule(object):
             is_asbr = text.find('autonomous system boundary') != -1
             is_stub_rtr = text.find('Originating router-LSAs with max') != -1
             has_ispf = text.find('Incremental-SPF enabled') != -1
+            has_bfd = text.find('BFD is enabled') != -1
+            has_ttlsec = text.find('Strict TTL checking enabled') != -1
 
             process.update({
                 'is_abr': is_abr,
                 'is_asbr': is_asbr,
                 'is_stub_rtr': is_stub_rtr,
-                'has_ispf': has_ispf
+                'has_ispf': has_ispf,
+                'has_bfd': has_bfd,
+                'has_ttlsec': has_ttlsec
             })
             return_dict.update({'process': process})
         else:
@@ -304,3 +310,47 @@ class FilterModule(object):
                 frr_area_dict.update({area: d})
 
         return frr_area_dict
+
+    @staticmethod
+    def ios_bfd_neighbor(text):
+        '''
+        Parses information from the Cisco IOS "show bfd neighbor" command
+        family. This is useful for verifying various characteristics of
+        an BFD neighbor's state.
+        '''
+        pattern = r"""
+            (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
+            (?P<ld>\d+)/
+            (?P<rd>\d+)\s+
+            (?P<rhrs>\w+)\s+
+            (?P<state>\w+)\s+
+            (?P<intf>[0-9A-Za-z./-]+)
+        """
+        regex = re.compile(pattern, re.VERBOSE)
+        bfd_neighbors = []
+        for s in text.split('\n'):
+            m = regex.search(s)
+            if m:
+                d = m.groupdict()
+                d['ld'] = FilterModule._try_int(d['ld'])
+                d['rd'] = FilterModule._try_int(d['rd'])
+                d['rhrs'] = d['rhrs'].lower()
+                d['state'] = d['state'].lower()
+                d['intf'] = d['intf'].lower()
+
+                bfd_neighbors.append(d)
+
+        return bfd_neighbors
+
+    @staticmethod
+    def check_bfd_up(bfd_nbr_list, ospf_nbr):
+        '''
+        '''
+
+        for bfd_nbr in bfd_nbr_list:
+            if ospf_nbr['peer'] == bfd_nbr['peer']:
+                is_up = bfd_nbr['state'] == 'up' and bfd_nbr['rhrs'] == 'up'
+                return is_up
+
+        raise ValueError('Peer {0} not found in bfd_nbr_list'.format(ospf_nbr['peer']))
+    
