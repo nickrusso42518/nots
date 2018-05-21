@@ -82,7 +82,7 @@
             Opaque Link   0        0        0
             Opaque Area   0        0        0
             Subtotal      68       0        0
-          
+
           Area 3 database summary
             LSA Type      Count    Delete   Maxage
             Router        4        0        0
@@ -94,7 +94,7 @@
             Opaque Link   0        0        0
             Opaque Area   0        0        0
             Subtotal      74       0        0
-          
+
           Process 1 database summary
             LSA Type      Count    Delete   Maxage
             Router        13       0        0

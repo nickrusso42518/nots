@@ -1,29 +1,30 @@
 ---
 # tasks_area_checks.yml
-- block:
-  - name: "SYS >> Check area id {{ item.0.id }}"
-    assert:
-      that: "item.0.id | int == item.1.id"
-      msg: "expected id {{ item.0.id }}, saw {{ item.1.id }}"
-  
-  - name: "SYS >> Check router count (LSA1) in area {{ item.0.id }}"
-    assert:
-      that: "item.0.routers | int == item.1.num_lsa1"
-      msg: "expected routers {{ item.0.routers }}, saw {{ item.1.num_lsa1 }}"
-  
-  - name: "SYS >> Check DR count (LSA2) in area {{ item.0.id }}"
-    assert:
-      that: "item.0.drs | int == item.1.num_lsa2"
-      msg: "expected drs {{ item.0.drs }}, saw {{ item.1.num_lsa2 }}"
-  
-  - name: "SYS >> Check type {{ item.0.type }} in area {{ item.0.id }}"
-    assert:
-      that: "item.0.type | lower == item.2.type"
-      msg: "expected type {{ item.0.type }}, saw {{ item.2.type }}"
+# with_together:
+#   - "{{ my_areas }}"
+#   - "{{ OSPF_DB.areas }}"
+#   - "{{ OSPF_BASIC.areas }}"
+- name: "SYS >> Store current area targets from all_areas dict"
+  set_fact:
+    AREA_TARGETS: "{{ all_areas['area' ~ (item.0 | string)] }}"
 
-  when: "item.1.id is defined and item.1.id in my_areas"
+- name: "SYS >> Dump AREA_TARGETS"
+  debug:
+    var: AREA_TARGETS
+    verbosity: 1
 
-# TODO: logic is pretty bad. the list of areas in the group is all
-# the areas in the network. individual nodes are only in a subset.
-# with_together is probably not the right approach. 
+- name: "SYS >> Check router count (LSA1) in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.routers | int == item.1.num_lsa1"
+    msg: "expected LSA1 {{ AREA_TARGETS.routers }}, saw {{ item.1.num_lsa1 }}"
+
+- name: "SYS >> Check DR count (LSA2) in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.drs | int == item.1.num_lsa2"
+    msg: "expected LSA2 {{ AREA_TARGETS.drs }}, saw {{ item.1.num_lsa2 }}"
+
+- name: "SYS >> Check type {{ AREA_TARGETS.type }} in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.type | lower == item.2.type"
+    msg: "expected type {{ AREA_TARGETS.type }}, saw {{ item.2.type }}"
 ...

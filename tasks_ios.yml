@@ -3,13 +3,13 @@
 # show ip ospf: Get RID, area type, and ref bw info
 # show ip ospf neighbor: Get OSPF neighbor info
 # show ip ospf db db-sum: Get LSA1 and LSA2 counts
-- name: "IOS >> Collect OSPF PID {{ process.process_id }} info from routers"
+- name: "IOS >> Collect OSPF PID {{ process.id }} info from routers"
   ios_command:
     provider: "{{ login_creds }}"
     commands:
-      - "show ip ospf {{ process.process_id }}"
-      - "show ip ospf {{ process.process_id }} neighbor"
-      - "show ip ospf {{ process.process_id }} database database-summary"
+      - "show ip ospf {{ process.id }}"
+      - "show ip ospf {{ process.id }} neighbor"
+      - "show ip ospf {{ process.id }} database database-summary"
   register: IOS_OUTPUT
 
 - name: "DEBUG >> Dump IOS text output (stdout)"
@@ -38,23 +38,6 @@
     var: OSPF_DB
     verbosity: 1
 
-#- name: "SYS >> Extract area IDs from actual areas parsed"
-#  set_fact:
-#    OSPF_DB_AREA_IDS: "{{ OSPF_DB.areas | map(attribute='id') | list }}"
-#
-#- name: "SYS >> Sort the lists to reduce chance of false negatives"
-#  set_fact:
-#    ACTUAL_AREAS_SORTED: "{{ sorted(OSPF_DB_AREA_IDS) }}"
-#    EXPECTED_AREAS_SORTED: "{{ sorted(my_areas) }}"
-#
-#- name: "SYS >> Assert expected and actual areas match exactly"
-#  assert:
-#    that: "ACTUAL_AREAS_SORTED == EXPECTED_AREAS_SORTED"
-#    msg: |-
-#      ACTUAL_AREAS_SORTED does not match EXPECTED_AREAS_SORTED
-#      ACTUAL_AREAS_SORTED:{{ ACTUAL_AREAS_SORTED }}
-#      EXPECTED_AREAS_SORTED:{{ EXPECTED_AREAS_SORTED }}
-
 - name: "SYS >> Assert that all neighbors are healthy"
   assert:
     that: >-
@@ -66,21 +49,79 @@
       saw {{ item }}
   with_items: "{{ OSPF_NBR }}"
   loop_control:
-    label: "rid:{{ item.rid }}"
+    label: "nbr:{{ item.rid }}  state:{{ item.state }}  role:{{ item.role }}"
 
-- name: "SYS >> Assert that the router has the correct number of neighbors"
+- name: "SYS >> Ensure the router has correct number of neighbors"
   assert:
     that: "my_nbr_count | int == OSPF_NBR | length"
     msg: |-
       Expected neighbor count did not match actual neighbors seen
       expected {{ my_nbr_count }}, saw {{ OSPF_NBR | length }}
 
+- name: "SYS >> Check process ID {{ process.id }}, reference BW, SPF, etc."
+  assert:
+    that:
+      - "process.id | int == OSPF_BASIC.process.id"
+      - "process.ref_bw | int == OSPF_BASIC.process.ref_bw"
+      - "process.init_spf | int == OSPF_BASIC.process.init_spf"
+      - "process.min_spf | int == OSPF_BASIC.process.min_spf"
+      - "process.max_spf | int == OSPF_BASIC.process.max_spf"
+      - "process.has_ispf  == OSPF_BASIC.process.has_ispf"
+    msg: |-
+      Mismatched process-level configuration from specification.
+      expected {{ process }}
+      saw {{ OSPF_BASIC.process }}
+
+- name: "SYS >> Dynamically determine if router should be an ABR"
+  set_fact:
+    SHOULD_BE_ABR: "{{ my_areas | length > 1 and 0 in my_areas }}"
+
+- name: "DEBUG >> Dump SHOULD_BE_ABR"
+  debug:
+    var: SHOULD_BE_ABR
+    verbosity: 1
+
+- name: "SYS >> Ensure correct ABR status"
+  assert:
+    that: "OSPF_BASIC.process.is_abr == SHOULD_BE_ABR"
+    msg: |-
+      ABR status mismatch. expected {{ SHOULD_BE_ABR }} by inference,
+      saw {{ OSPF_BASIC.process.is_abr }} on the actual device
+
+- name: "SYS >> Ensure correct ASBR status"
+  assert:
+    that: "OSPF_BASIC.process.is_asbr == should_be_asbr"
+    msg: |-
+      ASBR status mismatch. expected {{ should_be_asbr }} by host config,
+      saw {{ OSPF_BASIC.process.is_asbr }} on the actual device
+  when: "should_be_asbr is defined"
+
+- name: "SYS >> Ensure correct stub router status"
+  assert:
+    that: "OSPF_BASIC.process.is_stub_rtr == should_be_stub_rtr"
+    msg: |-
+      Stub router status mismatch. expected {{ should_be_stub_rtr }} by host
+      config, saw {{ OSPF_BASIC.process.is_stub_rtr }} on the actual device
+  when: "should_be_stub_rtr is defined"
+
+- name: "SYS >> Ensure iteration area lists are equal length"
+  assert:
+    that:
+      - "my_areas | length == OSPF_DB.areas | length"
+      - "my_areas | length == OSPF_BASIC.areas | length"
+    msg: |-
+      Iteration lists must be same length, where the length is
+      the number of areas that exist on a router.
+      saw my_areas:{{ my_areas | length }}
+      saw OSPF_DB.areas:{{ OSPF_DB.areas | length }}
+      saw OSPF_BASIC.areas:{{ OSPF_BASIC.areas | length }}
+
 - name: "INCLUDE >> Perform iterative checks on area-specific parameters"
-  include_tasks: tasks_area_checks.yml
+  include_tasks: "tasks_area_checks.yml"
   with_together:
-    - "{{ areas }}"
+    - "{{ my_areas }}"
     - "{{ OSPF_DB.areas }}"
     - "{{ OSPF_BASIC.areas }}"
   loop_control:
-    label: "area:{{ item.0.id }}"
+    label: "area_id:{{ item.0 }}"
 ...

@@ -79,6 +79,9 @@ class FilterModule(object):
 #        Number of interfaces in this area is 1
 #        It is a NSSA area
 
+# Initial SPF schedule delay 5000 msecs
+# Minimum hold time between two consecutive SPFs 10000 msecs
+# Maximum wait time between two consecutive SPFs 10000 msecs
     @staticmethod
     def ios_ospf_basic(text):
         '''
@@ -86,22 +89,35 @@ class FilterModule(object):
         return_dict = {}
 
         process_pattern = r"""
-            Routing\s+Process.*with\s+ID\s+(?P<rid>\d+\.\d+\.\d+\.\d+)\s+
+            Routing\s+Process\s+"ospf\s+(?P<id>\d+)"\s+with\s+ID\s+(?P<rid>\d+\.\d+\.\d+\.\d+)
             .*
-            Reference\s+bandwidth\s+unit\s+is\s+(?P<ref_bw>\d+)\s+mbps
+            \s*Initial\s+SPF\s+schedule\s+delay\s+(?P<init_spf>\d+)\s+msecs
+            \s*Minimum\s+hold\s+time\s+between\s+two\s+consecutive\s+SPFs\s+(?P<min_spf>\d+)\s+msecs
+            \s*Maximum\s+wait\s+time\s+between\s+two\s+consecutive\s+SPFs\s+(?P<max_spf>\d+)\s+msecs
+            .*
+            \s*Reference\s+bandwidth\s+unit\s+is\s+(?P<ref_bw>\d+)\s+mbps
         """
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
         if match:
             process = match.groupdict()
-        else:
-            process = {'rid': False, 'ref_bw': False}
+            for key in process.keys():
+                process[key] = FilterModule._try_int(process[key])
 
-        process['ref_bw'] = FilterModule._try_int(process['ref_bw'])
-        is_abr = text.find('area border') != -1
-        is_asbr = text.find('autonomous system boundary') != -1
-        process.update({'is_abr': is_abr, 'is_asbr': is_asbr})
-        return_dict.update({'process': process})
+            is_abr = text.find('area border') != -1
+            is_asbr = text.find('autonomous system boundary') != -1
+            is_stub_rtr = text.find('Originating router-LSAs with max') != -1
+            has_ispf = text.find('Incremental-SPF enabled') != -1
+
+            process.update({
+                'is_abr': is_abr,
+                'is_asbr': is_asbr,
+                'is_stub_rtr': is_stub_rtr,
+                'has_ispf': has_ispf
+            })
+            return_dict.update({'process': process})
+        else:
+            return_dict.update({'process': None})
         
         area_pattern = r"""
             Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
