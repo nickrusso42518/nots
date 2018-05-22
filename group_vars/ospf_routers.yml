@@ -6,6 +6,7 @@ login_creds:
 
 process:
   id: 1
+  pkt_thres: 0
   has_ispf: false
   has_bfd: true
   has_ttlsec: true
@@ -19,6 +20,7 @@ all_areas:
     type: standard  # valid values: standard, stub, nssa
     routers: 2
     drs: 1
+    has_frr: true
     frr:
       pref_pri: 'high'
       has_lfa: true
@@ -28,6 +30,7 @@ all_areas:
     type: nssa
     routers: 1
     drs: 0
+    has_frr: true
     frr:
       pref_pri: 'low'
       has_lfa: true

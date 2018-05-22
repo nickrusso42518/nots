@@ -1,4 +1,5 @@
 ---
+device_type: ios
 commands:
   - "show ip ospf {{ process.id }}"
   - "show ip ospf {{ process.id }} neighbor"

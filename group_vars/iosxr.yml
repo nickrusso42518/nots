@@ -1,8 +1,8 @@
 ---
+device_type: iosxr
 commands:
   - "show ospf {{ process.id }}"
-  - "show ospf {{ process.id }} neighbor"
+  - "show ospf {{ process.id }} neighbor area-sorted"
   - "show ospf {{ process.id }} database database-summary"
-  - "show ospf {{ process.id }} traffic"
-  - "show ospf {{ process.id }} fast-reroute"
+  - "show ospf {{ process.id }} statistics interface"
 ...
