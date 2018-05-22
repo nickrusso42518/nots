@@ -1,9 +1,4 @@
 ---
-login_creds:
-  host: "{{ inventory_hostname }}"
-  username: "ansible"
-  password: "ansible"
-
 process:
   id: 1
   pkt_thres: 0
@@ -11,9 +6,10 @@ process:
   has_bfd: true
   has_ttlsec: true
   ref_bw: 100
-  init_spf: 50
-  min_spf: 200
-  max_spf: 5000
+  spf:
+    init: 50
+    min: 200
+    max: 5000
 
 all_areas:
   area0:
@@ -21,21 +17,11 @@ all_areas:
     routers: 2
     drs: 1
     has_frr: true
-    frr:
-      pref_pri: 'high'
-      has_lfa: true
-      has_rlfa: true
-      has_tilfa: false
   area51:
     type: nssa
     routers: 1
     drs: 0
     has_frr: true
-    frr:
-      pref_pri: 'low'
-      has_lfa: true
-      has_rlfa: false
-      has_tilfa: false
   area300:
     type: stub
     routers: 1

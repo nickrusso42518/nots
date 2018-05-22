@@ -11,10 +11,13 @@
     var: IOS_OUTPUT.stdout
     verbosity: 1
 
-- name: "LOG >> Write IOS text output to disk, DTG {{ hostvars.localhost.DTG }}"
+- name: "LOG >> Write text CLI output to log path for reference"
   template:
     src: "templates/log.j2"
-    dest: "logs/{{ inventory_hostname }}_{{ hostvars.localhost.DTG }}.txt"
+    dest: "{{ hostvars.localhost.LOG_PATH }}{{ inventory_hostname }}.txt"
+    mode: 0444
+    force: no
+    newline_sequence: "\r\n"
   changed_when: false
 
 - name: "SYS >> Parse IOS text output into structured data"
@@ -25,6 +28,14 @@
     OSPF_TRAF: "{{ IOS_OUTPUT.stdout[3] | ios_ospf_traffic }}"
     OSPF_FRR: "{{ IOS_OUTPUT.stdout[4] | ios_ospf_frr }}"
     BFD_NBR: "{{ IOS_OUTPUT.stdout[5] | ios_bfd_neighbor }}"
+
+- name: "SYS >> Sanity: Check that process ID {{ process.id }} matches"
+  assert:
+    that: "process.id | int == OSPF_BASIC.process.id"
+    msg: |-
+      CRITICAL ERROR! Parsed process ID did not match specification. This
+      will likely result in the entire test run being invalid.
+      expected {{ process.id }}, saw {{ OSPF_BASIC.process.id }}
 
 - name: "SYS >> Check for <= {{ process.pkt_thres | default('-') }} pkt errors"
   assert:
@@ -64,12 +75,14 @@
   with_items: "{{ OSPF_TRAF }}"
   loop_control:
     label: "intf:{{ item.intf }}"
-- name: "SYS >> Ensure the router has correct number of neighbors"
+
+- name: "SYS >> Ensure router has {{ my_nbr_count | default('-') }} neighbors"
   assert:
     that: "my_nbr_count | int == OSPF_NBR | length"
     msg: |-
       Expected neighbor count did not match actual neighbors seen
       expected {{ my_nbr_count }}, saw {{ OSPF_NBR | length }}
+  when: "my_nbr_count is defined"
 
 - name: "SYS >> Assert that all OSPF neighbors are up and healthy"
   assert:
@@ -96,21 +109,51 @@
   loop_control:
     label: "peer:{{ item.peer }}"
 
-- name: "SYS >> Check process ID {{ process.id }}, reference BW, SPF, etc."
+- name: "SYS >> Check process ID {{ process.id }} SPF tuning timers"
   assert:
     that:
-      - "process.id | int == OSPF_BASIC.process.id"
-      - "process.ref_bw | int == OSPF_BASIC.process.ref_bw"
-      - "process.init_spf | int == OSPF_BASIC.process.init_spf"
-      - "process.min_spf | int == OSPF_BASIC.process.min_spf"
-      - "process.max_spf | int == OSPF_BASIC.process.max_spf"
-      - "process.has_ispf  == OSPF_BASIC.process.has_ispf"
-      - "process.has_bfd  == OSPF_BASIC.process.has_bfd"
-      - "process.has_ttlsec  == OSPF_BASIC.process.has_ttlsec"
+      - "process.spf.init | int == OSPF_BASIC.process.init_spf"
+      - "process.spf.min | int == OSPF_BASIC.process.min_spf"
+      - "process.spf.max | int == OSPF_BASIC.process.max_spf"
     msg: |-
-      Mismatched process-level configuration from specification.
-      expected {{ process | to_nice_json }}
-      saw {{ OSPF_BASIC.process | to_nice_json }}
+      Mismatched SPF tuning timer configuration from specification.
+      expected -- saw
+      init {{ process.spf.init }} -- {{ OSPF_BASIC.process.init_spf }}
+      min  {{ process.spf.min }} -- {{ OSPF_BASIC.process.min_spf }}
+      max  {{ process.spf.max }} -- {{ OSPF_BASIC.process.max_spf }}
+  when: "process.spf is defined"
+
+- name: "SYS >> Check reference bandwidth {{ process.ref_bw | default('-') }}"
+  assert:
+    that: "process.ref_bw | int == OSPF_BASIC.process.ref_bw"
+    msg: |-
+      Mismatched reference bandwidth from specification.
+      expected {{ process.ref_bw }}, saw {{ OSPF_BASIC.process.ref_bw }}
+  when: "process.ref_bw is defined"
+
+- name: "SYS >> Check iSPF enabled {{ process.has_ispf | default('-') }}"
+  assert:
+    that: "process.has_ispf == OSPF_BASIC.process.has_ispf"
+    msg: |-
+      Mismatched iSPF configuration from specification.
+      expected {{ process.has_ispf }}, saw {{ OSPF_BASIC.process.has_ispf }}
+  when: "process.has_ispf is defined"
+
+- name: "SYS >> Check BFD enabled {{ process.has_bfd | default('-') }}"
+  assert:
+    that: "process.has_bfd == OSPF_BASIC.process.has_bfd"
+    msg: |-
+      Mismatched BFD configuration from specification.
+      expected {{ process.has_bfd }}, saw {{ OSPF_BASIC.process.has_bfd }}
+  when: "process.has_bfd is defined"
+
+- name: "SYS >> Check TTL-sec enabled {{ process.has_ttlsec | default('-') }}"
+  assert:
+    that: "process.has_ttlsec == OSPF_BASIC.process.has_ttlsec"
+    msg: |-
+      Mismatched TTL security configuration from specification.
+      expected {{ process.has_ttlsec }}, saw {{ OSPF_BASIC.process.has_ttlsec }}
+  when: "process.has_ttlsec is defined"
 
 - name: "SYS >> Dynamically determine if router should be an ABR"
   set_fact:
@@ -164,16 +207,12 @@
 
 - name: "Check FRR status in each relevant area"
   assert:
-    that:
-      - "item.value.frr.has_lfa == OSPF_FRR[item.key] is defined"
-      - "item.value.frr.has_rlfa == OSPF_FRR[item.key].rlfa"
-      - "item.value.frr.has_tilfa == OSPF_FRR[item.key].tilfa"
-      - "item.value.frr.pref_pri | lower == OSPF_FRR[item.key].pref_pri"
+    that: "item.value.has_frr == OSPF_FRR[item.key] is defined"
     msg: |-
       FRR config mismatches between expected and actual
       expected {{ OSPF_FRR[item.key] | to_nice_json }}
-      saw {{ item.value.frr | to_nice_json }}
-  when: "item.value.frr is defined and item.key[4:] | int in my_areas"
+      saw {{ item.value.has_frr }}
+  when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
   with_dict: "{{ all_areas }}"
   loop_control:
     label: "area_id:{{ item.key }}"

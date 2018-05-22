@@ -93,9 +93,9 @@ no duplicate areas in the network. For example, while it is possible to have
 two disparate area 1 sections of the network tied into area 0, this playbook
 does not support it.
 
-  * `id`: The area ID, specified as a string in the format `"area#"` where #
-    is the ID itself. For example: `"area0"`, `"area51"`, `"area300"`.
-    __This key is mandantory.__
+The top-level key is the area ID, specified as a string in the format
+`"area#"` where # is the ID itself. For example: `"area0"` and `"area51"`
+
   * `type`: The area type, specified as a string from the following options:
     `"standard"`, `"nssa"`, `"stub"`. No other options are allowed, and
     area 0 __must__ be type `"standard"`. __This key is mandantory.__

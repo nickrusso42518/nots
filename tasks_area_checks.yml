@@ -13,18 +13,20 @@
     var: AREA_TARGETS
     verbosity: 1
 
+- name: "SYS >> Check type {{ AREA_TARGETS.type }} in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.type | lower == item.2.type"
+    msg: "expected type {{ AREA_TARGETS.type }}, saw {{ item.2.type }}"
+
 - name: "SYS >> Check router count (LSA1) in area {{ item.0 }}"
   assert:
     that: "AREA_TARGETS.routers | int == item.1.num_lsa1"
     msg: "expected LSA1 {{ AREA_TARGETS.routers }}, saw {{ item.1.num_lsa1 }}"
+  when: "AREA_TARGETS.routers is defined"
 
 - name: "SYS >> Check DR count (LSA2) in area {{ item.0 }}"
   assert:
     that: "AREA_TARGETS.drs | int == item.1.num_lsa2"
     msg: "expected LSA2 {{ AREA_TARGETS.drs }}, saw {{ item.1.num_lsa2 }}"
-
-- name: "SYS >> Check type {{ AREA_TARGETS.type }} in area {{ item.0 }}"
-  assert:
-    that: "AREA_TARGETS.type | lower == item.2.type"
-    msg: "expected type {{ AREA_TARGETS.type }}, saw {{ item.2.type }}"
+  when: "AREA_TARGETS.drs is defined"
 ...
