@@ -10,8 +10,8 @@ Today, Cisco IOS/IOS-XE and IOS-XR are supported. The valid `device_type`
 options used for inventory groups are enumerated below.
 
   * `ios`: Cisco classic IOS and Cisco IOS-XE devices.
-  * `iosxr`: Cisco IOS-XR devices.
-  * `nxos`: __FUTURE__ Cisco Nexus OS devices. 
+  * `iosxr`: __FUTURE__ Cisco IOS-XR devices.
+  * `nxos`: __FUTURE__ Cisco Nexus OS devices.
   * `asa`: __FUTURE__ Cisco ASA OS devices.
 
 ## Summarized test cases
@@ -23,29 +23,33 @@ machine, are not detailed here for brevity.
 ### Per host testing
 Ansible logs into each OSPF router for the purpose of collecting information
 and validating its correctness based on a small amount of pre-identified
-state configuration.
+state configuration. As discussed in the "variables" section, some of these
+tests can be skipped by modifying the appropriate key/value pairs.
 
-  
+  * Sanity check: Ensure process ID matches what was specified.
+    If this test fails, it is not indicative of a fault in your OSPF network,
+    but rather is a logic error in the playbook code. Please submit an issue.
   * Ensure OSPF packet counters are below the error thresholds.
   * Ensure correct number of OSPF neighbors are seen.
   * Ensure OSPF neighbors are also BFD neighbors (or not).
-  * Check process-level parameters:
-    * Sanity check: Ensure process ID matches what was specified.
-    * Ensure correct configuration of auto-cost reference bandwidth.
-    * Ensure correct configuration of SPF throttle timers.
-    * Ensure correct configuration of iSPF.
-    * Ensure the process has BFD enabled globally (or not).
-    * Ensure the process has TTL-security enabled globally (or not).
+  * Ensure correct configuration of auto-cost reference bandwidth.
+  * Ensure correct configuration of SPF throttle timers.
+  * Ensure correct configuration of iSPF.
+  * Ensure the process has BFD enabled globally (or not).
+  * Ensure the process has TTL-security enabled globally (or not).
   * Ensure that routers in area 0 and at least one other area see themselves
     as Area Border Routers (ABR).
   * Ensure that routers identified by the user as Autonomous System Boundary
-    Routers (ASBR) see themselves as such.
+    Routers (ASBR) see themselves as such. This includes Not-So-Stubby-Area
+    (NSSA) ABRs as they could originate external LSAs (LSA type-5).
   * Ensure the router has stub router (max-metric) enabled (or not).
-  * Check area-level parameters:
-    * Ensure correct number of router LSAs (LSA type-1) per area.
-    * Ensure correct number of network LSAs (LSA type-2) per area.
-    * Ensure the correct area type (standard, stub, or nssa) per area.
-    * Ensure Fast Re-Route (FRR) is enabled for the area (or not).
+  * Ensure the correct area type (standard, stub, or nssa) per area.
+  * Ensure correct number of router LSAs (LSA type-1) per area.
+  * Ensure correct number of network LSAs (LSA type-2) per area.
+  * Ensure summary LSA (LSA type-3) count is less than threshold per area.
+  * Ensure external LSA (LSA type-5) count is less than threshold per area.
+  * Ensure NSSA-external LSA (LSA type-7) count is less than threshold per area.
+  * Ensure Fast Re-Route (FRR) is enabled for the area (or not).
 
 ### Whole network testing
 After individual routers are validated, additional tests based on the
@@ -55,8 +59,8 @@ to be run N times rather than one time.
 
   * Ensure there are no duplicate OSPF router IDs. While it is technically
     possible to duplicate RIDs in different areas (sometimes), there is no
-    legitimate reason to do it. This playbook __always__ considers this an
-    error
+    legitimate reason to do it. This playbook __always__ considers this
+    condition an error.
 
 ## Variables
 The following subsections detail the different types of variables, their
@@ -100,15 +104,41 @@ The top-level key is the area ID, specified as a string in the format
     `"standard"`, `"nssa"`, `"stub"`. No other options are allowed, and
     area 0 __must__ be type `"standard"`. __This key is mandantory.__
   * `routers`: The number of routers expected to exist in a given area,
-    expressed as a positive integer. To disable this check, exclude this key. 
+    expressed as a positive integer. To disable this check, exclude this key.
   * `drs`: The number of designated routers expected to exist in a given area,
     expressed as a positive integer. Note that DRs exist on broadcast-style
     network segments only, and are unnecessary on point-to-point links over
     broadcast media such as ethernet. To disable this check, exclude this key.
   * `has_frr`: Boolean representing whether OSPF Fast Re-Route
     (also known as Loop Free Alternative/LFA) should be enabled
-    (`true`) or disabled (`false`) for this process. To disable this check,
-    exclude this key.
+    (`true`) or disabled (`false`) for this process. This test checks for the
+    basic enablement (or not) of this feature and not advanced derivates, such
+    as remote LFA (rLFA) or topology-independent LFA (TI-LFA).
+    To disable this check, exclude this key.
+  * `max_lsa3`: The maximum number of summary LSAs (LSA type-3) that should be
+    present within an area. This inclusive upper bound enforces a limit on
+    the number of LSA3 for the purpose of flood reduction and memory
+    consumption. It can also enforce specific architectural designs. For
+    example, a totally stubby area with one ABR has only one LSA3 for the
+    default route, and this option can enforce this. This key is processed
+    for any area type. To disable this check, exclude this key.
+  * `max_lsa5`: The maximum number of external LSAs (LSA type-5) that should be
+    present within an area. This inclusive upper bound enforces a limit on
+    the number of LSA5 for the purpose of flood reduction and memory
+    consumption. It can also enforce specific architectural designs. For
+    example, ensuring that a large quantity of public Internet routes are not
+    redistributed into OSPF at the Internet edge, but instead, only a default
+    and some select longer matches are redistributed. This key is only
+    processed when the area type is "standard".
+    To disable this check, exclude this key.
+  * `max_lsa7`: The maximum number of NSSA-external LSAs (LSA type-7) that
+    should be present within an area. This inclusive upper bound enforces a
+    limit on the number of LSA7 for the purpose of flood reduction and memory
+    consumption. It can also enforce specific architectural designs. For
+    example, an extranet NSSA acting as a non-transit buffer might be receiving
+    a small number of routes from a peer, which can be enforced. This key is
+    only process when the area type is "nssa".
+    To disable this check, exclude this key.
 
 ### Device group level
 Each device type (`ios`, `iosxr`, etc.) has its own `group_vars/` file which
@@ -154,30 +184,36 @@ managing these inventory variables becomes burdensome in large networks.
 Given the generic nature of the playbook, some tests will fail with generic
 error messages. For example, one host may fail because a router had an
 incorrect number of actual neighbors, either greater than or less than
-the user-configured `my_nbr_count` expectation. For additional details, the
-CLI output from all commands is written to a file in the `logs/` directory
-using the following format: `<hostname>_<date/time>.txt`. The date/time uses
-ISO8601 short format, such as `20180522T134558`. Log files are not version
-controlled and are excluded from git automatically. An example log directory
-after three playbook runs against an inventory of two hosts (csr1 and csr2),
-would yield something like this:
+the user-configured `my_nbr_count` expectation. By design, the playbook
+lacks granularity to determine which neighbor failed and on which interface.
+
+CLI output from all commands is written to a file in the `logs/` directory.
+A subdirectory for every execution of the playbook is created using
+the format `nots_<date/time>/` which contains all the individual log files.`
+The date/time uses ISO8601 short format, such as `20180522T134558`. Log files
+are not version controlled and are excluded from git automatically. An example
+log directory after three playbook runs against an inventory of two hosts
+(csr1 and csr2), would yield something like this:
 
 ```
 $ tree logs/
-logs/
-  csr1.njrusmc.net_20180521T165442.txt
-  csr1.njrusmc.net_20180521T165814.txt
-  csr1.njrusmc.net_20180521T170054.txt
-  csr2.njrusmc.net_20180521T165442.txt
-  csr2.njrusmc.net_20180521T165814.txt
-  csr2.njrusmc.net_20180521T170054.txt
+logs
+├── nots_20180522T192916
+│   ├── csr1.txt
+│   └── csr2.txt
+├── nots_20180522T194610
+│   ├── csr1.txt
+│   └── csr2.txt
+└── nots_20180522T197133
+    ├── csr1.txt
+    └── csr2.txt
 ```
 
 The contents of each log file begin with heading and trailing comment blocks
 to show the command issued with its output. Example below:
 
 ```
-$ cat logs/csr1.njrusmc.net_20180521T165814.txt
+$ cat logs/nots_20180521T165814/csr1.txt
 !!!
 !!! Start command: show ip ospf 1
 !!!
