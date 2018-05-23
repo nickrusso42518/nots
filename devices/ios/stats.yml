@@ -9,7 +9,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.adj_throttle }} or fewer errors
       saw {{ item.adj_throttle }} errors on device
-  when: "process.stats.adj_throttle"
+  when: "process.stats.adj_throttle is defined"
 
 - name: "SYS >> Check area_mismatch errors <= {{ process.stats.area_mismatch }}"
   assert:
@@ -21,7 +21,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.area_mismatch }} or fewer errors
       saw {{ item.area_mismatch }} errors on device
-  when: "process.stats.area_mismatch"
+  when: "process.stats.area_mismatch is defined"
 
 - name: "SYS >> Check auth errors <= {{ process.stats.auth }}"
   assert:
@@ -33,7 +33,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.auth }} or fewer errors
       saw {{ item.auth }} errors on device
-  when: "process.stats.auth"
+  when: "process.stats.auth is defined"
 
 - name: "SYS >> Check auth_type errors <= {{ process.stats.auth_type }}"
   assert:
@@ -45,7 +45,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.auth_type }} or fewer errors
       saw {{ item.auth_type }} errors on device
-  when: "process.stats.auth_type"
+  when: "process.stats.auth_type is defined"
 
 - name: "SYS >> Check bad_src errors <= {{ process.stats.bad_src }}"
   assert:
@@ -57,7 +57,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.bad_src }} or fewer errors
       saw {{ item.bad_src }} errors on device
-  when: "process.stats.bad_src"
+  when: "process.stats.bad_src is defined"
 
 - name: "SYS >> Check bfd errors <= {{ process.stats.bfd }}"
   assert:
@@ -69,7 +69,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.bfd }} or fewer errors
       saw {{ item.bfd }} errors on device
-  when: "process.stats.bfd"
+  when: "process.stats.bfd is defined"
 
 - name: "SYS >> Check checksum errors <= {{ process.stats.checksum }}"
   assert:
@@ -81,7 +81,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.checksum }} or fewer errors
       saw {{ item.checksum }} errors on device
-  when: "process.stats.checksum"
+  when: "process.stats.checksum is defined"
 
 - name: "SYS >> Check dup_rid errors <= {{ process.stats.dup_rid }}"
   assert:
@@ -93,7 +93,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.dup_rid }} or fewer errors
       saw {{ item.dup_rid }} errors on device
-  when: "process.stats.dup_rid"
+  when: "process.stats.dup_rid is defined"
 
 - name: "SYS >> Check hello_pkt errors <= {{ process.stats.hello_pkt }}"
   assert:
@@ -105,7 +105,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.hello_pkt }} or fewer errors
       saw {{ item.hello_pkt }} errors on device
-  when: "process.stats.hello_pkt"
+  when: "process.stats.hello_pkt is defined"
 
 - name: "SYS >> Check instance_id errors <= {{ process.stats.instance_id }}"
   assert:
@@ -117,7 +117,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.instance_id }} or fewer errors
       saw {{ item.instance_id }} errors on device
-  when: "process.stats.instance_id"
+  when: "process.stats.instance_id is defined"
 
 - name: "SYS >> Check length errors <= {{ process.stats.length }}"
   assert:
@@ -129,7 +129,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.length }} or fewer errors
       saw {{ item.length }} errors on device
-  when: "process.stats.length"
+  when: "process.stats.length is defined"
 
 - name: "SYS >> Check lls errors <= {{ process.stats.lls }}"
   assert:
@@ -141,7 +141,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.lls }} or fewer errors
       saw {{ item.lls }} errors on device
-  when: "process.stats.lls"
+  when: "process.stats.lls is defined"
 
 - name: "SYS >> Check lsa_checksum errors <= {{ process.stats.lsa_checksum }}"
   assert:
@@ -153,7 +153,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.lsa_checksum }} or fewer errors
       saw {{ item.lsa_checksum }} errors on device
-  when: "process.stats.lsa_checksum"
+  when: "process.stats.lsa_checksum is defined"
 
 - name: "SYS >> Check lsa_data errors <= {{ process.stats.lsa_data }}"
   assert:
@@ -165,7 +165,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.lsa_data }} or fewer errors
       saw {{ item.lsa_data }} errors on device
-  when: "process.stats.lsa_data"
+  when: "process.stats.lsa_data is defined"
 
 - name: "SYS >> Check lsa_type errors <= {{ process.stats.lsa_type }}"
   assert:
@@ -177,7 +177,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.lsa_type }} or fewer errors
       saw {{ item.lsa_type }} errors on device
-  when: "process.stats.lsa_type"
+  when: "process.stats.lsa_type is defined"
 
 - name: "SYS >> Check lsa_type errors <= {{ process.stats.lsa_type }}"
   assert:
@@ -189,7 +189,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.lsa_type }} or fewer errors
       saw {{ item.lsa_type }} errors on device
-  when: "process.stats.lsa_type"
+  when: "process.stats.lsa_type is defined"
 
 - name: "SYS >> Check mtu_mismatch errors <= {{ process.stats.mtu_mismatch }}"
   assert:
@@ -201,7 +201,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.mtu_mismatch }} or fewer errors
       saw {{ item.mtu_mismatch }} errors on device
-  when: "process.stats.mtu_mismatch"
+  when: "process.stats.mtu_mismatch is defined"
 
 - name: "SYS >> Check nbr_ignored errors <= {{ process.stats.nbr_ignored }}"
   assert:
@@ -213,7 +213,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.nbr_ignored }} or fewer errors
       saw {{ item.nbr_ignored }} errors on device
-  when: "process.stats.nbr_ignored"
+  when: "process.stats.nbr_ignored is defined"
 
 - name: "SYS >> Check no_sl errors <= {{ process.stats.no_sl }}"
   assert:
@@ -225,7 +225,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.no_sl }} or fewer errors
       saw {{ item.no_sl }} errors on device
-  when: "process.stats.no_sl"
+  when: "process.stats.no_sl is defined"
 
 - name: "SYS >> Check no_vl errors <= {{ process.stats.no_vl }}"
   assert:
@@ -237,7 +237,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.no_vl }} or fewer errors
       saw {{ item.no_vl }} errors on device
-  when: "process.stats.no_vl"
+  when: "process.stats.no_vl is defined"
 
 - name: "SYS >> Check self_orig errors <= {{ process.stats.self_orig }}"
   assert:
@@ -249,7 +249,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.self_orig }} or fewer errors
       saw {{ item.self_orig }} errors on device
-  when: "process.stats.self_orig"
+  when: "process.stats.self_orig is defined"
 
 - name: "SYS >> Check test_discard errors <= {{ process.stats.test_discard }}"
   assert:
@@ -261,7 +261,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.test_discard }} or fewer errors
       saw {{ item.test_discard }} errors on device
-  when: "process.stats.test_discard"
+  when: "process.stats.test_discard is defined"
 
 - name: "SYS >> Check ttlsec_fail errors <= {{ process.stats.ttlsec_fail }}"
   assert:
@@ -273,7 +273,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.ttlsec_fail }} or fewer errors
       saw {{ item.ttlsec_fail }} errors on device
-  when: "process.stats.ttlsec_fail"
+  when: "process.stats.ttlsec_fail is defined"
 
 - name: "SYS >> Check unk_nbr errors <= {{ process.stats.unk_nbr }}"
   assert:
@@ -285,7 +285,7 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.unk_nbr }} or fewer errors
       saw {{ item.unk_nbr }} errors on device
-  when: "process.stats.unk_nbr"
+  when: "process.stats.unk_nbr is defined"
 
 - name: "SYS >> Check version errors <= {{ process.stats.version }}"
   assert:
@@ -297,5 +297,5 @@
       continue to increase, there is likely a legitimate problem.
       expected {{ process.stats.version }} or fewer errors
       saw {{ item.version }} errors on device
-  when: "process.stats.version"
+  when: "process.stats.version is defined"
 ...

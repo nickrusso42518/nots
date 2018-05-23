@@ -5,6 +5,7 @@ process:
   has_bfd: true
   has_ttlsec: true
   ref_bw: 100
+  max_lsa5: 555
   spf:
     init: 50
     min: 200
@@ -43,7 +44,6 @@ all_areas:
     drs: 1
     has_frr: true
     max_lsa3: 333
-    max_lsa5: 555
   area51:
     type: nssa
     routers: 1

@@ -39,7 +39,7 @@
       expected {{ process.id }}, saw {{ OSPF_BASIC.process.id }}
 
 - name: "INCLUDE >> Detailed OSPF statistics processing"
-  include_tasks: "tasks_stats.yml"
+  include_tasks: "stats.yml"
   when: "process.stats is defined"
   with_items: "{{ OSPF_TRAF }}"
   loop_control:
@@ -166,13 +166,20 @@
       saw OSPF_BASIC.areas:{{ OSPF_BASIC.areas | length }}
 
 - name: "INCLUDE >> Perform iterative checks on area-specific parameters"
-  include_tasks: "tasks_area_checks.yml"
+  include_tasks: "areas.yml"
   with_together:
     - "{{ my_areas }}"
     - "{{ OSPF_DB.areas }}"
     - "{{ OSPF_BASIC.areas }}"
   loop_control:
     label: "area_id:{{ item.0 }}"
+
+- name: "SYS >> Check external LSA count (LSA5) in entire domain"
+  assert:
+    that: "process.max_lsa5 | int >= OSPF_DB.process.total_lsa5"
+    msg: >-
+      too many LSA5 {{ OSPF_DB.process.total_lsa5 }} < {{ process.max_lsa5 }}
+  when: "process.max_lsa5 is defined"
 
 - name: "Check FRR status in each relevant area"
   assert:

@@ -54,7 +54,7 @@
           with plain-text passwords.
 
     - name: "INCLUDE >> Use correct commands for {{ device_type }} device"
-      include_tasks: "tasks_{{ device_type }}.yml"
+      include_tasks: "devices/{{ device_type }}/main.yml"
 
 - name: "Perform network-wide validation tests"
   hosts: localhost

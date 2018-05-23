@@ -1,0 +1,4 @@
+---
+- name: "FAIL >> Not implemented yet"
+  fail:
+...

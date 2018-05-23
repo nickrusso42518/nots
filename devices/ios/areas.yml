@@ -36,15 +36,21 @@
     msg: "too many LSA3 {{ AREA_TARGETS.max_lsa3 }} < {{ item.1.num_lsa3 }}"
   when: "AREA_TARGETS.max_lsa3 is defined"
 
-- name: "SYS >> Check external LSA count (LSA5) in area {{ item.0 }}"
+- name: "SYS >> Ensure that LSA4 count is 0 for NSSA/stub area {{ item.0 }}"
   assert:
-    that: "AREA_TARGETS.max_lsa5 | int >= item.1.num_lsa5"
-    msg: "too many LSA3 {{ AREA_TARGETS.max_lsa5 }} < {{ item.1.num_lsa5 }}"
-  when: "AREA_TARGETS.max_lsa5 is defined and item.2.type == 'standard'"
+    that: "item.1.num_lsa4 == 0"
+    msg: "OSPF protocol error; saw {{ item.1.num_lsa4 }} LSA7 in NSSA/stub area"
+  when: "item.2.type != 'standard'"
 
 - name: "SYS >> Check nssa-external LSA count (LSA7) in area {{ item.0 }}"
   assert:
     that: "AREA_TARGETS.max_lsa7 | int >= item.1.num_lsa7"
     msg: "too many LSA3 {{ AREA_TARGETS.max_lsa7 }} < {{ item.1.num_lsa7 }}"
   when: "AREA_TARGETS.max_lsa7 is defined and item.2.type == 'nssa'"
+
+- name: "SYS >> Ensure that LSA7 count is 0 for non-NSSA area {{ item.0 }}"
+  assert:
+    that: "item.1.num_lsa7 == 0"
+    msg: "OSPF protocol error; saw {{ item.1.num_lsa7 }} LSA7 in non-NSSA area"
+  when: "item.2.type != 'nssa'"
 ...

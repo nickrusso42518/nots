@@ -5,9 +5,16 @@ extensive preparatory configuration for individual host state checking.
 It is powerful because despite not having the aforementioned level of
 granularity, it rapidly discovers the vast majority of OSPF problems.
 
+> Contact information:
+> Email:    njrusmc@gmail.com
+> Twitter:  @nickrusso42518
+
 ## Supported platforms
 Today, Cisco IOS/IOS-XE and IOS-XR are supported. The valid `device_type`
-options used for inventory groups are enumerated below.
+options used for inventory groups are enumerated below. Each platform
+has a folder in the `devices/` directory, such as `devices/ios/`. The
+file named `main.yml` is the task list that is included from the main
+playbook which begins the device-specific tasks.
 
   * `ios`: Cisco classic IOS and Cisco IOS-XE devices.
   * `iosxr`: __FUTURE__ Cisco IOS-XR devices.
@@ -42,7 +49,7 @@ tests can be skipped by modifying the appropriate key/value pairs.
     * `hello_pkt`: Number of hello packet errors for various reasons.
     * `instance_id`: Number of mismatched instance IDs (RFC 6549).
     * `length`: Number of packets received with an invalid length.
-    * `lls`: Number of
+    * `lls`: Number of link-local signaling errors (RFC 4813).
     * `lsa_checksum`: Number of LSAs received with invalid checksums.
     * `lsa_data`: Number of LSAs received with invalid payloads.
     * `lsa_length`: Number of LSAs received with an invalid length.
@@ -51,8 +58,8 @@ tests can be skipped by modifying the appropriate key/value pairs.
     * `nbr_ignored`: Number of packets received from an ignored neighbor.
     * `no_sl`: Number of packets received for a non-existent sham link.
     * `no_vl`: Number of packets received for a non-existent virtual link.
-    * `self_orig`: Number of 
-    * `test_discard`: Number of
+    * `self_orig`: It is not clear what this is measuring.
+    * `test_discard`: It is not clear what this is measuring.
     * `ttlsec_fail`: Number of packets not meeting the TTL-security hop count.
     * `unk_nbr`: Number of packets received from an unknown neighbor.
     * `version`: Number of packets received from a non-OSPFv2 peer.
@@ -73,8 +80,10 @@ tests can be skipped by modifying the appropriate key/value pairs.
   * Ensure correct number of router LSAs (LSA type-1) per area.
   * Ensure correct number of network LSAs (LSA type-2) per area.
   * Ensure summary LSA (LSA type-3) count is less than threshold per area.
-  * Ensure external LSA (LSA type-5) count is less than threshold per area.
-  * Ensure NSSA-external LSA (LSA type-7) count is less than threshold per area.
+  * Ensure summary ASBR LSA (LSA type-4) count is 0 for NSSA and stub areas.
+  * Ensure NSSA-external LSA (LSA type-7) count is less than threshold per NSSA.
+  * Ensure LSA7 count is 0 for all non-NSSA areas.
+  * Ensure external LSA (LSA type-5) count is less than threshold process wide.
   * Ensure Fast Re-Route (FRR) is enabled for the area (or not).
 
 ### Whole network testing
@@ -111,10 +120,21 @@ if they are not, only a single process can be checked at a time.
      should be enabled (`true`) or disabled (`false`) for this process.
      This is technically an interface level configuration, but for simplicity,
      the playbook enforces "all of nothing" configuration for this feature.
-  * `ref_bw`: The auto-cost reference-bandwidth specified.
-  * `init_spf`: The SPF reaction time after the first failure (default 50).
-  * `min_spf`: The SPF reaction time after the next failure (default 200).
-  * `max_spf`: The longest possible SPF reaction time (default 5000).
+  * `ref_bw`: The auto-cost reference-bandwidth specified. Note that even when
+     an explicit value is not configured, many devices have a default value
+     of 100 (implying a link with speed 100 Mbps has a cost of 1).
+  * `max_lsa5`: The maximum number of external LSAs (LSA type-5) that should be
+    present within the entire process. This inclusive upper bound enforces a
+    limit on the number of LSA5 for the purpose of flood reduction and memory
+    consumption. It can also enforce specific architectural designs. For
+    example, ensuring that a large quantity of public Internet routes are not
+    redistributed into OSPF at the Internet edge, but instead, only a default
+    and some select longer matches are redistributed.
+    To disable this check, exclude this key.
+  * `spf`: Key containing an embedded dictionary with individual timers:
+    * `init`: The SPF reaction time after the first failure (default 50).
+    * `min`: The SPF reaction time after the next failure (default 200).
+    * `max`: The longest possible SPF reaction time (default 5000).
 
 ### Area-level
 This playbook allows an unlimited number of areas to be specified, each with
@@ -148,15 +168,6 @@ The top-level key is the area ID, specified as a string in the format
     example, a totally stubby area with one ABR has only one LSA3 for the
     default route, and this option can enforce this. This key is processed
     for any area type. To disable this check, exclude this key.
-  * `max_lsa5`: The maximum number of external LSAs (LSA type-5) that should be
-    present within an area. This inclusive upper bound enforces a limit on
-    the number of LSA5 for the purpose of flood reduction and memory
-    consumption. It can also enforce specific architectural designs. For
-    example, ensuring that a large quantity of public Internet routes are not
-    redistributed into OSPF at the Internet edge, but instead, only a default
-    and some select longer matches are redistributed. This key is only
-    processed when the area type is "standard".
-    To disable this check, exclude this key.
   * `max_lsa7`: The maximum number of NSSA-external LSAs (LSA type-7) that
     should be present within an area. This inclusive upper bound enforces a
     limit on the number of LSA7 for the purpose of flood reduction and memory
@@ -236,7 +247,10 @@ logs
 ```
 
 The contents of each log file begin with heading and trailing comment blocks
-to show the command issued with its output. Example below:
+to show the command issued with its output. These logs are useful for finding
+out why the playbook failed without having to manually log into failing hosts.
+The example below shows the beginning of an IOS-based platform log file with
+many redactions for brevity:
 
 ```
 $ cat logs/nots_20180521T165814/csr1.txt
