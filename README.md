@@ -29,7 +29,33 @@ tests can be skipped by modifying the appropriate key/value pairs.
   * Sanity check: Ensure process ID matches what was specified.
     If this test fails, it is not indicative of a fault in your OSPF network,
     but rather is a logic error in the playbook code. Please submit an issue.
-  * Ensure OSPF packet counters are below the error thresholds.
+  * Ensure OSPF packet counters are below the error thresholds. The fields
+    in scope for this test are enumerated below:
+    * `adj_throttle`: Number of packets throttled due to adjacency limits.
+    * `area_mismatch`: Number of packets received with mismatched area IDs.
+    * `auth`: Number of packets with failed authentication keys.
+    * `auth_type`: Number of packets with incorrect authentication type.
+    * `bad_src`: Number of invalid source address or mismatched IP unnumbered.
+    * `bfd`: Number of BFD related error packets relating to OSPF as a client.
+    * `checksum`: Number of packets received with checksum failures.
+    * `dup_rid`: Number of packets received with duplicate router IDs.
+    * `hello_pkt`: Number of hello packet errors for various reasons.
+    * `instance_id`: Number of mismatched instance IDs (RFC 6549).
+    * `length`: Number of packets received with an invalid length.
+    * `lls`: Number of
+    * `lsa_checksum`: Number of LSAs received with invalid checksums.
+    * `lsa_data`: Number of LSAs received with invalid payloads.
+    * `lsa_length`: Number of LSAs received with an invalid length.
+    * `lsa_type`: Number of LSAs received with an invalid type.
+    * `mtu_mismatch`: Number of packets with MTU mismatches.
+    * `nbr_ignored`: Number of packets received from an ignored neighbor.
+    * `no_sl`: Number of packets received for a non-existent sham link.
+    * `no_vl`: Number of packets received for a non-existent virtual link.
+    * `self_orig`: Number of 
+    * `test_discard`: Number of
+    * `ttlsec_fail`: Number of packets not meeting the TTL-security hop count.
+    * `unk_nbr`: Number of packets received from an unknown neighbor.
+    * `version`: Number of packets received from a non-OSPFv2 peer.
   * Ensure correct number of OSPF neighbors are seen.
   * Ensure OSPF neighbors are also BFD neighbors (or not).
   * Ensure correct configuration of auto-cost reference bandwidth.

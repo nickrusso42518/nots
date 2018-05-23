@@ -16,7 +16,7 @@
     src: "templates/log.j2"
     dest: "{{ hostvars.localhost.LOG_PATH }}{{ inventory_hostname }}.txt"
     mode: 0444
-    force: no
+    force: false
     newline_sequence: "\r\n"
   changed_when: false
 
@@ -35,43 +35,12 @@
     msg: |-
       CRITICAL ERROR! Parsed process ID did not match specification. This
       will likely result in the entire test run being invalid.
+      Please submit an error report or contact development.
       expected {{ process.id }}, saw {{ OSPF_BASIC.process.id }}
 
-- name: "SYS >> Check for <= {{ process.pkt_thres | default('-') }} pkt errors"
-  assert:
-    that:
-      - "item.adj_throttle >= 0 and item.adj_throttle <= process.pkt_thres"
-      - "item.area_mismatch >= 0 and item.area_mismatch <= process.pkt_thres"
-      - "item.auth >= 0 and item.auth <= process.pkt_thres"
-      - "item.auth_type >= 0 and item.auth_type <= process.pkt_thres"
-      - "item.bad_src >= 0 and item.bad_src <= process.pkt_thres"
-      - "item.bfd >= 0 and item.bfd <= process.pkt_thres"
-      - "item.checksum >= 0 and item.checksum <= process.pkt_thres"
-      - "item.dup_rid >= 0 and item.dup_rid <= process.pkt_thres"
-      - "item.hello_pkt >= 0 and item.hello_pkt <= process.pkt_thres"
-      - "item.instance_id >= 0 and item.instance_id <= process.pkt_thres"
-      - "item.length >= 0 and item.length <= process.pkt_thres"
-      - "item.lls >= 0 and item.lls <= process.pkt_thres"
-      - "item.lsa_checksum >= 0 and item.lsa_checksum <= process.pkt_thres"
-      - "item.lsa_data >= 0 and item.lsa_data <= process.pkt_thres"
-      - "item.lsa_length >= 0 and item.lsa_length <= process.pkt_thres"
-      - "item.lsa_type >= 0 and item.lsa_type <= process.pkt_thres"
-      - "item.mtu_mismatch >= 0 and item.mtu_mismatch <= process.pkt_thres"
-      - "item.nbr_ignored >= 0 and item.nbr_ignored <= process.pkt_thres"
-      - "item.no_sl >= 0 and item.no_sl <= process.pkt_thres"
-      - "item.no_vl >= 0 and item.no_vl <= process.pkt_thres"
-      - "item.self_orig >= 0 and item.self_orig <= process.pkt_thres"
-      - "item.test_discard >= 0 and item.test_discard <= process.pkt_thres"
-      - "item.ttlsec_fail >= 0 and item.ttlsec_fail <= process.pkt_thres"
-      - "item.unk_nbr >= 0 and item.unk_nbr <= process.pkt_thres"
-      - "item.version >= 0 and item.version <= process.pkt_thres"
-    msg: |-
-      Non-zero errors discovered in OSPF traffic stats. Try clearing
-      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
-      wait a few minutes, then run the playbook again. If these timers
-      continue to increase, there is likely a legitimate problem.
-      saw {{ item | to_nice_json }}
-  when: "process.pkt_thres is defined"
+- name: "INCLUDE >> Detailed OSPF statistics processing"
+  include_tasks: "tasks_stats.yml"
+  when: "process.stats is defined"
   with_items: "{{ OSPF_TRAF }}"
   loop_control:
     label: "intf:{{ item.intf }}"
