@@ -69,7 +69,9 @@
     - name: "SYS >> Build OSPF RID list by iterating through hostvars"
       set_fact:
         OSPF_RIDS: "{{ OSPF_RIDS + [item.value.OSPF_BASIC.process.rid] }}"
-      when: "item.key in groups.ospf_routers"
+      when: >-
+        item.key in groups.ospf_routers and
+        item.value.OSPF_BASIC is defined
       with_dict: "{{ hostvars }}"
       loop_control:
         label: "host:{{ item.key }}"

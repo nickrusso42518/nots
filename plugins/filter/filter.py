@@ -248,7 +248,7 @@ class FilterModule(object):
         '''
 
         interface_pattern = r"""
-            Interface\s+(?P<intf>\S+)\s+
+            Interface\s+(?P<intf>[^s]\S+)\s+
             .*?
             OSPF\s+header\s+errors
             \s+Length\s+(?P<length>\d+),
@@ -435,7 +435,7 @@ class FilterModule(object):
             Number\s+of\s+interfaces\s+in\s+this\s+area\s+is\s+(?P<num_intfs>\d+).*?\n
             \s+(?:It\s+is\s+a\s+(?P<type>\w+)\s+area)?
             .*?
-            Number\s+of\s+LFA\s+enabled\s+interfaces\s+(?P<lfa_intfs>\d+)
+            Number\s+of\s+LFA\s+enabled\s+interfaces\s+(?P<frr_intfs>\d+)
         """
 
         regex = re.compile(area_pattern, re.VERBOSE + re.DOTALL)
@@ -443,7 +443,7 @@ class FilterModule(object):
         for area in areas:
             area['num_intfs'] = FilterModule._try_int(area['num_intfs'])
             area['id'] = FilterModule._try_int(area['id'])
-            area['lfa_intfs'] = FilterModule._try_int(area['lfa_intfs'])
+            area['frr_intfs'] = FilterModule._try_int(area['frr_intfs'])
             if not area['type']:
                 area['type'] = 'standard'
             else:
@@ -465,7 +465,7 @@ class FilterModule(object):
             OSPF\s+Header\s+Errors
             \s+Version\s+(?P<version>\d+)
             \s+LLS\s+(?P<lls>\d+)
-            \s+Type\s+(?P<hdr_type>\d+)
+            \s+Type\s+(?P<type>\d+)
             \s+Auth\s+RX\s+(?P<auth_rx>\d+)
             \s+Length\s+(?P<length>\d+)
             \s+Auth\s+TX\s+(?P<auth_tx>\d+)
@@ -487,7 +487,7 @@ class FilterModule(object):
             \s+Unknown\s+nbr\s+(?P<unk_nbr>\d+)
             \s+Passive\s+intf\s+(?P<passive_intf>\d+)
             \s+No\s+DR/BDR\s+(?P<no_dr_bdr>\d+)
-            \s+Disabled\s+intf\s+(?P<disabled_intf>\d+)
+            \s+Disabled\s+intf\s+(?P<disable_intf>\d+)
             \s+Enqueue\s+hello\s+(?P<enq_hello>\d+)
             \s+Enqueue\s+router\s+(?P<enq_rtr>\d+)
             \s+Unspecified\s+RX\s+(?P<unspec_rx>\d+)

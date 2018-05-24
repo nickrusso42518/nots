@@ -28,7 +28,7 @@
 
 - name: "INCLUDE >> Detailed OSPF statistics processing"
   include_tasks: "stats.yml"
-  when: "process.stats is defined"
+  when: "process.stats is defined and not 'oopback' in item.intf"
   with_items: "{{ OSPF_TRAF }}"
   loop_control:
     label: "intf:{{ item.intf }}"
@@ -61,7 +61,7 @@
       Could not find OSPF neighbor in list of BFD neighbors.
       expected OSPF neighbor {{ item | to_nice_json }}
       in list of BFD neighbors {{ BFD_NBR | to_nice_json }}
-  when: "process.has_bfd"
+  when: "process.has_bfd is defined and process.has_bfd"
   with_items: "{{ OSPF_NBR }}"
   loop_control:
     label: "peer:{{ item.peer }}"

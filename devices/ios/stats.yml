@@ -1,5 +1,5 @@
 ---
-- name: "SYS >> Check adj_throttle errors <= {{ process.stats.adj_throttle }}"
+- name: "SYS >> Check adj_throttle errors on intf {{ item.intf }}"
   assert:
     that: "item.adj_throttle <= process.stats.adj_throttle"
     msg: |-
@@ -11,7 +11,7 @@
       saw {{ item.adj_throttle }} errors on device
   when: "process.stats.adj_throttle is defined"
 
-- name: "SYS >> Check area_mismatch errors <= {{ process.stats.area_mismatch }}"
+- name: "SYS >> Check area_mismatch errors on intf {{ item.intf }}"
   assert:
     that: "item.area_mismatch <= process.stats.area_mismatch"
     msg: |-
@@ -23,7 +23,7 @@
       saw {{ item.area_mismatch }} errors on device
   when: "process.stats.area_mismatch is defined"
 
-- name: "SYS >> Check auth errors <= {{ process.stats.auth }}"
+- name: "SYS >> Check auth errors on intf {{ item.intf }}"
   assert:
     that: "item.auth <= process.stats.auth"
     msg: |-
@@ -35,7 +35,7 @@
       saw {{ item.auth }} errors on device
   when: "process.stats.auth is defined"
 
-- name: "SYS >> Check auth_type errors <= {{ process.stats.auth_type }}"
+- name: "SYS >> Check auth_type errors on intf {{ item.intf }}"
   assert:
     that: "item.auth_type <= process.stats.auth_type"
     msg: |-
@@ -47,7 +47,7 @@
       saw {{ item.auth_type }} errors on device
   when: "process.stats.auth_type is defined"
 
-- name: "SYS >> Check bad_src errors <= {{ process.stats.bad_src }}"
+- name: "SYS >> Check bad_src errors on intf {{ item.intf }}"
   assert:
     that: "item.bad_src <= process.stats.bad_src"
     msg: |-
@@ -59,7 +59,7 @@
       saw {{ item.bad_src }} errors on device
   when: "process.stats.bad_src is defined"
 
-- name: "SYS >> Check bfd errors <= {{ process.stats.bfd }}"
+- name: "SYS >> Check bfd errors on intf {{ item.intf }}"
   assert:
     that: "item.bfd <= process.stats.bfd"
     msg: |-
@@ -71,7 +71,7 @@
       saw {{ item.bfd }} errors on device
   when: "process.stats.bfd is defined"
 
-- name: "SYS >> Check checksum errors <= {{ process.stats.checksum }}"
+- name: "SYS >> Check checksum errors on intf {{ item.intf }}"
   assert:
     that: "item.checksum <= process.stats.checksum"
     msg: |-
@@ -83,7 +83,7 @@
       saw {{ item.checksum }} errors on device
   when: "process.stats.checksum is defined"
 
-- name: "SYS >> Check dup_rid errors <= {{ process.stats.dup_rid }}"
+- name: "SYS >> Check dup_rid errors on intf {{ item.intf }}"
   assert:
     that: "item.dup_rid <= process.stats.dup_rid"
     msg: |-
@@ -95,7 +95,7 @@
       saw {{ item.dup_rid }} errors on device
   when: "process.stats.dup_rid is defined"
 
-- name: "SYS >> Check hello_pkt errors <= {{ process.stats.hello_pkt }}"
+- name: "SYS >> Check hello_pkt errors on intf {{ item.intf }}"
   assert:
     that: "item.hello_pkt <= process.stats.hello_pkt"
     msg: |-
@@ -107,7 +107,7 @@
       saw {{ item.hello_pkt }} errors on device
   when: "process.stats.hello_pkt is defined"
 
-- name: "SYS >> Check instance_id errors <= {{ process.stats.instance_id }}"
+- name: "SYS >> Check instance_id errors on intf {{ item.intf }}"
   assert:
     that: "item.instance_id <= process.stats.instance_id"
     msg: |-
@@ -119,7 +119,7 @@
       saw {{ item.instance_id }} errors on device
   when: "process.stats.instance_id is defined"
 
-- name: "SYS >> Check length errors <= {{ process.stats.length }}"
+- name: "SYS >> Check length errors on intf {{ item.intf }}"
   assert:
     that: "item.length <= process.stats.length"
     msg: |-
@@ -131,7 +131,7 @@
       saw {{ item.length }} errors on device
   when: "process.stats.length is defined"
 
-- name: "SYS >> Check lls errors <= {{ process.stats.lls }}"
+- name: "SYS >> Check lls errors on intf {{ item.intf }}"
   assert:
     that: "item.lls <= process.stats.lls"
     msg: |-
@@ -143,7 +143,7 @@
       saw {{ item.lls }} errors on device
   when: "process.stats.lls is defined"
 
-- name: "SYS >> Check lsa_checksum errors <= {{ process.stats.lsa_checksum }}"
+- name: "SYS >> Check lsa_checksum errors on intf {{ item.intf }}"
   assert:
     that: "item.lsa_checksum <= process.stats.lsa_checksum"
     msg: |-
@@ -155,7 +155,7 @@
       saw {{ item.lsa_checksum }} errors on device
   when: "process.stats.lsa_checksum is defined"
 
-- name: "SYS >> Check lsa_data errors <= {{ process.stats.lsa_data }}"
+- name: "SYS >> Check lsa_data errors on intf {{ item.intf }}"
   assert:
     that: "item.lsa_data <= process.stats.lsa_data"
     msg: |-
@@ -167,7 +167,7 @@
       saw {{ item.lsa_data }} errors on device
   when: "process.stats.lsa_data is defined"
 
-- name: "SYS >> Check lsa_type errors <= {{ process.stats.lsa_type }}"
+- name: "SYS >> Check lsa_type errors on intf {{ item.intf }}"
   assert:
     that: "item.lsa_type <= process.stats.lsa_type"
     msg: |-
@@ -179,7 +179,7 @@
       saw {{ item.lsa_type }} errors on device
   when: "process.stats.lsa_type is defined"
 
-- name: "SYS >> Check lsa_length errors <= {{ process.stats.lsa_length }}"
+- name: "SYS >> Check lsa_length errors on intf {{ item.intf }}"
   assert:
     that: "item.lsa_length <= process.stats.lsa_length"
     msg: |-
@@ -191,7 +191,7 @@
       saw {{ item.lsa_length }} errors on device
   when: "process.stats.lsa_length is defined"
 
-- name: "SYS >> Check mtu_mismatch errors <= {{ process.stats.mtu_mismatch }}"
+- name: "SYS >> Check mtu_mismatch errors on intf {{ item.intf }}"
   assert:
     that: "item.mtu_mismatch <= process.stats.mtu_mismatch"
     msg: |-
@@ -203,7 +203,7 @@
       saw {{ item.mtu_mismatch }} errors on device
   when: "process.stats.mtu_mismatch is defined"
 
-- name: "SYS >> Check nbr_ignored errors <= {{ process.stats.nbr_ignored }}"
+- name: "SYS >> Check nbr_ignored errors on intf {{ item.intf }}"
   assert:
     that: "item.nbr_ignored <= process.stats.nbr_ignored"
     msg: |-
@@ -215,7 +215,7 @@
       saw {{ item.nbr_ignored }} errors on device
   when: "process.stats.nbr_ignored is defined"
 
-- name: "SYS >> Check no_sl errors <= {{ process.stats.no_sl }}"
+- name: "SYS >> Check no_sl errors on intf {{ item.intf }}"
   assert:
     that: "item.no_sl <= process.stats.no_sl"
     msg: |-
@@ -227,7 +227,7 @@
       saw {{ item.no_sl }} errors on device
   when: "process.stats.no_sl is defined"
 
-- name: "SYS >> Check no_vl errors <= {{ process.stats.no_vl }}"
+- name: "SYS >> Check no_vl errors on intf {{ item.intf }}"
   assert:
     that: "item.no_vl <= process.stats.no_vl"
     msg: |-
@@ -239,7 +239,7 @@
       saw {{ item.no_vl }} errors on device
   when: "process.stats.no_vl is defined"
 
-- name: "SYS >> Check self_orig errors <= {{ process.stats.self_orig }}"
+- name: "SYS >> Check self_orig errors on intf {{ item.intf }}"
   assert:
     that: "item.self_orig <= process.stats.self_orig"
     msg: |-
@@ -251,7 +251,7 @@
       saw {{ item.self_orig }} errors on device
   when: "process.stats.self_orig is defined"
 
-- name: "SYS >> Check test_discard errors <= {{ process.stats.test_discard }}"
+- name: "SYS >> Check test_discard errors on intf {{ item.intf }}"
   assert:
     that: "item.test_discard <= process.stats.test_discard"
     msg: |-
@@ -263,7 +263,7 @@
       saw {{ item.test_discard }} errors on device
   when: "process.stats.test_discard is defined"
 
-- name: "SYS >> Check ttlsec_fail errors <= {{ process.stats.ttlsec_fail }}"
+- name: "SYS >> Check ttlsec_fail errors on intf {{ item.intf }}"
   assert:
     that: "item.ttlsec_fail <= process.stats.ttlsec_fail"
     msg: |-
@@ -275,7 +275,7 @@
       saw {{ item.ttlsec_fail }} errors on device
   when: "process.stats.ttlsec_fail is defined"
 
-- name: "SYS >> Check unk_nbr errors <= {{ process.stats.unk_nbr }}"
+- name: "SYS >> Check unk_nbr errors on intf {{ item.intf }}"
   assert:
     that: "item.unk_nbr <= process.stats.unk_nbr"
     msg: |-
@@ -287,7 +287,7 @@
       saw {{ item.unk_nbr }} errors on device
   when: "process.stats.unk_nbr is defined"
 
-- name: "SYS >> Check version errors <= {{ process.stats.version }}"
+- name: "SYS >> Check version errors on intf {{ item.intf }}"
   assert:
     that: "item.version <= process.stats.version"
     msg: |-

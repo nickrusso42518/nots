@@ -10,7 +10,7 @@ commands:
 process:
   id: 1
   has_ispf: false
-  has_bfd: true
+  #has_bfd: false
   has_ttlsec: true
   ref_bw: 100
   max_lsa5: 555

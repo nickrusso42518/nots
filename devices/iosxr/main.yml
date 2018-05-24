@@ -122,15 +122,15 @@
       too many LSA5 {{ OSPF_DB.process.total_lsa5 }} < {{ process.max_lsa5 }}
   when: "process.max_lsa5 is defined"
 
-- name: "Check FRR status in each relevant area"
-  assert:
-    that: "item.value.has_frr == OSPF_BASIC.frr_intfs > 0"
-    msg: |-
-      FRR config mismatches between expected and actual
-      expected {{ item.value.has_frr }}
-      saw {{ OSPF_BASIC.frr_intfs > 0 }}
-  when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
-  with_dict: "{{ all_areas }}"
-  loop_control:
-    label: "area_id:{{ item.key }}"
+# - name: "Check FRR status in each relevant area"
+#   assert:
+#     that: "item.value.has_frr == OSPF_BASIC.frr_intfs > 0"
+#     msg: |-
+#       FRR config mismatches between expected and actual
+#       expected {{ item.value.has_frr }}
+#       saw {{ OSPF_BASIC.frr_intfs > 0 }}
+#   when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
+#   with_dict: "{{ all_areas }}"
+#   loop_control:
+#     label: "area_id:{{ item.key }}"
 ...

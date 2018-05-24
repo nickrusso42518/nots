@@ -2,14 +2,14 @@
 all_areas:
   area0:
     type: standard  # valid values: standard, stub, nssa
-    routers: 2
+    routers: 3
     drs: 1
     has_frr: true
     max_lsa3: 333
   area51:
     type: nssa
-    routers: 1
-    drs: 0
+    routers: 2
+    drs: 1
     has_frr: true
     max_lsa7: 777
   area300:

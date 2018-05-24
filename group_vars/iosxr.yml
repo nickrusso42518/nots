@@ -29,7 +29,7 @@ process:
     no_sl: 0
     nbr_ignored: 0
     unk_nbr: 0
-    no_drbdr: 0
+    no_dr_bdr: 0
     enq_hello: 0
     enq_rtr: 0
     unspec_rx: 0
