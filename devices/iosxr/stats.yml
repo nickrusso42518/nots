@@ -1,0 +1,337 @@
+---
+- name: "SYS >> Check version errors <= {{ process.stats.version }}"
+  assert:
+    that: "item.version <= process.stats.version"
+    msg: |-
+      version errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.version }} or fewer errors
+      saw {{ item.version }} errors on device
+  when: "process.stats.version is defined"
+
+- name: "SYS >> Check type errors <= {{ process.stats.type }}"
+  assert:
+    that: "item.type <= process.stats.type"
+    msg: |-
+      type errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.type }} or fewer errors
+      saw {{ item.type }} errors on device
+  when: "process.stats.type is defined"
+
+- name: "SYS >> Check length errors <= {{ process.stats.length }}"
+  assert:
+    that: "item.length <= process.stats.length"
+    msg: |-
+      length errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.length }} or fewer errors
+      saw {{ item.length }} errors on device
+  when: "process.stats.length is defined"
+
+- name: "SYS >> Check checksum errors <= {{ process.stats.checksum }}"
+  assert:
+    that: "item.checksum <= process.stats.checksum"
+    msg: |-
+      checksum errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.checksum }} or fewer errors
+      saw {{ item.checksum }} errors on device
+  when: "process.stats.checksum is defined"
+
+- name: "SYS >> Check lls errors <= {{ process.stats.lls }}"
+  assert:
+    that: "item.lls <= process.stats.lls"
+    msg: |-
+      lls errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.lls }} or fewer errors
+      saw {{ item.lls }} errors on device
+  when: "process.stats.lls is defined"
+
+- name: "SYS >> Check auth_rx errors <= {{ process.stats.auth_rx }}"
+  assert:
+    that: "item.auth_rx <= process.stats.auth_rx"
+    msg: |-
+      auth_rx errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.auth_rx }} or fewer errors
+      saw {{ item.auth_rx }} errors on device
+  when: "process.stats.auth_rx is defined"
+
+- name: "SYS >> Check auth_tx errors <= {{ process.stats.auth_tx }}"
+  assert:
+    that: "item.auth_tx <= process.stats.auth_tx"
+    msg: |-
+      auth_tx errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.auth_tx }} or fewer errors
+      saw {{ item.auth_tx }} errors on device
+  when: "process.stats.auth_tx is defined"
+
+- name: "SYS >> Check lsa_type errors <= {{ process.stats.lsa_type }}"
+  assert:
+    that: "item.lsa_type <= process.stats.lsa_type"
+    msg: |-
+      lsa_type errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.lsa_type }} or fewer errors
+      saw {{ item.lsa_type }} errors on device
+  when: "process.stats.lsa_type is defined"
+
+- name: "SYS >> Check lsa_length errors <= {{ process.stats.lsa_length }}"
+  assert:
+    that: "item.lsa_length <= process.stats.lsa_length"
+    msg: |-
+      lsa_length errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.lsa_length }} or fewer errors
+      saw {{ item.lsa_length }} errors on device
+  when: "process.stats.lsa_length is defined"
+
+- name: "SYS >> Check lsa_checksum errors <= {{ process.stats.lsa_checksum }}"
+  assert:
+    that: "item.lsa_checksum <= process.stats.lsa_checksum"
+    msg: |-
+      lsa_checksum errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.lsa_checksum }} or fewer errors
+      saw {{ item.lsa_checksum }} errors on device
+  when: "process.stats.lsa_checksum is defined"
+
+- name: "SYS >> Check lsa_data errors <= {{ process.stats.lsa_data }}"
+  assert:
+    that: "item.lsa_data <= process.stats.lsa_data"
+    msg: |-
+      lsa_data errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.lsa_data }} or fewer errors
+      saw {{ item.lsa_data }} errors on device
+  when: "process.stats.lsa_data is defined"
+
+- name: "SYS >> Check bad_src errors <= {{ process.stats.bad_src }}"
+  assert:
+    that: "item.bad_src <= process.stats.bad_src"
+    msg: |-
+      bad_src errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.bad_src }} or fewer errors
+      saw {{ item.bad_src }} errors on device
+  when: "process.stats.bad_src is defined"
+
+- name: "SYS >> Check no_vl errors <= {{ process.stats.no_vl }}"
+  assert:
+    that: "item.no_vl <= process.stats.no_vl"
+    msg: |-
+      no_vl errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.no_vl }} or fewer errors
+      saw {{ item.no_vl }} errors on device
+  when: "process.stats.no_vl is defined"
+
+- name: "SYS >> Check no_sl errors <= {{ process.stats.no_sl }}"
+  assert:
+    that: "item.no_sl <= process.stats.no_sl"
+    msg: |-
+      no_sl errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.no_sl }} or fewer errors
+      saw {{ item.no_sl }} errors on device
+  when: "process.stats.no_sl is defined"
+
+- name: "SYS >> Check nbr_ignored errors <= {{ process.stats.nbr_ignored }}"
+  assert:
+    that: "item.nbr_ignored <= process.stats.nbr_ignored"
+    msg: |-
+      nbr_ignored errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.nbr_ignored }} or fewer errors
+      saw {{ item.nbr_ignored }} errors on device
+  when: "process.stats.nbr_ignored is defined"
+
+- name: "SYS >> Check unk_nbr errors <= {{ process.stats.unk_nbr }}"
+  assert:
+    that: "item.unk_nbr <= process.stats.unk_nbr"
+    msg: |-
+      unk_nbr errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.unk_nbr }} or fewer errors
+      saw {{ item.unk_nbr }} errors on device
+  when: "process.stats.unk_nbr is defined"
+
+- name: "SYS >> Check no_drbdr errors <= {{ process.stats.no_drbdr }}"
+  assert:
+    that: "item.no_drbdr <= process.stats.no_drbdr"
+    msg: |-
+      no_drbdr errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.no_drbdr }} or fewer errors
+      saw {{ item.no_drbdr }} errors on device
+  when: "process.stats.no_drbdr is defined"
+
+- name: "SYS >> Check enq_hello errors <= {{ process.stats.enq_hello }}"
+  assert:
+    that: "item.enq_hello <= process.stats.enq_hello"
+    msg: |-
+      enq_hello errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.enq_hello }} or fewer errors
+      saw {{ item.enq_hello }} errors on device
+  when: "process.stats.enq_hello is defined"
+
+- name: "SYS >> Check unspec_rx errors <= {{ process.stats.unspec_rx }}"
+  assert:
+    that: "item.unspec_rx <= process.stats.unspec_rx"
+    msg: |-
+      unspec_rx errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.unspec_rx }} or fewer errors
+      saw {{ item.unspec_rx }} errors on device
+  when: "process.stats.unspec_rx is defined"
+
+- name: "SYS >> Check socket errors <= {{ process.stats.socket }}"
+  assert:
+    that: "item.socket <= process.stats.socket"
+    msg: |-
+      socket errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.socket }} or fewer errors
+      saw {{ item.socket }} errors on device
+  when: "process.stats.socket is defined"
+
+- name: "SYS >> Check area_mismatch errors <= {{ process.stats.area_mismatch }}"
+  assert:
+    that: "item.area_mismatch <= process.stats.area_mismatch"
+    msg: |-
+      area_mismatch errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.area_mismatch }} or fewer errors
+      saw {{ item.area_mismatch }} errors on device
+  when: "process.stats.area_mismatch is defined"
+
+- name: "SYS >> Check self_orig errors <= {{ process.stats.self_orig }}"
+  assert:
+    that: "item.self_orig <= process.stats.self_orig"
+    msg: |-
+      self_orig errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.self_orig }} or fewer errors
+      saw {{ item.self_orig }} errors on device
+  when: "process.stats.self_orig is defined"
+
+- name: "SYS >> Check dup_rid errors <= {{ process.stats.dup_rid }}"
+  assert:
+    that: "item.dup_rid <= process.stats.dup_rid"
+    msg: |-
+      dup_rid errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.dup_rid }} or fewer errors
+      saw {{ item.dup_rid }} errors on device
+  when: "process.stats.dup_rid is defined"
+
+- name: "SYS >> Check gshut errors <= {{ process.stats.gshut }}"
+  assert:
+    that: "item.gshut <= process.stats.gshut"
+    msg: |-
+      gshut errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.gshut }} or fewer errors
+      saw {{ item.gshut }} errors on device
+  when: "process.stats.gshut is defined"
+
+- name: "SYS >> Check passive_intf errors <= {{ process.stats.passive_intf }}"
+  assert:
+    that: "item.passive_intf <= process.stats.passive_intf"
+    msg: |-
+      passive_intf errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.passive_intf }} or fewer errors
+      saw {{ item.passive_intf }} errors on device
+  when: "process.stats.passive_intf is defined"
+
+- name: "SYS >> Check disable_intf errors <= {{ process.stats.disable_intf }}"
+  assert:
+    that: "item.disable_intf <= process.stats.disable_intf"
+    msg: |-
+      disable_intf errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.disable_intf }} or fewer errors
+      saw {{ item.disable_intf }} errors on device
+  when: "process.stats.disable_intf is defined"
+
+- name: "SYS >> Check enq_rtr errors <= {{ process.stats.enq_rtr }}"
+  assert:
+    that: "item.enq_rtr <= process.stats.enq_rtr"
+    msg: |-
+      enq_rtr errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.enq_rtr }} or fewer errors
+      saw {{ item.enq_rtr }} errors on device
+  when: "process.stats.enq_rtr is defined"
+
+- name: "SYS >> Check unspec_tx errors <= {{ process.stats.unspec_tx }}"
+  assert:
+    that: "item.unspec_tx <= process.stats.unspec_tx"
+    msg: |-
+      unspec_tx errors discovered in OSPF traffic stats. Try clearing
+      these traffic stats with 'clear ip ospf {{ process.id }} traffic'
+      wait a few minutes, then run the playbook again. If these timers
+      continue to increase, there is likely a legitimate problem.
+      expected {{ process.stats.unspec_tx }} or fewer errors
+      saw {{ item.unspec_tx }} errors on device
+  when: "process.stats.unspec_tx is defined"
+...

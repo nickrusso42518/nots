@@ -30,7 +30,10 @@ class FilterModule(object):
             'ios_ospf_traffic': FilterModule.ios_ospf_traffic,
             'ios_ospf_frr': FilterModule.ios_ospf_frr,
             'ios_bfd_neighbor': FilterModule.ios_bfd_neighbor,
-            'check_bfd_up': FilterModule.check_bfd_up
+            'check_bfd_up': FilterModule.check_bfd_up,
+            'iosxr_ospf_traffic': FilterModule.iosxr_ospf_traffic,
+            'iosxr_ospf_basic': FilterModule.iosxr_ospf_basic,
+            'iosxr_ospf_neighbor': FilterModule.iosxr_ospf_neighbor
         }
 
     @staticmethod
@@ -136,6 +139,8 @@ class FilterModule(object):
         regex = re.compile(area_pattern, re.VERBOSE)
         areas = [match.groupdict() for match in regex.finditer(text)]
         for area in areas:
+            area['num_intfs'] = FilterModule._try_int(area['num_intfs'])
+            area['id'] = FilterModule._try_int(area['id'])
             if not area['type']:
                 area['type'] = 'standard'
             else:
@@ -190,10 +195,9 @@ class FilterModule(object):
         '''
         '''
         return_dict = {}
-
         process_pattern = r"""
             Process\s+(?P<process_id>\d+)\s+database\s+summary\s+
-            (?:LSA\s+Type\s+Count\s+Delete\s+Maxage\s+)
+            (?:LSA\s+Type\s+Count\s+Delete\s+Maxage\s+)?
             Router\s+(?P<total_lsa1>\d+).*\n\s+
             Network\s+(?P<total_lsa2>\d+).*\n\s+
             Summary\s+Net\s+(?P<total_lsa3>\d+).*\n\s+
@@ -221,7 +225,7 @@ class FilterModule(object):
 
         area_pattern = r"""
             Area\s+(?P<id>\d+)\s+database\s+summary\s+
-            (?:LSA\s+Type\s+Count\s+Delete\s+Maxage\s+)
+            (?:LSA\s+Type\s+Count\s+Delete\s+Maxage\s+)?
             Router\s+(?P<num_lsa1>\d+).*\n\s+
             Network\s+(?P<num_lsa2>\d+).*\n\s+
             Summary\s+Net\s+(?P<num_lsa3>\d+).*\n\s+
@@ -244,7 +248,7 @@ class FilterModule(object):
         '''
 
         interface_pattern = r"""
-            Interface\s+(?P<intf>[a-zA-Z0-9_-]+)\s+
+            Interface\s+(?P<intf>\S+)\s+
             .*?
             OSPF\s+header\s+errors
             \s+Length\s+(?P<length>\d+),
@@ -354,3 +358,148 @@ class FilterModule(object):
 
         raise ValueError('Peer {0} not found in bfd_nbr_list'.format(ospf_nbr['peer']))
     
+
+    @staticmethod
+    def iosxr_ospf_neighbor(text):
+        '''
+        '''
+        pattern = r"""
+            (?P<rid>\d+\.\d+\.\d+\.\d+)\s+
+            (?P<priority>\d+)\s+
+            (?P<state>\w+)/\s*
+            (?P<role>[A-Z-]+)\s+
+            (?P<deadtime>[0-9:]+)\s+
+            (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
+            (?P<uptime>[0-9:]+)\s+
+            (?P<intf>[0-9A-Za-z./-]+)
+        """
+        regex = re.compile(pattern, re.VERBOSE)
+        ospf_neighbors = []
+        for s in text.split('\n'):
+            m = regex.search(s)
+            if m:
+                d = m.groupdict()
+                d['priority'] = FilterModule._try_int(d['priority'])
+                d['state'] = d['state'].lower()
+                d['role'] = d['role'].lower()
+
+                dead_times = d['deadtime'].split(':')
+                times = [FilterModule._try_int(t) for t in dead_times]
+                deadsec = times[0] * 3600 + times[1] * 60 + times[2]
+                d.update({'deadsec': deadsec})
+
+                up_times = d['uptime'].split(':')
+                times = [FilterModule._try_int(t) for t in up_times]
+                upsec = times[0] * 3600 + times[1] * 60 + times[2]
+                d.update({'deadsec': upsec})
+
+                ospf_neighbors.append(d)
+
+        return ospf_neighbors
+
+    @staticmethod
+    def iosxr_ospf_basic(text):
+        '''
+        '''
+        return_dict = {}
+
+        process_pattern = r"""
+            Routing\s+Process\s+"ospf\s+(?P<id>\d+)"\s+with\s+ID\s+(?P<rid>\d+\.\d+\.\d+\.\d+)
+            .*
+            \s*Initial\s+SPF\s+schedule\s+delay\s+(?P<init_spf>\d+)\s+msecs
+            \s*Minimum\s+hold\s+time\s+between\s+two\s+consecutive\s+SPFs\s+(?P<min_spf>\d+)\s+msecs
+            \s*Maximum\s+wait\s+time\s+between\s+two\s+consecutive\s+SPFs\s+(?P<max_spf>\d+)\s+msecs
+        """
+        regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
+        match = regex.search(text)
+        if match:
+            process = match.groupdict()
+            for key in process.keys():
+                process[key] = FilterModule._try_int(process[key])
+
+            is_abr = text.find('area border') != -1
+            is_asbr = text.find('autonomous system boundary') != -1
+            is_stub_rtr = text.find('Originating router-LSAs with max') != -1
+
+            process.update({
+                'is_abr': is_abr,
+                'is_asbr': is_asbr,
+                'is_stub_rtr': is_stub_rtr,
+            })
+            return_dict.update({'process': process})
+        else:
+            return_dict.update({'process': None})
+
+        area_pattern = r"""
+            Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
+            Number\s+of\s+interfaces\s+in\s+this\s+area\s+is\s+(?P<num_intfs>\d+).*?\n
+            \s+(?:It\s+is\s+a\s+(?P<type>\w+)\s+area)?
+            .*?
+            Number\s+of\s+LFA\s+enabled\s+interfaces\s+(?P<lfa_intfs>\d+)
+        """
+
+        regex = re.compile(area_pattern, re.VERBOSE + re.DOTALL)
+        areas = [match.groupdict() for match in regex.finditer(text)]
+        for area in areas:
+            area['num_intfs'] = FilterModule._try_int(area['num_intfs'])
+            area['id'] = FilterModule._try_int(area['id'])
+            area['lfa_intfs'] = FilterModule._try_int(area['lfa_intfs'])
+            if not area['type']:
+                area['type'] = 'standard'
+            else:
+                area['type'] = area['type'].lower()
+
+        return_dict.update({'areas': areas})
+        return return_dict
+
+    @staticmethod
+    def iosxr_ospf_traffic(text):
+        '''
+        '''
+
+        interface_pattern = r"""
+            Interface\s+(?P<intf>\S+)\s+
+            Process\s+ID\s+(?P<pid>\d+)\s+
+            Area\s+(?P<area_id>\d+)\s+
+            .*?
+            OSPF\s+Header\s+Errors
+            \s+Version\s+(?P<version>\d+)
+            \s+LLS\s+(?P<lls>\d+)
+            \s+Type\s+(?P<hdr_type>\d+)
+            \s+Auth\s+RX\s+(?P<auth_rx>\d+)
+            \s+Length\s+(?P<length>\d+)
+            \s+Auth\s+TX\s+(?P<auth_tx>\d+)
+            \s+Checksum\s+(?P<checksum>\d+)
+            \s*OSPF\s+LSA\s+Errors
+            \s+Type\s+(?P<lsa_type>\d+)
+            \s+Checksum\s+(?P<lsa_checksum>\d+)
+            \s+Length\s+(?P<lsa_length>\d+)
+            \s+Data\s+(?P<lsa_data>\d+)
+            \s*OSPF\s+Errors
+            \s+Bad\s+Source\s+(?P<bad_src>\d+)
+            \s+Area\s+Mismatch\s+(?P<area_mismatch>\d+)
+            \s+No\s+Virtual\s+Link\s+(?P<no_vl>\d+)
+            \s+Self\s+Originated\s+(?P<self_orig>\d+)
+            \s+No\s+Sham\s+Link\s+(?P<no_sl>\d+)
+            \s+Duplicate\s+ID\s+(?P<dup_rid>\d+)
+            \s+Nbr\s+ignored\s+(?P<nbr_ignored>\d+)
+            \s+Graceful\s+Shutdown\s+(?P<gshut>\d+)
+            \s+Unknown\s+nbr\s+(?P<unk_nbr>\d+)
+            \s+Passive\s+intf\s+(?P<passive_intf>\d+)
+            \s+No\s+DR/BDR\s+(?P<no_dr_bdr>\d+)
+            \s+Disabled\s+intf\s+(?P<disabled_intf>\d+)
+            \s+Enqueue\s+hello\s+(?P<enq_hello>\d+)
+            \s+Enqueue\s+router\s+(?P<enq_rtr>\d+)
+            \s+Unspecified\s+RX\s+(?P<unspec_rx>\d+)
+            \s+Unspecified\s+TX\s+(?P<unspec_tx>\d+)
+            \s+Socket\s+(?P<socket>\d+)
+        """
+
+        regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
+        intfs = [match.groupdict() for match in regex.finditer(text)]
+        for intf in intfs:
+            for key in intf.keys():
+                intf[key] = FilterModule._try_int(intf[key])
+
+        return intfs
+

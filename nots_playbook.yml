@@ -1,32 +1,35 @@
 ---
 # nots_playbook.yaml
-- name: "Perform basic setup"
+- name: "Perform control machine setup"
   hosts: localhost
   tasks:
-    - name: "Get ansible date/time facts"
-      setup:
-        filter: "ansible_date_time"
-        gather_subset: "!all"
+    - name: "BLOCK >> Perform logging preparation"
+      block:
+        - name: "LOG >> Get ansible date/time facts"
+          setup:
+            filter: "ansible_date_time"
+            gather_subset: "!all"
+    
+        - name: "LOG >> Store DTG as fact"
+          set_fact:
+            DTG: "{{ ansible_date_time.iso8601_basic_short }}"
 
-    - name: "Store DTG as fact"
-      set_fact:
-        DTG: "{{ ansible_date_time.iso8601_basic_short }}"
-
-    - name: "SYS >> Ensure output logging directory exists"
-      file:
-        path: "logs"
-        state: directory
-      changed_when: false
-
-    - name: "SYS >> Store the log directory for this run"
-      set_fact:
-        LOG_PATH: "logs/nots_{{ DTG }}/"
-
-    - name: "SYS >> Build logging directory with path {{ LOG_PATH }}"
-      file:
-        path: "{{ LOG_PATH }}"
-        state: directory
-      changed_when: false
+        - name: "LOG >> Ensure output logging directory exists"
+          file:
+            path: "logs"
+            state: directory
+          changed_when: false
+    
+        - name: "LOG >> Store the log directory for this run"
+          set_fact:
+            LOG_PATH: "logs/nots_{{ DTG }}/"
+    
+        - name: "LOG >> Build logging directory with path {{ LOG_PATH }}"
+          file:
+            path: "{{ LOG_PATH }}"
+            state: directory
+          changed_when: false
+      when: "log"
 
 - name: "Collect network information and perform device-specific tests"
   hosts: ospf_routers

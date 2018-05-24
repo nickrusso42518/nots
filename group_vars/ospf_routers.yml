@@ -1,5 +1,4 @@
 ---
-log: true
 all_areas:
   area0:
     type: standard  # valid values: standard, stub, nssa

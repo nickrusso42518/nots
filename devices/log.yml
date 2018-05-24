@@ -11,6 +11,6 @@
     mode: 0444
     force: false
     newline_sequence: "\r\n"
-  when: "log is defined and log"
+  when: "hostvars.localhost.log"
   changed_when: false
 ...

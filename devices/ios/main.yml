@@ -174,8 +174,8 @@
     that: "item.value.has_frr == OSPF_FRR[item.key] is defined"
     msg: |-
       FRR config mismatches between expected and actual
-      expected {{ OSPF_FRR[item.key] | to_nice_json }}
-      saw {{ item.value.has_frr }}
+      expected {{ item.value.has_frr }}
+      saw {{ OSPF_FRR[item.key] | to_nice_json }}
   when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
   with_dict: "{{ all_areas }}"
   loop_control:

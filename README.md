@@ -17,9 +17,7 @@ file named `main.yml` is the task list that is included from the main
 playbook which begins the device-specific tasks.
 
   * `ios`: Cisco classic IOS and Cisco IOS-XE devices.
-  * `iosxr`: __FUTURE__ Cisco IOS-XR devices.
-  * `nxos`: __FUTURE__ Cisco Nexus OS devices.
-  * `asa`: __FUTURE__ Cisco ASA OS devices.
+  * `iosxr`: Cisco IOS-XR devices.
 
 ## Summarized test cases
 The following tests are run in sequence. Note that the exact items tested
@@ -103,7 +101,7 @@ The top-level key is the area ID, specified as a string in the format
 
 ### Device group level
 Each device type (`ios`, `iosxr`, etc.) has its own `group_vars/` file which
-contains OS-specific parameters. __These should neverbe changed by consumers
+contains OS-specific parameters. __These should never be changed by consumers
 as their main purpose is abstraction, not user input.__
 
   * `device_type`: A string representing the device OS name. These were
@@ -147,6 +145,8 @@ error messages. For example, one host may fail because a router had an
 incorrect number of actual neighbors, either greater than or less than
 the user-configured `my_nbr_count` expectation. By design, the playbook
 lacks granularity to determine which neighbor failed and on which interface.
+Logging can be toggled off an on by adjusting the `log` variable which
+can be `true` or `false`.
 
 CLI output from all commands is written to a file in the `logs/` directory.
 A subdirectory for every execution of the playbook is created using

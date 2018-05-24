@@ -179,17 +179,17 @@
       saw {{ item.lsa_type }} errors on device
   when: "process.stats.lsa_type is defined"
 
-- name: "SYS >> Check lsa_type errors <= {{ process.stats.lsa_type }}"
+- name: "SYS >> Check lsa_length errors <= {{ process.stats.lsa_length }}"
   assert:
-    that: "item.lsa_type <= process.stats.lsa_type"
+    that: "item.lsa_length <= process.stats.lsa_length"
     msg: |-
-      lsa_type errors discovered in OSPF traffic stats. Try clearing
+      lsa_length errors discovered in OSPF traffic stats. Try clearing
       these traffic stats with 'clear ip ospf {{ process.id }} traffic'
       wait a few minutes, then run the playbook again. If these timers
       continue to increase, there is likely a legitimate problem.
-      expected {{ process.stats.lsa_type }} or fewer errors
-      saw {{ item.lsa_type }} errors on device
-  when: "process.stats.lsa_type is defined"
+      expected {{ process.stats.lsa_length }} or fewer errors
+      saw {{ item.lsa_length }} errors on device
+  when: "process.stats.lsa_length is defined"
 
 - name: "SYS >> Check mtu_mismatch errors <= {{ process.stats.mtu_mismatch }}"
   assert:
