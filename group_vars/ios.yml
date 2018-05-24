@@ -7,4 +7,41 @@ commands:
   - "show ip ospf {{ process.id }} traffic"
   - "show ip ospf {{ process.id }} fast-reroute"
   - "show bfd neighbor client ospf"
+process:
+  id: 1
+  has_ispf: false
+  has_bfd: true
+  has_ttlsec: true
+  ref_bw: 100
+  max_lsa5: 555
+  spf:
+    init: 50
+    min: 200
+    max: 5000
+  stats:
+    adj_throttle: 0
+    area_mismatch: 0
+    auth: 0
+    auth_type: 0
+    bad_src: 0
+    bfd: 0
+    checksum: 0
+    dup_rid: 0
+    hello_pkt: 0
+    instance_id: 0
+    length: 0
+    lls: 0
+    lsa_checksum: 0
+    lsa_data: 0
+    lsa_length: 0
+    lsa_type: 0
+    mtu_mismatch: 0
+    nbr_ignored: 0
+    no_sl: 0
+    no_vl: 0
+    self_orig: 0
+    test_discard: 0
+    ttlsec_fail: 0
+    unk_nbr: 0
+    version: 0
 ...

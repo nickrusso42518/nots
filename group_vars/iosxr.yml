@@ -5,4 +5,40 @@ commands:
   - "show ospf {{ process.id }} neighbor area-sorted"
   - "show ospf {{ process.id }} database database-summary"
   - "show ospf {{ process.id }} statistics interface"
+process:
+  id: 1
+  max_lsa5: 555
+  spf:
+    init: 50
+    min: 200
+    max: 5000
+  stats:
+    version: 0
+    type: 0
+    length: 0
+    checksum: 0
+    lls: 0
+    auth_rx: 0
+    auth_tx: 0
+    lsa_checksum: 0
+    lsa_data: 0
+    lsa_length: 0
+    lsa_type: 0
+    bad_src: 0
+    no_vl: 0
+    no_sl: 0
+    nbr_ignored: 0
+    unk_nbr: 0
+    no_drbdr: 0
+    enq_hello: 0
+    enq_rtr: 0
+    unspec_rx: 0
+    unspec_tx: 0
+    socket: 0
+    area_mismatch: 0
+    self_orig: 0
+    dup_rid: 0
+    gshut: 0
+    passive_intf: 0
+    disable_intf: 0
 ...

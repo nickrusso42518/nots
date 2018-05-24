@@ -2,7 +2,7 @@
 !!!
 !!! Start command: {{ cmd }}
 !!!
-{% for line in IOS_OUTPUT.stdout_lines[loop.index0] %}
+{% for line in CLI_OUTPUT.stdout_lines[loop.index0] %}
 {{ line }}
 {% endfor %}
 !!!
