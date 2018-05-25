@@ -7,13 +7,15 @@ commands:
   - "show ip ospf {{ process.id }} traffic"
   - "show ip ospf {{ process.id }} fast-reroute"
   - "show bfd neighbor client ospf"
+  - "show ip ospf {{ process.id }} interface"  # not parsed
+  - "show ip ospf {{ process.id }} database"  # not parsed
 process:
   id: 1
   has_ispf: false
-  #has_bfd: false
+  # has_bfd: false
   has_ttlsec: true
   ref_bw: 100
-  max_lsa5: 555
+  max_lsa5: 5
   spf:
     init: 50
     min: 200

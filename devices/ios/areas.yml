@@ -45,7 +45,7 @@
 - name: "SYS >> Check nssa-external LSA count (LSA7) in area {{ item.0 }}"
   assert:
     that: "AREA_TARGETS.max_lsa7 | int >= item.1.num_lsa7"
-    msg: "too many LSA3 {{ AREA_TARGETS.max_lsa7 }} < {{ item.1.num_lsa7 }}"
+    msg: "too many LSA7 {{ AREA_TARGETS.max_lsa7 }} < {{ item.1.num_lsa7 }}"
   when: "AREA_TARGETS.max_lsa7 is defined and item.2.type == 'nssa'"
 
 - name: "SYS >> Ensure that LSA7 count is 0 for non-NSSA area {{ item.0 }}"

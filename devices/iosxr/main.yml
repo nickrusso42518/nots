@@ -12,7 +12,7 @@
   set_fact:
     OSPF_BASIC: "{{ CLI_OUTPUT.stdout[0] | iosxr_ospf_basic }}"
     OSPF_NBR: "{{ CLI_OUTPUT.stdout[1] | iosxr_ospf_neighbor }}"
-    OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | ios_ospf_dbsum }}"  # reuse?
+    OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | ios_ospf_dbsum }}"
     OSPF_TRAF: "{{ CLI_OUTPUT.stdout[3] | iosxr_ospf_traffic }}"
 
 - name: "SYS >> Sanity: Check that process ID {{ process.id }} matches"
@@ -26,7 +26,7 @@
 
 - name: "INCLUDE >> Detailed OSPF statistics processing"
   include_tasks: "stats.yml"
-  when: "process.stats is defined"
+  when: "process.stats is defined and not 'oopback' in item.intf"
   with_items: "{{ OSPF_TRAF }}"
   loop_control:
     label: "intf:{{ item.intf }}"
@@ -65,6 +65,7 @@
       min  {{ process.spf.min }} -- {{ OSPF_BASIC.process.min_spf }}
       max  {{ process.spf.max }} -- {{ OSPF_BASIC.process.max_spf }}
   when: "process.spf is defined"
+
 - name: "SYS >> Dynamically determine if router should be an ABR"
   set_fact:
     SHOULD_BE_ABR: "{{ my_areas | length > 1 and 0 in my_areas }}"
@@ -122,15 +123,17 @@
       too many LSA5 {{ OSPF_DB.process.total_lsa5 }} < {{ process.max_lsa5 }}
   when: "process.max_lsa5 is defined"
 
-# - name: "Check FRR status in each relevant area"
-#   assert:
-#     that: "item.value.has_frr == OSPF_BASIC.frr_intfs > 0"
-#     msg: |-
-#       FRR config mismatches between expected and actual
-#       expected {{ item.value.has_frr }}
-#       saw {{ OSPF_BASIC.frr_intfs > 0 }}
-#   when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
-#   with_dict: "{{ all_areas }}"
-#   loop_control:
-#     label: "area_id:{{ item.key }}"
+- name: "SYS >> Check for FRR configuration in specific areas"
+  assert:
+    that: "check_area.has_frr == (item.frr_intfs > 0) | bool"
+    msg: |-
+      FRR config mismatches between expected and actual
+      expected {{ check_area.has_frr }}
+      saw {{ item.frr_intfs > 0 }}
+  vars:
+    check_area: "{{ all_areas['area' ~ item.id | string] }}"
+  when: "check_area.has_frr is defined"
+  with_items: "{{ OSPF_BASIC.areas }}"
+  loop_control:
+    label: "area_id:{{ item.id }}"
 ...

@@ -11,7 +11,7 @@ all_areas:
     routers: 2
     drs: 1
     has_frr: true
-    max_lsa7: 777
+    max_lsa7: 5
   area300:
     type: stub
     routers: 1

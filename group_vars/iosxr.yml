@@ -5,9 +5,11 @@ commands:
   - "show ospf {{ process.id }} neighbor area-sorted"
   - "show ospf {{ process.id }} database database-summary"
   - "show ospf {{ process.id }} statistics interface"
+  - "show ospf {{ process.id }} interface"  # not parsed
+  - "show ospf {{ process.id }} database"  # not parsed
 process:
   id: 1
-  max_lsa5: 555
+  max_lsa5: 5
   spf:
     init: 50
     min: 200
