@@ -1,0 +1,118 @@
+---
+- name: "Store IOS OSPF basic text"
+  set_fact:
+    text: |-
+      Routing Process "ospf 1" with ID 10.0.0.5
+      Start time: 00:00:17.043, Time elapsed: 00:00:30.262
+      Supports only single TOS(TOS0) routes
+      Supports opaque LSA
+      Supports Link-local Signaling (LLS)
+      Supports area transit capability
+      Supports NSSA (compatible with RFC 3101)
+      Supports Database Exchange Summary List Optimization (RFC 5243)
+      Event-log enabled, Maximum number of events: 1000, Mode: cyclic
+      It is an area border and autonomous system boundary router
+      Redistributing External Routes from,
+      Router is not originating router-LSAs with maximum metric
+      Initial SPF schedule delay 123 msecs
+      Minimum hold time between two consecutive SPFs 456 msecs
+      Maximum wait time between two consecutive SPFs 789 msecs
+      Incremental-SPF disabled
+      Minimum LSA interval 5 secs
+      Minimum LSA arrival 1000 msecs
+      LSA group pacing timer 240 secs
+      Interface flood pacing timer 33 msecs
+      Retransmission pacing timer 66 msecs
+      EXCHANGE/LOADING adjacency limit: initial 300, process maximum 300
+      Number of external LSA 1. Checksum Sum 0x006D01
+      Number of opaque AS LSA 0. Checksum Sum 0x000000
+      Number of DCbitless external and opaque AS LSA 0
+      Number of DoNotAge external and opaque AS LSA 0
+      Number of areas in this router is 2. 1 normal 0 stub 1 nssa
+      Number of areas transit capable is 0
+      External flood list length 1
+      IETF NSF helper support enabled
+      Cisco NSF helper support enabled
+      Reference bandwidth unit is 321 mbps
+         Area BACKBONE(0)
+             Number of interfaces in this area is 3 (1 loopback)
+             Area has no authentication
+             SPF algorithm last executed 00:00:01.771 ago
+             SPF algorithm executed 4 times
+             Area ranges are
+             Number of LSA 58. Checksum Sum 0x1BEC4B
+             Number of opaque link LSA 0. Checksum Sum 0x000000
+             Number of DCbitless LSA 0
+             Number of indication LSA 0
+             Number of DoNotAge LSA 17
+             Flood list length 1
+         Area 2
+             Number of interfaces in this area is 2
+             It is a stub area
+             Area has no authentication
+             SPF algorithm last executed 00:00:15.193 ago
+             SPF algorithm executed 3 times
+             Area ranges are
+             Number of LSA 67. Checksum Sum 0x21BA85
+             Number of opaque link LSA 0. Checksum Sum 0x000000
+             Number of DCbitless LSA 0
+             Number of indication LSA 0
+             Number of DoNotAge LSA 0
+             Flood list length 0
+         Area 4
+             Number of interfaces in this area is 4
+             It is a NSSA area
+             Perform type-7/type-5 LSA translation
+             Area has no authentication
+             SPF algorithm last executed 00:00:15.193 ago
+             SPF algorithm executed 3 times
+             Area ranges are
+             Number of LSA 67. Checksum Sum 0x21BA85
+             Number of opaque link LSA 0. Checksum Sum 0x000000
+             Number of DCbitless LSA 0
+             Number of indication LSA 0
+             Number of DoNotAge LSA 0
+             Flood list length 0
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | ios_ospf_basic }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing success for process level data"
+  assert:
+    that:
+      - "data.process.id == 1"
+      - "data.process.rid == '10.0.0.5'"
+      - "not data.process.has_ispf"
+      - "not data.process.has_bfd"
+      - "not data.process.has_ttlsec"
+      - "data.process.is_abr"
+      - "data.process.is_asbr"
+      - "data.process.init_spf == 123"
+      - "data.process.min_spf == 456"
+      - "data.process.max_spf == 789"
+      - "data.process.ref_bw == 321"
+
+- name: "Ensure parsing success for area 0"
+  assert:
+    that:
+      - "data.areas | length == 3"
+      - "data.areas[0].type == 'standard'"
+      - "data.areas[0].num_intfs == 3"
+
+- name: "Ensure parsing success for area 2"
+  assert:
+    that:
+      - "data.areas[1].type == 'stub'"
+      - "data.areas[1].num_intfs == 2"
+
+- name: "Ensure parsing success for area 4"
+  assert:
+    that:
+      - "data.areas[2].type == 'nssa'"
+      - "data.areas[2].num_intfs == 4"
+...

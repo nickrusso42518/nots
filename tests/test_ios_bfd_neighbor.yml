@@ -1,0 +1,49 @@
+---
+- name: "Store IOS BFD neighbor text"
+  set_fact:
+    text: |-
+      IPv4 Sessions
+      NeighAddr                LD/RD         RH/RS     State     Int
+      10.125.95.1            4097/4106       Up        Up        Po8.332
+      10.0.255.111           4099/4100       Down      Up        NVE8
+      10.125.95.13           4135/4097       Up        Down      Gi0/1/2
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | ios_bfd_neighbor }}"
+
+- name: "Print output"
+  debug:
+    var: data
+
+- name: "Ensure parsing succeeded for first neighbor"
+  assert:
+    that:
+      - "data | length == 3"
+      - "data[0].peer == '10.125.95.1'"
+      - "data[0].ld == 4097"
+      - "data[0].rd == 4106"
+      - "data[0].rhrs == 'up'"
+      - "data[0].state == 'up'"
+      - "data[0].intf == 'po8.332'"
+
+- name: "Ensure parsing succeeded for second neighbor"
+  assert:
+    that:
+      - "data[1].peer == '10.0.255.111'"
+      - "data[1].ld == 4099"
+      - "data[1].rd == 4100"
+      - "data[1].rhrs == 'down'"
+      - "data[1].state == 'up'"
+      - "data[1].intf == 'nve8'"
+
+- name: "Ensure parsing succeeded for third neighbor"
+  assert:
+    that:
+      - "data[2].peer == '10.125.95.13'"
+      - "data[2].ld == 4135"
+      - "data[2].rd == 4097"
+      - "data[2].rhrs == 'up'"
+      - "data[2].state == 'down'"
+      - "data[2].intf == 'gi0/1/2'"
+...

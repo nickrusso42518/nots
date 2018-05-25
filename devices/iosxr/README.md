@@ -27,7 +27,7 @@ The following test cases apply only to IOS-XR devices.
     * `no_sl`: Number of packets received for a non-existent sham link.
     * `nbr_ignored`: Number of packets received from an ignored neighbor.
     * `unk_nbr`: Number of packets received from an unknown neighbor.
-    * `no_drbdr`: Numbers of packets on a broadcast network without a DR/BDR.
+    * `no_dr_bdr`: Numbers of packets on a broadcast network without a DR/BDR.
     * `enq_hello`: It is not clear what this is measuring.
     * `unspec_rx`: It is not clear what this is measuring.
     * `socket`: Number of packets dropped due to a socket error.

@@ -1,0 +1,19 @@
+---
+- name: "Store IOS OSPF FRR text"
+  set_fact:
+    text: |-
+      OSPF Router with ID (10.0.0.2) (Process ID 1)
+      Microloop avoidance is enabled for protected prefixes, delay 5000 msec
+      Loop-free Fast Reroute protected prefixes
+      Area  Topology name   Priority   Remote LFA Enabled  TI-LFA Enabled
+         0           Base       High                  Yes              No
+        51           Base        Low                   No              No
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | ios_ospf_frr }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+...

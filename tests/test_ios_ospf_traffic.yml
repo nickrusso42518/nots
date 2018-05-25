@@ -1,0 +1,144 @@
+---
+- name: "Store OSPF traffic stats text"
+  set_fact:
+    text: |-
+      Interface statistics
+
+          Interface Tunnel102
+
+      Last clearing of interface traffic counters never
+
+      OSPF packets received/sent
+        Type          Packets              Bytes
+        RX Invalid    0                    0
+        RX Hello      49                   2348
+        RX DB des     2                    84
+        RX LS req     0                    0
+        RX LS upd     6                    524
+        RX LS ack     3                    152
+        RX Total      60                   3108
+
+        TX Failed     0                    0
+        TX Hello      49                   4504
+        TX DB des     4                    336
+        TX LS req     0                    0
+        TX LS upd     3                    448
+        TX LS ack     2                    188
+        TX Total      58                   5476
+
+      OSPF header errors
+        Length 1, Instance ID 2, Checksum 3, Auth Type 4,
+        Version 5, Bad Source 6, No Virtual Link 7,
+        Area Mismatch 8, No Sham Link 9, Self Originated 10,
+        Duplicate ID 11, Hello 12, MTU Mismatch 13,
+        Nbr Ignored 14, LLS 15, Unknown Neighbor 16,
+        Authentication 17, TTL Check Fail 18, Adjacency Throttle 19,
+        BFD 20, Test discard 21
+
+      OSPF LSA errors
+        Type 22, Length 23, Data 24, Checksum 25
+
+          Interface GigabitEthernet1/2/3.456
+
+      Last clearing of interface traffic counters never
+
+      OSPF packets received/sent
+        Type          Packets              Bytes
+        RX Invalid    0                    0
+        RX Hello      49                   2348
+        RX DB des     2                    84
+        RX LS req     0                    0
+        RX LS upd     6                    524
+        RX LS ack     3                    152
+        RX Total      60                   3108
+
+        TX Failed     0                    0
+        TX Hello      49                   4504
+        TX DB des     4                    336
+        TX LS req     0                    0
+        TX LS upd     3                    448
+        TX LS ack     2                    188
+        TX Total      58                   5476
+
+      OSPF header errors
+        Length 10, Instance ID 2, Checksum 3, Auth Type 4,
+        Version 5, Bad Source 6, No Virtual Link 7,
+        Area Mismatch 8, No Sham Link 9, Self Originated 10,
+        Duplicate ID 11, Hello 12, MTU Mismatch 13,
+        Nbr Ignored 14, LLS 15, Unknown Neighbor 16,
+        Authentication 17, TTL Check Fail 18, Adjacency Throttle 19,
+        BFD 20, Test discard 210
+
+      OSPF LSA errors
+        Type 220, Length 230, Data 240, Checksum 250
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | ios_ospf_traffic }}"
+
+- name: "Display structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing succeeded for first element"
+  assert:
+    that:
+      - "data[0].intf == 'tunnel102'"
+      - "data[0].adj_throttle == 19"
+      - "data[0].area_mismatch == 8"
+      - "data[0].auth == 17"
+      - "data[0].auth_type == 4"
+      - "data[0].bad_src == 6"
+      - "data[0].bfd == 20"
+      - "data[0].checksum == 3"
+      - "data[0].dup_rid == 11"
+      - "data[0].hello_pkt == 12"
+      - "data[0].instance_id == 2"
+      - "data[0].length == 1"
+      - "data[0].lls == 15"
+      - "data[0].lsa_checksum == 25"
+      - "data[0].lsa_data == 24"
+      - "data[0].lsa_length == 23"
+      - "data[0].lsa_type == 22"
+      - "data[0].mtu_mismatch == 13"
+      - "data[0].nbr_ignored == 14"
+      - "data[0].no_sl == 9"
+      - "data[0].no_vl == 7"
+      - "data[0].self_orig == 10"
+      - "data[0].test_discard == 21"
+      - "data[0].ttlsec_fail == 18"
+      - "data[0].unk_nbr == 16"
+      - "data[0].version == 5"
+    msg: "parsing problem; see JSON dump from previous task"
+
+- name: "Ensure parsing succeeded for second element"
+  assert:
+    that:
+      - "data[1].intf == 'gigabitethernet1/2/3.456'"
+      - "data[1].adj_throttle == 19"
+      - "data[1].area_mismatch == 8"
+      - "data[1].auth == 17"
+      - "data[1].auth_type == 4"
+      - "data[1].bad_src == 6"
+      - "data[1].bfd == 20"
+      - "data[1].checksum == 3"
+      - "data[1].dup_rid == 11"
+      - "data[1].hello_pkt == 12"
+      - "data[1].instance_id == 2"
+      - "data[1].length == 10"
+      - "data[1].lls == 15"
+      - "data[1].lsa_checksum == 250"
+      - "data[1].lsa_data == 240"
+      - "data[1].lsa_length == 230"
+      - "data[1].lsa_type == 220"
+      - "data[1].mtu_mismatch == 13"
+      - "data[1].nbr_ignored == 14"
+      - "data[1].no_sl == 9"
+      - "data[1].no_vl == 7"
+      - "data[1].self_orig == 10"
+      - "data[1].test_discard == 210"
+      - "data[1].ttlsec_fail == 18"
+      - "data[1].unk_nbr == 16"
+      - "data[1].version == 5"
+    msg: "parsing problem; see JSON dump from previous task"
+...

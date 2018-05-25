@@ -67,6 +67,9 @@ class FilterModule(object):
             if m:
                 d = m.groupdict()
                 d['priority'] = FilterModule._try_int(d['priority'])
+                d['state'] = d['state'].lower()
+                d['role'] = d['role'].lower()
+                d['intf'] = d['intf'].lower()
 
                 dead_times = d['deadtime'].split(':')
                 times = [FilterModule._try_int(t) for t in dead_times]
@@ -282,6 +285,7 @@ class FilterModule(object):
         regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
         intfs = [match.groupdict() for match in regex.finditer(text)]
         for intf in intfs:
+            intf['intf'] = intf['intf'].lower()
             for key in intf.keys():
                 intf[key] = FilterModule._try_int(intf[key])
 
@@ -382,6 +386,7 @@ class FilterModule(object):
                 d['priority'] = FilterModule._try_int(d['priority'])
                 d['state'] = d['state'].lower()
                 d['role'] = d['role'].lower()
+                d['intf'] = d['intf'].lower()
 
                 dead_times = d['deadtime'].split(':')
                 times = [FilterModule._try_int(t) for t in dead_times]
@@ -391,7 +396,7 @@ class FilterModule(object):
                 up_times = d['uptime'].split(':')
                 times = [FilterModule._try_int(t) for t in up_times]
                 upsec = times[0] * 3600 + times[1] * 60 + times[2]
-                d.update({'deadsec': upsec})
+                d.update({'upsec': upsec})
 
                 ospf_neighbors.append(d)
 
@@ -498,6 +503,7 @@ class FilterModule(object):
         regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
         intfs = [match.groupdict() for match in regex.finditer(text)]
         for intf in intfs:
+            intf['intf'] = intf['intf'].lower()
             for key in intf.keys():
                 intf[key] = FilterModule._try_int(intf[key])
 

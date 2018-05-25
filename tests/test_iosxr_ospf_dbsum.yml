@@ -1,0 +1,76 @@
+---
+- name: "Store IOSXR database summary text"
+  set_fact:
+    text: |-
+      OSPF Router with ID (192.168.0.12) (Process ID 1)
+      
+      Area 0 database summary
+        LSA Type      Count    Delete   Maxage
+        Router        1        0        0       
+        Network       2        0        0       
+        Summary Net   3        0        0       
+        Summary ASBR  4        0        0       
+        Type-7 Ext    7        0        0       
+        Opaque Link   9        0        0       
+        Opaque Area   10       0        0       
+        Subtotal      999      0        0       
+      
+      Area 51 database summary
+        LSA Type      Count    Delete   Maxage
+        Router        10       0        0       
+        Network       20       0        0       
+        Summary Net   30       0        0       
+        Summary ASBR  40       0        0       
+        Type-7 Ext    70       0        0       
+        Opaque Link   90       0        0       
+        Opaque Area   100      0        0       
+        Subtotal      9990     0        0       
+      
+      Process 1 database summary
+        Router        41       0        0       
+        Network       42       0        0       
+        Summary Net   43       0        0       
+        Summary ASBR  44       0        0       
+        Type-7 Ext    45       0        0       
+        Opaque Link   46       0        0       
+        Opaque Area   47       0        0       
+        Type-5 Ext    48       0        0       
+        Opaque AS     49       0        0       
+        Total         50       0        0      
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | ios_ospf_dbsum }}"  # same as IOS?
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing succeeded for area 0"
+  assert:
+    that:
+      - "data.areas[0].num_lsa1 == 1"
+      - "data.areas[0].num_lsa2 == 2"
+      - "data.areas[0].num_lsa3 == 3"
+      - "data.areas[0].num_lsa4 == 4"
+      - "data.areas[0].num_lsa7 == 7"
+
+- name: "Ensure parsing succeeded for area 51"
+  assert:
+    that:
+      - "data.areas[1].num_lsa1 == 10"
+      - "data.areas[1].num_lsa2 == 20"
+      - "data.areas[1].num_lsa3 == 30"
+      - "data.areas[1].num_lsa4 == 40"
+      - "data.areas[1].num_lsa7 == 70"
+
+- name: "Ensure parsing succeeded at the process level"
+  assert:
+    that:
+      - "data.process.total_lsa1 == 41"
+      - "data.process.total_lsa2 == 42"
+      - "data.process.total_lsa3 == 43"
+      - "data.process.total_lsa4 == 44"
+      - "data.process.total_lsa7 == 45"
+      - "data.process.total_lsa5 == 48"
+...

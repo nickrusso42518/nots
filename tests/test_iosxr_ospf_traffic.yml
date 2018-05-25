@@ -1,0 +1,144 @@
+---
+- name: "Store IOSXR OSPF traffic stats text"
+  set_fact:
+    text: |-
+      Interface GigabitEthernet0/0/0/0.511 Process ID 1 Area 0
+      
+      OSPF packet and LSA statistics
+                RX(hello) RX(router)        TX     LSA RX     LSA TX
+      Hello           36          -         37          -          -
+      DB Des           7          7          2          1          1
+      LS Req           1          1          1          1          0
+      LS Upd           3          3          6          3          6
+      LS Ack           3          3          2          5          2
+      TOTAL           50         14         48         10          9
+      
+        OSPF Header Errors
+      Version                    1      LLS                        5
+      Type                       2      Auth RX                    6
+      Length                     3      Auth TX                    7
+      Checksum                   4
+      
+        OSPF LSA Errors
+      Type                       8      Checksum                   10
+      Length                     9      Data                       11
+      
+        OSPF Errors
+      Bad Source                 12     Area Mismatch              21
+      No Virtual Link            13     Self Originated            22
+      No Sham Link               14     Duplicate ID               23
+      Nbr ignored                15     Graceful Shutdown          24
+      Unknown nbr                16     Passive intf               25
+      No DR/BDR                  17     Disabled intf              26
+      Enqueue hello              18     Enqueue router             27
+      Unspecified RX             19     Unspecified TX             28
+      Socket                     20
+      
+              Interface tunnel-ip105 Process ID 1 Area 51
+      
+      OSPF packet and LSA statistics
+                RX(hello) RX(router)        TX     LSA RX     LSA TX
+      Hello            0          -          0          -          -
+      DB Des           0          0          0          0          0
+      LS Req           0          0          0          0          0
+      LS Upd           0          0          0          0          0
+      LS Ack           0          0          0          0          0
+      TOTAL            0          0          0          0          0
+      
+        OSPF Header Errors
+      Version                    10     LLS                        5
+      Type                       2      Auth RX                    6
+      Length                     3      Auth TX                    7
+      Checksum                   4
+      
+        OSPF LSA Errors
+      Type                       80     Checksum                   10
+      Length                     9      Data                       11
+      
+        OSPF Errors
+      Bad Source                 12     Area Mismatch              21
+      No Virtual Link            13     Self Originated            22
+      No Sham Link               14     Duplicate ID               23
+      Nbr ignored                15     Graceful Shutdown          24
+      Unknown nbr                16     Passive intf               250
+      No DR/BDR                  17     Disabled intf              26
+      Enqueue hello              18     Enqueue router             27
+      Unspecified RX             19     Unspecified TX             28
+      Socket                     200
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | iosxr_ospf_traffic }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing of first element succeeded"
+  assert:
+    that:
+      - "data[0].intf == 'gigabitethernet0/0/0/0.511'"
+      - "data[0].version == 1"
+      - "data[0].type == 2"
+      - "data[0].length == 3"
+      - "data[0].checksum == 4"
+      - "data[0].lls == 5"
+      - "data[0].auth_rx == 6"
+      - "data[0].auth_tx == 7"
+      - "data[0].lsa_type == 8"
+      - "data[0].lsa_length == 9"
+      - "data[0].lsa_checksum == 10"
+      - "data[0].lsa_data == 11"
+      - "data[0].bad_src == 12"
+      - "data[0].no_vl == 13"
+      - "data[0].no_sl == 14"
+      - "data[0].nbr_ignored == 15"
+      - "data[0].unk_nbr == 16"
+      - "data[0].no_dr_bdr == 17"
+      - "data[0].enq_hello == 18"
+      - "data[0].unspec_rx == 19"
+      - "data[0].socket == 20"
+      - "data[0].area_mismatch == 21"
+      - "data[0].self_orig == 22"
+      - "data[0].dup_rid == 23"
+      - "data[0].gshut == 24"
+      - "data[0].passive_intf == 25"
+      - "data[0].disable_intf == 26"
+      - "data[0].enq_rtr == 27"
+      - "data[0].unspec_tx == 28"
+    msg: "parsing failed; see JSON dump from previous task"
+
+- name: "Ensure parsing of second element succeeded"
+  assert:
+    that:
+      - "data[1].intf == 'tunnel-ip105'"
+      - "data[1].version == 10"
+      - "data[1].type == 2"
+      - "data[1].length == 3"
+      - "data[1].checksum == 4"
+      - "data[1].lls == 5"
+      - "data[1].auth_rx == 6"
+      - "data[1].auth_tx == 7"
+      - "data[1].lsa_type == 80"
+      - "data[1].lsa_length == 9"
+      - "data[1].lsa_checksum == 10"
+      - "data[1].lsa_data == 11"
+      - "data[1].bad_src == 12"
+      - "data[1].no_vl == 13"
+      - "data[1].no_sl == 14"
+      - "data[1].nbr_ignored == 15"
+      - "data[1].unk_nbr == 16"
+      - "data[1].no_dr_bdr == 17"
+      - "data[1].enq_hello == 18"
+      - "data[1].unspec_rx == 19"
+      - "data[1].socket == 200"
+      - "data[1].area_mismatch == 21"
+      - "data[1].self_orig == 22"
+      - "data[1].dup_rid == 23"
+      - "data[1].gshut == 24"
+      - "data[1].passive_intf == 250"
+      - "data[1].disable_intf == 26"
+      - "data[1].enq_rtr == 27"
+      - "data[1].unspec_tx == 28"
+    msg: "parsing failed; see JSON dump from previous task"
+...

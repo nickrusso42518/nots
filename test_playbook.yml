@@ -1,0 +1,40 @@
+---
+# Test all individual parsers using static text to check
+# for the introduction of any regressions during development.
+- name: "Perform automated filter (unit) testing"
+  hosts: localhost
+  tasks:
+
+    # All test files, which are lists of ansible tasks, begin with the
+    # string "test_" and end with ".yml" and are contained in the "tasks/"
+    # directory. These specify individual test cases per function.
+    - name: "SYS >> Store task file search string"
+      set_fact:
+        TASKS: "test_*[.]yml"
+
+    # Perform a "find" to get a list of these files. Note that for specific
+    # unit tests, the "--extra-vars" option can be used at the shell to
+    # override the "TASKS" variable to change the regex for matching.
+    # This is uncommonly used and should be avoided for general purpose tests.
+    - name: "SYS >> Get files matching {{ TASKS | quote }}"
+      find:
+        path: "{{ playbook_dir }}/tests"
+        patterns: "{{ TASKS }}"
+      register: FIND_LIST
+
+    # Build a list of strings with only the file paths to simplify
+    # future iteration and troubleshooting.
+    - name: "SYS >> Assemble file paths into single list"
+      set_fact:
+        FILE_LIST: "{{ FIND_LIST.files | map(attribute='path') | list }}"
+
+    # Print the discovered file paths to ensure the regex matched.
+    - name: "DEBUG >> Print file paths"
+      debug:
+        var: FILE_LIST
+
+    # Iteratively include each file (sequence does not matter) and run
+    # the tests included in that file.
+    - include_tasks: "{{ item }}"
+      with_items: "{{ FILE_LIST }}"
+...

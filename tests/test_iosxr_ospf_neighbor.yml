@@ -1,0 +1,71 @@
+---
+- name: "Store IOSXR OSPF neighbor text"
+  set_fact:
+    text: |-
+      * Indicates MADJ interface
+      
+      Neighbors for OSPF 1
+      
+      Area 0
+      Neighbor ID     Pri State    Dead Time Address         Up Time  Interface
+      192.168.0.11    0   FULL/DR  00:00:32  192.168.1.11    00:18:57 Gi0/0/0/0.511
+      192.168.0.12    1   FULL/ -  00:01:32  192.168.1.12    01:18:57 Gi1/2/3/4.512
+
+      Area 51
+      Neighbor ID     Pri State    Dead Time Address         Up Time  Interface
+      192.168.0.13    255 INIT/ -  00:02:32  192.168.1.13    02:18:57 tunnel-ip13
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | iosxr_ospf_neighbor }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing succeed for first neighbor"
+  assert:
+    that:
+      - "data | length == 3"
+      - "data[0].rid == '192.168.0.11'"
+      - "data[0].priority == 0"
+      - "data[0].state == 'full'"
+      - "data[0].role == 'dr'"
+      - "data[0].deadtime == '00:00:32'"
+      - "data[0].deadsec == 32"
+      - "data[0].peer == '192.168.1.11'"
+      - "data[0].uptime == '00:18:57'"
+      - "data[0].upsec == 1137"
+      - "data[0].intf | lower == 'gi0/0/0/0.511'"
+    msg: "parsing problem. see JSON dump from previous task"
+
+- name: "Ensure parsing succeed for second neighbor"
+  assert:
+    that:
+      - "data[1].rid == '192.168.0.12'"
+      - "data[1].priority == 1"
+      - "data[1].state == 'full'"
+      - "data[1].role == '-'"
+      - "data[1].deadtime == '00:01:32'"
+      - "data[1].deadsec == 92"
+      - "data[1].peer == '192.168.1.12'"
+      - "data[1].uptime == '01:18:57'"
+      - "data[1].upsec == 4737"
+      - "data[1].intf | lower == 'gi1/2/3/4.512'"
+    msg: "parsing problem. see JSON dump from previous task"
+
+- name: "Ensure parsing succeed for third neighbor"
+  assert:
+    that:
+      - "data[2].rid == '192.168.0.13'"
+      - "data[2].priority == 255"
+      - "data[2].state == 'init'"
+      - "data[2].role == '-'"
+      - "data[2].deadtime == '00:02:32'"
+      - "data[2].deadsec == 152"
+      - "data[2].peer == '192.168.1.13'"
+      - "data[2].uptime == '02:18:57'"
+      - "data[2].upsec == 8337"
+      - "data[2].intf | lower == 'tunnel-ip13'"
+    msg: "parsing problem. see JSON dump from previous task"
+...
