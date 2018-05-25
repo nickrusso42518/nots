@@ -9,6 +9,7 @@ commands:
   - "show bfd neighbor client ospf"
   - "show ip ospf {{ process.id }} interface"  # not parsed
   - "show ip ospf {{ process.id }} database"  # not parsed
+  - "show version"  # not parsed
 process:
   id: 1
   has_ispf: false

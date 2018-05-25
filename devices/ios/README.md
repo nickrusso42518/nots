@@ -1,5 +1,5 @@
 # Cisco IOS/IOS-XE specifics
-Contents:
+
   * [Test cases](#summarized-test-cases)
   * [Group variables](#group-variables)
 

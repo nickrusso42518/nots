@@ -3,17 +3,17 @@
   set_fact:
     text: |-
       * Indicates MADJ interface
-      
+
       Neighbors for OSPF 1
-      
+
       Area 0
-      Neighbor ID     Pri State    Dead Time Address         Up Time  Interface
-      192.168.0.11    0   FULL/DR  00:00:32  192.168.1.11    00:18:57 Gi0/0/0/0.511
-      192.168.0.12    1   FULL/ -  00:01:32  192.168.1.12    01:18:57 Gi1/2/3/4.512
+      Neighbor ID   Pri State    Dead Time Address       Up Time  Interface
+      192.168.0.11  0   FULL/DR  00:00:32  192.168.1.11  00:18:57 Gi0/0/0/0.511
+      192.168.0.12  1   FULL/ -  00:01:32  192.168.1.12  01:18:57 Gi1/2/3/4.512
 
       Area 51
-      Neighbor ID     Pri State    Dead Time Address         Up Time  Interface
-      192.168.0.13    255 INIT/ -  00:02:32  192.168.1.13    02:18:57 tunnel-ip13
+      Neighbor ID   Pri State    Dead Time Address       Up Time  Interface
+      192.168.0.13  255 INIT/ -  00:02:32  192.168.1.13  02:18:57 tunnel-ip13
 
 - name: "Perform parsing"
   set_fact:

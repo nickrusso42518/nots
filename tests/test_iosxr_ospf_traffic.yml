@@ -3,7 +3,7 @@
   set_fact:
     text: |-
       Interface GigabitEthernet0/0/0/0.511 Process ID 1 Area 0
-      
+
       OSPF packet and LSA statistics
                 RX(hello) RX(router)        TX     LSA RX     LSA TX
       Hello           36          -         37          -          -
@@ -12,17 +12,17 @@
       LS Upd           3          3          6          3          6
       LS Ack           3          3          2          5          2
       TOTAL           50         14         48         10          9
-      
+
         OSPF Header Errors
       Version                    1      LLS                        5
       Type                       2      Auth RX                    6
       Length                     3      Auth TX                    7
       Checksum                   4
-      
+
         OSPF LSA Errors
       Type                       8      Checksum                   10
       Length                     9      Data                       11
-      
+
         OSPF Errors
       Bad Source                 12     Area Mismatch              21
       No Virtual Link            13     Self Originated            22
@@ -33,9 +33,9 @@
       Enqueue hello              18     Enqueue router             27
       Unspecified RX             19     Unspecified TX             28
       Socket                     20
-      
+
               Interface tunnel-ip105 Process ID 1 Area 51
-      
+
       OSPF packet and LSA statistics
                 RX(hello) RX(router)        TX     LSA RX     LSA TX
       Hello            0          -          0          -          -
@@ -44,17 +44,17 @@
       LS Upd           0          0          0          0          0
       LS Ack           0          0          0          0          0
       TOTAL            0          0          0          0          0
-      
+
         OSPF Header Errors
       Version                    10     LLS                        5
       Type                       2      Auth RX                    6
       Length                     3      Auth TX                    7
       Checksum                   4
-      
+
         OSPF LSA Errors
       Type                       80     Checksum                   10
       Length                     9      Data                       11
-      
+
         OSPF Errors
       Bad Source                 12     Area Mismatch              21
       No Virtual Link            13     Self Originated            22

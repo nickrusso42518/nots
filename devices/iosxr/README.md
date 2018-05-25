@@ -1,5 +1,5 @@
 # Cisco IOS-XR specifics
-Contents:
+
   * [Test cases](#summarized-test-cases)
   * [Group variables](#group-variables)
 

@@ -7,7 +7,7 @@
       Loop-free Fast Reroute protected prefixes
       Area  Topology name   Priority   Remote LFA Enabled  TI-LFA Enabled
          0           Base       High                  Yes              No
-        51           Base        Low                   No              No
+        51            FUN        Low                   No              No
 
 - name: "Perform parsing"
   set_fact:
@@ -16,4 +16,25 @@
 - name: "Print structured data"
   debug:
     var: data
+
+- name: "Ensure parsing succeeded for area 0"
+  assert:
+    that:
+      - "data.keys() | length == 2"
+      - "data.area0.id == 0"
+      - "data.area0.pref_pri == 'high'"
+      - "data.area0.rlfa"
+      - "not data.area0.tilfa"
+      - "data.area0.topology == 'base'"
+    msg: "parsing problem. check JSON dump from previous task"
+
+- name: "Ensure parsing succeeded for area 51"
+  assert:
+    that:
+      - "data.area51.id == 51"
+      - "data.area51.pref_pri == 'low'"
+      - "not data.area51.rlfa"
+      - "not data.area51.tilfa"
+      - "data.area51.topology == 'fun'"
+    msg: "parsing problem. check JSON dump from previous task"
 ...

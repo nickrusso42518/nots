@@ -9,6 +9,12 @@ granularity, it rapidly discovers the vast majority of OSPF problems.
 > Email:    njrusmc@gmail.com
 > Twitter:  @nickrusso42518
 
+  * [Supported platforms](#supported-platforms)
+  * [Summarized-test cases](#summarzed-test-cases)
+  * [Variables](#variables)
+  * [Logging](#logging)
+  * [FAQ](#faq)
+
 ## Supported platforms
 Today, Cisco IOS/IOS-XE and IOS-XR are supported. The valid `device_type`
 options used for inventory groups are enumerated below. Each platform
@@ -18,6 +24,10 @@ playbook which begins the device-specific tasks.
 
   * `ios`: Cisco classic IOS and Cisco IOS-XE devices.
   * `iosxr`: Cisco IOS-XR devices.
+
+Testing was conducted on the following platforms and versions:
+  * Cisco CSR1000v, version 16.07.01a, running in AWS
+  * Cisco XRv9000, version 6.3.1, running in AWS
 
 ## Summarized test cases
 The following tests are run in sequence. Note that the exact items tested
@@ -110,6 +120,11 @@ as their main purpose is abstraction, not user input.__
     issued to the device. These collect information from the devices relevant
     to troubleshooting OSPF.
 
+Note that some extra commands are appended to the end of the `commands` list
+which are used for collection only. The output from these commands is written
+to the host log which can assist with troubleshooting, but it is not parsed
+or checked in any way within the logic of the playbook.
+
 ### Host level
 This playbook aims to minimize the number of host-specific variables as
 managing these inventory variables becomes burdensome in large networks.
@@ -177,7 +192,7 @@ The example below shows the beginning of an IOS-based platform log file with
 many redactions for brevity:
 
 ```
-$ cat logs/nots_20180521T165814/csr1.txt
+$ cat logs/nots_20180522T194610/csr1.txt
 !!!
 !!! Start command: show ip ospf 1
 !!!
@@ -199,3 +214,27 @@ Neighbor ID     Pri   State           Dead Time   Address         Interface
 !!!
 [snip, more commands]
 ```
+
+## FAQ
+__Q__: A lot of the code between IOS and IOS-XR is the same. Why not combine it?
+__A__: The goal is to support more platforms in the future, such as Nexus OS,
+ASA-OS, and possibly non-Cisco devices. These devices will likely return
+different sets of information. This tool is designed to be __simple__,
+not particularly advanced.
+
+__Q__: Why not use an API like RESTCONF or NETCONF instead of SSH + CLI?
+__A__: This tool is designed for risk-averse users or networks that are not
+rapidly migrating to API-based management. It is not an infrastructure-as-code
+solution and does not manage device configurations. All of the commands used
+in the playbook can be issued at privilege level 1 to further reduce risk.
+With the exception of updating the login credentials and populating the
+necessary variables, there is no complex setup work required.
+
+__Q__: Why not parse the OSPF interfaces? Many errors occur at this level.
+__A__: Parsing individual interfaces would require state declarations on a
+per-host basis to determine what each interface __should__ have. This defeats
+the purpose of a simple, low-effort solution which uses only area and process
+level parameters for verification. Furthermore, the detailed statistics
+checking will alert the user to many errors (authentication, MTU mismatch, etc)
+at a more general level. The user can check the logs to see the exact commands,
+which includes the non-parsed interface text.

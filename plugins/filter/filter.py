@@ -1,7 +1,6 @@
 #!/usr/bin/python
 '''
 Author: Nick Russo <njrusmc@gmail.com>
-Last modified: 23 March 2018
 
 File contains custom filters for use in Ansible playbooks.
 https://www.ansible.com/
@@ -38,11 +37,16 @@ class FilterModule(object):
 
     @staticmethod
     def _try_int(text):
+        '''
+        Attempts to parse an integer from the input text. If it fails, just
+        return the text as it was passed in. This is useful for iterating
+        across structures with many integers which should be stored as
+        integers, not strings.
+        '''
         try:
             return int(text)
         except ValueError:
             return text
-            
 
     @staticmethod
     def ios_ospf_neighbor(text):
@@ -80,21 +84,12 @@ class FilterModule(object):
 
         return ospf_neighbors
 
-# Routing Process "ospf 1" with ID 10.0.0.5
-# It is an area border and autonomous system boundary router
-# Reference bandwidth unit is 100 mbps
-#    Area BACKBONE(0)
-#        Number of interfaces in this area is 3 (1 loopback)
-#    Area 4
-#        Number of interfaces in this area is 1
-#        It is a NSSA area
-
-# Initial SPF schedule delay 5000 msecs
-# Minimum hold time between two consecutive SPFs 10000 msecs
-# Maximum wait time between two consecutive SPFs 10000 msecs
     @staticmethod
     def ios_ospf_basic(text):
         '''
+        Parses information from the Cisco IOS "show ospf" command
+        family. This is useful for verifying various characteristics of
+        an OSPF process and its basic configuration.
         '''
         return_dict = {}
 
@@ -152,50 +147,14 @@ class FilterModule(object):
         return_dict.update({'areas': areas})
         return return_dict
 
-#
-#            OSPF Router with ID (10.0.0.1) (Process ID 1)
-#
-#Area 0 database summary
-#  LSA Type      Count    Delete   Maxage
-#  Router        9        0        0
-#  Network       1        0        0
-#  Summary Net   54       0        0
-#  Summary ASBR  4        0        0
-#  Type-7 Ext    0        0        0
-#    Prefixes redistributed in Type-7  0
-#  Opaque Link   0        0        0
-#  Opaque Area   0        0        0
-#  Subtotal      68       0        0
-#
-#Area 3 database summary
-#  LSA Type      Count    Delete   Maxage
-#  Router        4        0        0
-#  Network       0        0        0
-#  Summary Net   64       0        0
-#  Summary ASBR  6        0        0
-#  Type-7 Ext    0        0        0
-#    Prefixes redistributed in Type-7  0
-#  Opaque Link   0        0        0
-#  Opaque Area   0        0        0
-#  Subtotal      74       0        0
-#
-#Process 1 database summary
-#  LSA Type      Count    Delete   Maxage
-#  Router        13       0        0
-#  Network       1        0        0
-#  Summary Net   118      0        0
-#  Summary ASBR  10       0        0
-#  Type-7 Ext    0        0        0
-#  Opaque Link   0        0        0
-#  Opaque Area   0        0        0
-#  Type-5 Ext    1        0        0
-#      Prefixes redistributed in Type-5  0
-#  Opaque AS     0        0        0
-#  Non-self      99
-#  Total         143      0        0
     @staticmethod
     def ios_ospf_dbsum(text):
         '''
+        Parses information from the Cisco IOS
+        "show ip ospf database database-summary" command family.
+        This is useful for verifying various characteristics of
+        an OSPF database to count LSAs for simple verification.
+        Note that this parser is generic enough to cover Cisco IOS-XR also.
         '''
         return_dict = {}
         process_pattern = r"""
@@ -248,6 +207,9 @@ class FilterModule(object):
     @staticmethod
     def ios_ospf_traffic(text):
         '''
+        Parses information from the Cisco IOS "show ip ospf traffic" command
+        family. This is useful for verifying various characteristics of
+        an OSPF process/area statistics for troubleshooting.
         '''
 
         interface_pattern = r"""
@@ -294,7 +256,11 @@ class FilterModule(object):
     @staticmethod
     def ios_ospf_frr(text):
         '''
+        Parses information from the Cisco IOS "show ip ospf fast-reroute"
+        command family. This is useful for verifying various characteristics of
+        OSPF FRR/LFA configuration to ensure it is configured correctly.
         '''
+
         pattern = r"""
             (?P<id>\d+)\s+
             (?P<topology>\w+)\s+
@@ -326,6 +292,7 @@ class FilterModule(object):
         family. This is useful for verifying various characteristics of
         an BFD neighbor's state.
         '''
+
         pattern = r"""
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<ld>\d+)/
@@ -353,6 +320,11 @@ class FilterModule(object):
     @staticmethod
     def check_bfd_up(bfd_nbr_list, ospf_nbr):
         '''
+        Used to check if a specific OSPF neighbor (dictionary returned from
+        ios_ospf_neighbor function) is present in the BFD neighbor list. This
+        compares the OSPF neighbor interface IP, not router ID, against the
+        BFD peer IP. It uses a simple linear search as the number of OSPF/BFD
+        neighbors on a device tends to be small (few hundred).
         '''
 
         for bfd_nbr in bfd_nbr_list:
@@ -366,6 +338,9 @@ class FilterModule(object):
     @staticmethod
     def iosxr_ospf_neighbor(text):
         '''
+        Parses information from the Cisco IOS-XR "show ospf neighbor" command
+        family. This is useful for verifying various characteristics of
+        an OSPF neighbor's state.
         '''
         pattern = r"""
             (?P<rid>\d+\.\d+\.\d+\.\d+)\s+
@@ -405,6 +380,9 @@ class FilterModule(object):
     @staticmethod
     def iosxr_ospf_basic(text):
         '''
+        Parses information from the Cisco IOS-XR "show ospf" command
+        family. This is useful for verifying various characteristics of
+        an OSPF process and its basic configuration.
         '''
         return_dict = {}
 
@@ -460,6 +438,9 @@ class FilterModule(object):
     @staticmethod
     def iosxr_ospf_traffic(text):
         '''
+        Parses information from the Cisco IOS-XR "show ip ospf traffic" command
+        family. This is useful for verifying various characteristics of
+        an OSPF process/area statistics for troubleshooting.
         '''
 
         interface_pattern = r"""
@@ -508,4 +489,3 @@ class FilterModule(object):
                 intf[key] = FilterModule._try_int(intf[key])
 
         return intfs
-

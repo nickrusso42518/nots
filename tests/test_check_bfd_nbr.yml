@@ -1,0 +1,36 @@
+---
+- name: "Store OSPF neighbors"
+  set_fact:
+    ospf_nbrs:
+      - peer: '10.0.0.1'
+      - peer: '10.0.0.2'
+
+- name: "Print OSPF neighbors"
+  debug:
+    var: ospf_nbrs
+
+- name: "Store BFD neighbor list"
+  set_fact:
+    bfd_nbrs:
+      - peer: '10.0.0.1'
+        rhrs: 'up'
+        state: 'up'
+      - peer: '10.0.0.2'
+        rhrs: 'up'
+        state: 'up'
+      - peer: '10.0.0.3'
+        rhrs: 'down'
+        state: 'down'
+
+- name: "Print BFD neighbors"
+  debug:
+    var: bfd_nbrs
+
+- name: "Ensure neighbor 1 is up"
+  assert:
+    that: "bfd_nbrs | check_bfd_up(ospf_nbr)"
+    msg: "not all OSPF neighbors showed up, check JSON above"
+  with_items: "{{ ospf_nbrs }}"
+  loop_control:
+    loop_var: ospf_nbr
+...
