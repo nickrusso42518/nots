@@ -29,6 +29,25 @@ Testing was conducted on the following platforms and versions:
   * Cisco CSR1000v, version 16.07.01a, running in AWS
   * Cisco XRv9000, version 6.3.1, running in AWS
 
+Control machine information:
+```
+$ cat /etc/redhat-release
+Red Hat Enterprise Linux Server release 7.4 (Maipo)
+
+$ uname -a
+Linux ip-10-125-0-100.ec2.internal 3.10.0-693.el7.x86_64 #1 SMP
+  Thu Jul 6 19:56:57 EDT 2017 x86_64 x86_64 x86_64 GNU/Linux
+
+$ ansible --version
+ansible 2.4.3.0
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/usr/share/my_modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, May  3 2017, 07:55:04)
+    [GCC 4.8.5 20150623 (Red Hat 4.8.5-14)]
+```
+
 ## Summarized test cases
 The following tests are run in sequence. Note that the exact items tested
 varies between platforms since command outputs and feature sets also vary.
