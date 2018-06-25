@@ -1,0 +1,183 @@
+---
+- name: "NXOS >> Collect OSPF PID {{ process.id }} info from routers"
+  nxos_command:
+    provider: "{{ login_creds }}"
+    commands: "{{ commands }}"
+  register: CLI_OUTPUT
+
+- name: "INCLUDE >> Run CLI output logging tasks"
+  include_tasks: "../log.yml"
+
+- name: "SYS >> Parse NXOS text output into structured data"
+  set_fact:
+    OSPF_BASIC: "{{ CLI_OUTPUT.stdout[0] | nxos_ospf_basic }}"
+    OSPF_NBR: "{{ CLI_OUTPUT.stdout[1] | nxos_ospf_neighbor }}"
+    OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | nxos_ospf_dbsum }}"
+    OSPF_TRAF: "{{ CLI_OUTPUT.stdout[3] | nxos_ospf_traffic }}"
+    OSPF_FRR: "{{ CLI_OUTPUT.stdout[4] | nxos_ospf_frr }}"
+    BFD_NBR: "{{ CLI_OUTPUT.stdout[5] | nxos_bfd_neighbor }}"
+
+- name: "SYS >> Sanity: Check that process ID {{ process.id }} matches"
+  assert:
+    that: "process.id | int == OSPF_BASIC.process.id"
+    msg: |-
+      CRITICAL ERROR! Parsed process ID did not match specification. This
+      will likely result in the entire test run being invalid.
+      Please submit an error report or contact development.
+      expected {{ process.id }}, saw {{ OSPF_BASIC.process.id }}
+
+- name: "INCLUDE >> Detailed OSPF statistics processing"
+  include_tasks: "stats.yml"
+  when: "process.stats is defined and not 'oopback' in item.intf"
+  with_items: "{{ OSPF_TRAF }}"
+  loop_control:
+    label: "intf:{{ item.intf }}"
+
+- name: "SYS >> Ensure router has {{ my_nbr_count | default('-') }} neighbors"
+  assert:
+    that: "my_nbr_count | int == OSPF_NBR | length"
+    msg: |-
+      Expected neighbor count did not match actual neighbors seen
+      expected {{ my_nbr_count }}, saw {{ OSPF_NBR | length }}
+  when: "my_nbr_count is defined"
+
+- name: "SYS >> Assert that all OSPF neighbors are up and healthy"
+  assert:
+    that: >-
+      item.state | lower == 'full' or
+      (item.state | lower == '2way' and item.role | lower == 'drother')
+    msg: |-
+      Invalid neighbor. state must be full or a combination of 2way plus
+      the drother role to be considered valid.
+      saw {{ item }}
+  with_items: "{{ OSPF_NBR }}"
+  loop_control:
+    label: "nbr:{{ item.rid }}  state:{{ item.state }}  role:{{ item.role }}"
+
+- name: "SYS >> Ensure all OSPF neighbors are also BFD neighbors"
+  assert:
+    that: "BFD_NBR | check_bfd_up(item)"
+    msg: |-
+      Could not find OSPF neighbor in list of BFD neighbors.
+      expected OSPF neighbor {{ item | to_nice_json }}
+      in list of BFD neighbors {{ BFD_NBR | to_nice_json }}
+  when: "process.has_bfd is defined and process.has_bfd"
+  with_items: "{{ OSPF_NBR }}"
+  loop_control:
+    label: "peer:{{ item.peer }}"
+
+- name: "SYS >> Check process ID {{ process.id }} SPF tuning timers"
+  assert:
+    that:
+      - "process.spf.init | int == OSPF_BASIC.process.init_spf"
+      - "process.spf.min | int == OSPF_BASIC.process.min_spf"
+      - "process.spf.max | int == OSPF_BASIC.process.max_spf"
+    msg: |-
+      Mismatched SPF tuning timer configuration from specification.
+      expected -- saw
+      init {{ process.spf.init }} -- {{ OSPF_BASIC.process.init_spf }}
+      min  {{ process.spf.min }} -- {{ OSPF_BASIC.process.min_spf }}
+      max  {{ process.spf.max }} -- {{ OSPF_BASIC.process.max_spf }}
+  when: "process.spf is defined"
+
+- name: "SYS >> Check reference bandwidth {{ process.ref_bw | default('-') }}"
+  assert:
+    that: "process.ref_bw | int == OSPF_BASIC.process.ref_bw"
+    msg: |-
+      Mismatched reference bandwidth from specification.
+      expected {{ process.ref_bw }}, saw {{ OSPF_BASIC.process.ref_bw }}
+  when: "process.ref_bw is defined"
+
+- name: "SYS >> Check iSPF enabled {{ process.has_ispf | default('-') }}"
+  assert:
+    that: "process.has_ispf == OSPF_BASIC.process.has_ispf"
+    msg: |-
+      Mismatched iSPF configuration from specification.
+      expected {{ process.has_ispf }}, saw {{ OSPF_BASIC.process.has_ispf }}
+  when: "process.has_ispf is defined"
+
+- name: "SYS >> Check BFD enabled {{ process.has_bfd | default('-') }}"
+  assert:
+    that: "process.has_bfd == OSPF_BASIC.process.has_bfd"
+    msg: |-
+      Mismatched BFD configuration from specification.
+      expected {{ process.has_bfd }}, saw {{ OSPF_BASIC.process.has_bfd }}
+  when: "process.has_bfd is defined"
+
+- name: "SYS >> Check TTL-sec enabled {{ process.has_ttlsec | default('-') }}"
+  assert:
+    that: "process.has_ttlsec == OSPF_BASIC.process.has_ttlsec"
+    msg: |-
+      Mismatched TTL security configuration from specification.
+      expected {{ process.has_ttlsec }}, saw {{ OSPF_BASIC.process.has_ttlsec }}
+  when: "process.has_ttlsec is defined"
+
+- name: "SYS >> Dynamically determine if router should be an ABR"
+  set_fact:
+    SHOULD_BE_ABR: "{{ my_areas | length > 1 and 0 in my_areas }}"
+
+- name: "SYS >> Ensure correct ABR status"
+  assert:
+    that: "OSPF_BASIC.process.is_abr == SHOULD_BE_ABR"
+    msg: |-
+      ABR status mismatch. expected {{ SHOULD_BE_ABR }} by inference,
+      saw {{ OSPF_BASIC.process.is_abr }} on the actual device
+
+- name: "SYS >> Ensure correct ASBR status"
+  assert:
+    that: "OSPF_BASIC.process.is_asbr == should_be_asbr"
+    msg: |-
+      ASBR status mismatch. expected {{ should_be_asbr }} by host config,
+      saw {{ OSPF_BASIC.process.is_asbr }} on the actual device
+  when: "should_be_asbr is defined"
+
+- name: "SYS >> Ensure correct stub router status"
+  assert:
+    that: "OSPF_BASIC.process.is_stub_rtr == should_be_stub_rtr"
+    msg: |-
+      Stub router status mismatch. expected {{ should_be_stub_rtr }} by host
+      config, saw {{ OSPF_BASIC.process.is_stub_rtr }} on the actual device
+  when: "should_be_stub_rtr is defined"
+
+- name: "SYS >> Ensure iteration area lists are equal length"
+  assert:
+    that:
+      - "my_areas | length == OSPF_DB.areas | length"
+      - "my_areas | length == OSPF_BASIC.areas | length"
+    msg: |-
+      Iteration lists must be same length, where the length is
+      the number of areas that exist on a router. Ensure that
+      the 'my_areas' list actually contains all of the areas expected
+      to appear on a given router, no more and no less.
+      saw my_areas:{{ my_areas | length }}
+      saw OSPF_DB.areas:{{ OSPF_DB.areas | length }}
+      saw OSPF_BASIC.areas:{{ OSPF_BASIC.areas | length }}
+
+- name: "INCLUDE >> Perform iterative checks on area-specific parameters"
+  include_tasks: "areas.yml"
+  with_together:
+    - "{{ my_areas }}"
+    - "{{ OSPF_DB.areas }}"
+    - "{{ OSPF_BASIC.areas }}"
+  loop_control:
+    label: "area_id:{{ item.0 }}"
+
+- name: "SYS >> Check external LSA count (LSA5) in entire domain"
+  assert:
+    that: "process.max_lsa5 | int >= OSPF_DB.process.total_lsa5"
+    msg: >-
+      too many LSA5 {{ OSPF_DB.process.total_lsa5 }} < {{ process.max_lsa5 }}
+  when: "process.max_lsa5 is defined"
+
+- name: "Check FRR status in each relevant area"
+  assert:
+    that: "item.value.has_frr == OSPF_FRR[item.key] is defined"
+    msg: |-
+      FRR config mismatches between expected and actual
+      expected {{ item.value.has_frr }}
+      saw {{ OSPF_FRR[item.key] | to_nice_json }}
+  when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
+  with_dict: "{{ all_areas }}"
+  loop_control:
+    label: "area_id:{{ item.key }}"
+...

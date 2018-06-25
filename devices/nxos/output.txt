@@ -1,0 +1,120 @@
+JNN-67110-ST2S# show ip ospf 1 database database-summary 
+             OSPF Router with ID (10.0.0.3) (Process ID 1 VRF default)
+
+Area 0.0.0.0 database summary
+  LSA Type            Count 
+  Opaque Link         0     
+  Router              2     
+  Network             0     
+  Summary Network     2     
+  Summary ASBR        0     
+  Type-7 AS External  0     
+  Opaque Area         0     
+  Subtotal            4     
+
+Area 0.0.17.17 database summary
+  LSA Type            Count 
+  Opaque Link         0     
+  Router              2     
+  Network             0     
+  Summary Network     4     
+  Summary ASBR        0     
+  Type-7 AS External  0     
+  Opaque Area         0     
+  Subtotal            6     
+
+Process 1 database summary
+  LSA Type            Count 
+  Opaque Link         0     
+  Router              4     
+  Network             0     
+  Summary Network     6     
+  Summary ASBR        0     
+  Type-7 AS External  0     
+  Opaque Area         0     
+  Type-5 AS External  0     
+  Opaque AS           0     
+  Non-self            5     
+  Total               10  
+  
+  
+JNN-67110-ST2S# sh ip os 1 neighbors 
+ OSPF Process ID 1 VRF default
+ Total number of neighbors: 2
+ Neighbor ID     Pri State            Up Time  Address         Interface
+ 2.2.2.2           1 FULL/ -          00:06:47 192.168.0.2     Eth1/43 
+ 2.2.2.2           1 FULL/ -          00:01:05 192.168.17.6    Eth1/45 
+
+
+JNN-67110-ST2S# sh ip ospf 1 traffic 
+ OSPF Process ID 1 VRF default, Packet Counters (cleared 00:26:37 ago)
+  Total: 184 in, 343 out
+  LSU transmissions: first 4, rxmit 2, for req 2 nbr xmit 0
+  Flooding packets output throttled (IP/tokens): 0 (0/0)
+  Ignored LSAs: 0, LSAs dropped during SPF: 0
+  LSAs dropped during graceful restart: 0
+  Errors: drops in        0, drops out       0, errors in       0,
+          errors out      0, hellos in       0, dbds in         0,
+          lsreq in        0, lsu in          0, lsacks in       0,
+          unknown in      0, unknown out     0, no ospf         0,
+          bad version     0, bad crc         0, dup rid         0,
+          dup src         0, invalid src     0, invalid dst     0,
+          no nbr          0, passive         0, wrong area      0,
+          pkt length      0, nbr changed rid/ip addr            0
+          bad auth        0, no vrf          0
+
+           hellos       dbds     lsreqs       lsus       acks
+   In:        164          7          2          8          3
+  Out:        167        163          2          8          3
+
+
+JNN-67110-ST2S# sh ip os 1 
+
+ Routing Process 1 with ID 10.0.0.3 VRF default
+ Routing Process Instance Number 2
+ Stateful High Availability enabled
+ Graceful-restart is configured
+   Grace period: 90 state: Inactive 
+   Last graceful restart exit status: None
+ Supports only single TOS(TOS0) routes
+ Supports opaque LSA
+ This router is an area border
+ Administrative distance 110
+ Reference Bandwidth is 40000 Mbps
+ SPF throttling delay time of 50.000 msecs,
+   SPF throttling hold time of 200.000 msecs, 
+   SPF throttling maximum wait time of 5000.000 msecs
+ LSA throttling start time of 0.000 msecs,
+   LSA throttling hold interval of 5000.000 msecs, 
+   LSA throttling maximum wait time of 5000.000 msecs
+ Minimum LSA arrival 1000.000 msec
+ LSA group pacing timer 10 secs
+ Maximum paths to destination 8
+>> Originating router LSA with maximum metric
+>>   Condition: Always
+ Number of external LSAs 0, checksum sum 0
+ Number of opaque AS LSAs 0, checksum sum 0
+ Number of areas is 2, 1 normal, 1 stub, 0 nssa
+ Number of active areas is 2, 1 normal, 1 stub, 0 nssa
+ Install discard route for summarized external routes.
+ Install discard route for summarized internal routes.
+   Area BACKBONE(0.0.0.0) 
+        Area has existed for 00:23:58
+        Interfaces in this area: 1 Active interfaces: 1
+        Passive interfaces: 0  Loopback interfaces: 0
+        No authentication available
+        SPF calculation has run 14 times
+         Last SPF ran for 0.000139s
+        Area ranges are
+        Number of LSAs: 4, checksum sum 0x2d757
+   Area (0.0.17.17) 
+        Area has existed for 00:03:50
+        Interfaces in this area: 1 Active interfaces: 1
+        Passive interfaces: 0  Loopback interfaces: 0
+        This area is a STUB area
+        Generates stub default route with cost 1
+        No authentication available
+        SPF calculation has run 7 times
+         Last SPF ran for 0.000095s
+        Area ranges are
+        Number of LSAs: 6, checksum sum 0x23f75

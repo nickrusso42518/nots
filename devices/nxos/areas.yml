@@ -1,0 +1,56 @@
+---
+# areas.yml
+# with_together:
+#   - "{{ my_areas }}"
+#   - "{{ OSPF_DB.areas }}"
+#   - "{{ OSPF_BASIC.areas }}"
+- name: "SYS >> Store current area targets from all_areas dict"
+  set_fact:
+    AREA_TARGETS: "{{ all_areas['area' ~ (item.0 | string)] }}"
+
+- name: "SYS >> Dump AREA_TARGETS"
+  debug:
+    var: AREA_TARGETS
+    verbosity: 1
+
+- name: "SYS >> Check type {{ AREA_TARGETS.type }} in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.type | lower == item.2.type"
+    msg: "expected type {{ AREA_TARGETS.type }}, saw {{ item.2.type }}"
+
+- name: "SYS >> Check router count (LSA1) in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.routers | int == item.1.num_lsa1"
+    msg: "expected LSA1 {{ AREA_TARGETS.routers }}, saw {{ item.1.num_lsa1 }}"
+  when: "AREA_TARGETS.routers is defined"
+
+- name: "SYS >> Check DR count (LSA2) in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.drs | int == item.1.num_lsa2"
+    msg: "expected LSA2 {{ AREA_TARGETS.drs }}, saw {{ item.1.num_lsa2 }}"
+  when: "AREA_TARGETS.drs is defined"
+
+- name: "SYS >> Check summary LSA count (LSA3) in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.max_lsa3 | int >= item.1.num_lsa3"
+    msg: "too many LSA3 {{ AREA_TARGETS.max_lsa3 }} < {{ item.1.num_lsa3 }}"
+  when: "AREA_TARGETS.max_lsa3 is defined"
+
+- name: "SYS >> Ensure that LSA4 count is 0 for NSSA/stub area {{ item.0 }}"
+  assert:
+    that: "item.1.num_lsa4 == 0"
+    msg: "OSPF protocol error; saw {{ item.1.num_lsa4 }} LSA7 in NSSA/stub area"
+  when: "item.2.type != 'standard'"
+
+- name: "SYS >> Check nssa-external LSA count (LSA7) in area {{ item.0 }}"
+  assert:
+    that: "AREA_TARGETS.max_lsa7 | int >= item.1.num_lsa7"
+    msg: "too many LSA7 {{ AREA_TARGETS.max_lsa7 }} < {{ item.1.num_lsa7 }}"
+  when: "AREA_TARGETS.max_lsa7 is defined and item.2.type == 'nssa'"
+
+- name: "SYS >> Ensure that LSA7 count is 0 for non-NSSA area {{ item.0 }}"
+  assert:
+    that: "item.1.num_lsa7 == 0"
+    msg: "OSPF protocol error; saw {{ item.1.num_lsa7 }} LSA7 in non-NSSA area"
+  when: "item.2.type != 'nssa'"
+...

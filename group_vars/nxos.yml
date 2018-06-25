@@ -1,0 +1,45 @@
+---
+device_type: nxos
+commands:
+  - "show ip ospf {{ process.id }}"
+  - "show ip ospf {{ process.id }} neighbor"
+  - "show ip ospf {{ process.id }} database database-summary"
+  - "show ip ospf {{ process.id }} traffic"
+  - "show ip ospf {{ process.id }} interface"  # not parsed
+  - "show ip ospf {{ process.id }} database"  # not parsed
+  - "show version"  # not parsed
+process:
+  id: 1
+  ref_bw: 100
+  max_lsa5: 5
+  spf:
+    init: 50
+    min: 200
+    max: 5000
+  stats:
+    bad_auth: 0
+    bad_crc: 0
+    bad_ver: 0
+    dbds_in: 0
+    drops_in: 0
+    drops_out: 0
+    dup_rid: 0
+    dup_src: 0
+    error_in: 0
+    error_out: 0
+    hello_in: 0
+    inv_crc: 0
+    inv_dest: 0
+    lsacks_in: 0
+    lsreq_in: 0
+    lsu_in: 0
+    nbr_change: 0
+    no_nbr: 0
+    no_ospf: 0
+    no_vrf: 0
+    passive: 0
+    pkt_len: 0
+    unk_in: 0
+    unk_out: 0
+    wrong_area: 0
+...
