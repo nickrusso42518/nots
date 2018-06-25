@@ -32,8 +32,94 @@ class FilterModule(object):
             'check_bfd_up': FilterModule.check_bfd_up,
             'iosxr_ospf_traffic': FilterModule.iosxr_ospf_traffic,
             'iosxr_ospf_basic': FilterModule.iosxr_ospf_basic,
-            'iosxr_ospf_neighbor': FilterModule.iosxr_ospf_neighbor
+            'iosxr_ospf_neighbor': FilterModule.iosxr_ospf_neighbor,
+            'nxos_ospf_basic': FilterModule.nxos_ospf_basic,
         }
+
+    @staticmethod
+    def nxos_ospf_basic(text):
+        '''
+        Parses information from the Cisco IOS "show ospf" command
+        family. This is useful for verifying various characteristics of
+        an OSPF process and its basic configuration.
+        '''
+        return_dict = {}
+
+        process_pattern = r"""
+            Routing\s+Process\s+(?P<id>\d+)\s+with\s+ID\s+(?P<rid>\d+\.\d+\.\d+\.\d+)
+            .*
+            \s*Reference\s+Bandwidth\s+is\s+(?P<ref_bw>\d+)\s+Mbps
+            .*
+            \s*SPF\s+throttling\s+delay\s+time\s+of\s+(?P<init_spf>\d+\.\d+)\s+msecs,
+            \s*SPF\s+throttling\s+hold\s+time\s+of\s+(?P<min_spf>\d+\.\d+)\s+msecs,
+            \s*SPF\s+throttling\s+maximum\s+wait\s+time\s+of\s+(?P<max_spf>\d+\.\d+)\s+msecs
+        """
+        regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
+        match = regex.search(text)
+        if match:
+            process = match.groupdict()
+            for key in process.keys():
+                # This safely converts the float SPF numbers to integers
+                process[key] = FilterModule._try_int(process[key])
+
+            is_abr = text.find('area border') != -1
+            is_asbr = text.find('autonomous system boundary') != -1
+            is_stub_rtr = text.find('Originating router-LSAs with max') != -1
+
+            process.update({
+                'is_abr': is_abr,
+                'is_asbr': is_asbr,
+                'is_stub_rtr': is_stub_rtr
+            })
+            return_dict.update({'process': process})
+        else:
+            return_dict.update({'process': None})
+        
+        area_pattern = r"""
+            Area\s+(?:BACKBONE)?\((?P<id>\d+\.\d+\.\d+\.\d+)\)\s+
+            \s+(?:Area\s+has\s+existed.*)\n
+            \s+Interfaces\s+in\s+this\s+area:\s+(?P<num_intfs>\d+).*\n
+            \s+(?:Passive.*)\n
+            \s+(?:This\s+area\s+is\s+a\s+(?P<type>\w+)\s+area)?
+        """
+
+        regex = re.compile(area_pattern, re.VERBOSE)
+        areas = [match.groupdict() for match in regex.finditer(text)]
+        for area in areas:
+            area['num_intfs'] = FilterModule._try_int(area['num_intfs'])
+            area['id'] = FilterModule._try_int(area['id'])
+            if not area['type']:
+                area['type'] = 'standard'
+            else:
+                area['type'] = area['type'].lower()
+
+        return_dict.update({'areas': areas})
+        return return_dict
+
+
+#16843009
+    @staticmethod
+    def _int_to_dotdec(num):
+        if isinstance(num, int):
+            area_str = ''
+            for i in range(3,-1,-1):
+                area_str += str(num/(256**i)) + '.'
+                num = num % 256**i
+            return area_str[:-1]
+        else:
+            return False
+        
+    @staticmethod
+    def _dotdec_to_int(text)
+        if text.count('.') == 3:
+            octets = text.split('.')
+            area_id = 0
+            for i, octet in enumerate(octets):
+                area_id += int(octet) * 256**(3-i)
+            return area_id
+        else:
+            return False
+        
 
     @staticmethod
     def _try_int(text):

@@ -1,0 +1,95 @@
+---
+- name: "Store NXOS OSPF basic text"
+  set_fact:
+    text: |-
+       Routing Process 1 with ID 10.0.0.3 VRF default
+       Routing Process Instance Number 2
+       Stateful High Availability enabled
+       Graceful-restart is configured
+         Grace period: 90 state: Inactive 
+         Last graceful restart exit status: None
+       Supports only single TOS(TOS0) routes
+       Supports opaque LSA
+       This router is an area border
+       Administrative distance 110
+       Reference Bandwidth is 40000 Mbps
+       SPF throttling delay time of 200.000 msecs,
+         SPF throttling hold time of 1000.000 msecs, 
+         SPF throttling maximum wait time of 5000.000 msecs
+       LSA throttling start time of 0.000 msecs,
+         LSA throttling hold interval of 5000.000 msecs, 
+         LSA throttling maximum wait time of 5000.000 msecs
+       Minimum LSA arrival 1000.000 msec
+       LSA group pacing timer 10 secs
+       Maximum paths to destination 8
+       Originating router LSA with maximum metric
+         Condition: Always
+       Number of external LSAs 0, checksum sum 0
+       Number of opaque AS LSAs 0, checksum sum 0
+       Number of areas is 2, 1 normal, 1 stub, 0 nssa
+       Number of active areas is 2, 1 normal, 1 stub, 0 nssa
+       Install discard route for summarized external routes.
+       Install discard route for summarized internal routes.
+         Area BACKBONE(0.0.0.0) 
+              Area has existed for 00:23:58
+              Interfaces in this area: 1 Active interfaces: 1
+              Passive interfaces: 0  Loopback interfaces: 0
+              No authentication available
+              SPF calculation has run 14 times
+               Last SPF ran for 0.000139s
+              Area ranges are
+              Number of LSAs: 4, checksum sum 0x2d757
+         Area (0.0.17.17) 
+              Area has existed for 00:03:50
+              Interfaces in this area: 1 Active interfaces: 1
+              Passive interfaces: 0  Loopback interfaces: 0
+              This area is a STUB area
+              Generates stub default route with cost 1
+              No authentication available
+              SPF calculation has run 7 times
+               Last SPF ran for 0.000095s
+              Area ranges are
+              Number of LSAs: 6, checksum sum 0x23f75
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | nxos_ospf_basic }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing success for process level data"
+  assert:
+    that:
+      - "data.process.id == 1"
+      - "data.process.rid == '10.0.0.5'"
+      - "not data.process.has_ispf"
+      - "not data.process.has_bfd"
+      - "not data.process.has_ttlsec"
+      - "data.process.is_abr"
+      - "data.process.is_asbr"
+      - "data.process.init_spf == 123"
+      - "data.process.min_spf == 456"
+      - "data.process.max_spf == 789"
+      - "data.process.ref_bw == 321"
+
+- name: "Ensure parsing success for area 0"
+  assert:
+    that:
+      - "data.areas | length == 3"
+      - "data.areas[0].type == 'standard'"
+      - "data.areas[0].num_intfs == 3"
+
+- name: "Ensure parsing success for area 2"
+  assert:
+    that:
+      - "data.areas[1].type == 'stub'"
+      - "data.areas[1].num_intfs == 2"
+
+- name: "Ensure parsing success for area 4"
+  assert:
+    that:
+      - "data.areas[2].type == 'nssa'"
+      - "data.areas[2].num_intfs == 4"
+...
