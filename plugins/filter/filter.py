@@ -36,7 +36,53 @@ class FilterModule(object):
             'nxos_ospf_basic': FilterModule.nxos_ospf_basic,
             'nxos_ospf_neighbor': FilterModule.nxos_ospf_neighbor,
             'nxos_ospf_dbsum': FilterModule.nxos_ospf_dbsum,
+            'nxos_ospf_traffic': FilterModule.nxos_ospf_traffic
         }
+
+    @staticmethod
+    def _read_match(match, key_filler_list=None):
+        return_dict = None
+        if match:
+            return_dict = match.groupdict()
+            for key in return_dict.keys():
+                return_dict[key] = FilterModule._try_int(return_dict[key])
+        elif key_filler_list:
+            return_dict = {}
+            for key in key_filler_list:
+                return_dict.update({key, None})
+
+        return return_dict
+    
+    @staticmethod
+    def nxos_ospf_traffic(text):
+        '''
+        Parses information from the Cisco IOS-XR "show ip ospf traffic" command
+        family. This is useful for verifying various characteristics of
+        an OSPF process/area statistics for troubleshooting.
+        '''
+
+        interface_pattern = r"""
+            Interface\s+(?P<intf>\S+)\s+
+            Process\s+ID\s+(?P<pid>\d+)\s+
+            Area\s+(?P<area_id>\d+)\s+
+            .*?
+            OSPF\s+Header\s+Errors
+            \s+Version\s+(?P<version>\d+)
+            \s+LLS\s+(?P<lls>\d+)
+            \s+Type\s+(?P<type>\d+)
+
+            \s+Unspecified\s+TX\s+(?P<unspec_tx>\d+)
+            \s+Socket\s+(?P<socket>\d+)
+        """
+
+        regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
+        intfs = [match.groupdict() for match in regex.finditer(text)]
+        for intf in intfs:
+            intf['intf'] = intf['intf'].lower()
+            for key in intf.keys():
+                intf[key] = FilterModule._try_int(intf[key])
+
+        return intfs
 
     @staticmethod
     def nxos_ospf_dbsum(text):
@@ -62,20 +108,12 @@ class FilterModule(object):
         """
         regex = re.compile(process_pattern, re.VERBOSE)
         match = regex.search(text)
-        if match:
-            process = match.groupdict()
-            for key in process.keys():
-                process[key] = FilterModule._try_int(process[key])
-        else:
-            process = {
-                'process_id': -1,
-                'total_lsa1': -1,
-                'total_lsa2': -1,
-                'total_lsa3': -1,
-                'total_lsa4': -1,
-                'total_lsa5': -1,
-                'total_lsa7': -1
-            }
+        key_filler_list = [
+            'process_id', 'total_lsa1', 'total_lsa2', 'total_lsa3',
+            'total_lsa4', 'total_lsa5', 'total_lsa7'
+        ]
+        process = FilterModule._read_match(match, key_filler_list)
+
         return_dict.update({'process': process})
 
         area_pattern = r"""
@@ -153,12 +191,8 @@ class FilterModule(object):
         """
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
-        if match:
-            process = match.groupdict()
-            for key in process.keys():
-                # This safely converts the float SPF numbers to integers
-                process[key] = FilterModule._try_int(process[key])
-
+        process = FilterModule._read_match(match, ['process'])
+        if process:
             is_abr = text.find('area border') != -1
             is_asbr = text.find('autonomous system boundary') != -1
             is_stub_rtr = text.find('Originating router LSA with max') != -1
@@ -169,8 +203,6 @@ class FilterModule(object):
                 'is_stub_rtr': is_stub_rtr
             })
             return_dict.update({'process': process})
-        else:
-            return_dict.update({'process': None})
         
         area_pattern = r"""
             Area\s+(?:BACKBONE)?\((?P<id>\d+\.\d+\.\d+\.\d+)\)\s+
@@ -287,11 +319,8 @@ class FilterModule(object):
         """
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
-        if match:
-            process = match.groupdict()
-            for key in process.keys():
-                process[key] = FilterModule._try_int(process[key])
-
+        process = FilterModule._read_match(match, ['process'])
+        if process:
             is_abr = text.find('area border') != -1
             is_asbr = text.find('autonomous system boundary') != -1
             is_stub_rtr = text.find('Originating router-LSAs with max') != -1
@@ -308,8 +337,6 @@ class FilterModule(object):
                 'has_ttlsec': has_ttlsec
             })
             return_dict.update({'process': process})
-        else:
-            return_dict.update({'process': None})
         
         area_pattern = r"""
             Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
@@ -352,20 +379,11 @@ class FilterModule(object):
         """
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
-        if match:
-            process = match.groupdict()
-            for key in process.keys():
-                process[key] = FilterModule._try_int(process[key])
-        else:
-            process = {
-                'process_id': -1,
-                'total_lsa1': -1,
-                'total_lsa2': -1,
-                'total_lsa3': -1,
-                'total_lsa4': -1,
-                'total_lsa5': -1,
-                'total_lsa7': -1
-            }
+        key_filler_list = [
+            'process_id', 'total_lsa1', 'total_lsa2', 'total_lsa3',
+            'total_lsa4', 'total_lsa5', 'total_lsa7'
+        ]
+        process = FilterModule._read_match(match, key_filler_list)
         return_dict.update({'process': process})
 
         area_pattern = r"""
@@ -578,11 +596,8 @@ class FilterModule(object):
         """
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
-        if match:
-            process = match.groupdict()
-            for key in process.keys():
-                process[key] = FilterModule._try_int(process[key])
-
+        process = FilterModule._read_match(match, ['process'])
+        if process:
             is_abr = text.find('area border') != -1
             is_asbr = text.find('autonomous system boundary') != -1
             is_stub_rtr = text.find('Originating router-LSAs with max') != -1
@@ -593,8 +608,6 @@ class FilterModule(object):
                 'is_stub_rtr': is_stub_rtr,
             })
             return_dict.update({'process': process})
-        else:
-            return_dict.update({'process': None})
 
         area_pattern = r"""
             Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
