@@ -25,7 +25,7 @@
       - "data[0].state == 'full'"
       - "data[0].role == '-'"
       - "data[0].uptime == '00:06:47'"
-      - "data[0].upsec == 407"
+      - "data[0].uptime_sec == 407"
       - "data[0].peer == '192.168.0.2'"
       - "data[0].intf == 'eth1/43'"
 
@@ -37,7 +37,7 @@
       - "data[1].state == '2way'"
       - "data[1].role == 'bdr'"
       - "data[1].uptime == '21:01:05'"
-      - "data[1].upsec == 75665"
+      - "data[1].uptime_sec == 75665"
       - "data[1].peer == '10.192.17.6'"
       - "data[1].intf == 'port-cha1'"
 ...

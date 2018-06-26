@@ -16,7 +16,7 @@ granularity, it rapidly discovers the vast majority of OSPF problems.
   * [FAQ](#faq)
 
 ## Supported platforms
-Today, Cisco IOS/IOS-XE and IOS-XR are supported. The valid `device_type`
+Today, Cisco IOS/IOS-XE, IOS-XR, and NX-OS are supported. Valid `device_type`
 options used for inventory groups are enumerated below. Each platform
 has a folder in the `devices/` directory, such as `devices/ios/`. The
 file named `main.yml` is the task list that is included from the main
@@ -24,10 +24,12 @@ playbook which begins the device-specific tasks.
 
   * `ios`: Cisco classic IOS and Cisco IOS-XE devices.
   * `iosxr`: Cisco IOS-XR devices.
+  * `nxos`: Cisco NX-OS devices.
 
 Testing was conducted on the following platforms and versions:
   * Cisco CSR1000v, version 16.07.01a, running in AWS
   * Cisco XRv9000, version 6.3.1, running in AWS
+  * Cisco 3172T, version 6.0.2.U6.4a, hardware appliance
 
 Control machine information:
 ```
@@ -235,14 +237,14 @@ Neighbor ID     Pri   State           Dead Time   Address         Interface
 ```
 
 ## FAQ
-__Q__: A lot of the code between IOS and IOS-XR is the same. Why not combine it?
-__A__: The goal is to support more platforms in the future, such as Nexus OS,
+__Q__: Most code between IOS, IOS-XR, and NX-OS is the same. Why not combine it?
+__A__: The goal is to support more platforms in the future such as Cisco
 ASA-OS, and possibly non-Cisco devices. These devices will likely return
 different sets of information. This tool is designed to be __simple__,
-not particularly advanced.
+not particularly advanced through layered abstractions.
 
 __Q__: Why not use an API like RESTCONF or NETCONF instead of SSH + CLI?
-__A__: This tool is designed for risk-averse users or networks that are not
+__A__: This tool is designed for risk-averse users or managers that are not
 rapidly migrating to API-based management. It is not an infrastructure-as-code
 solution and does not manage device configurations. All of the commands used
 in the playbook can be issued at privilege level 1 to further reduce risk.
@@ -257,3 +259,9 @@ level parameters for verification. Furthermore, the detailed statistics
 checking will alert the user to many errors (authentication, MTU mismatch, etc)
 at a more general level. The user can check the logs to see the exact commands,
 which includes the non-parsed interface text.
+
+__Q__: For NX-OS why didn't you use the `| json` filter from the CLI?
+__A__: While this would have saved a lot of parsing code, I did not want to
+have an inconsistent overall strategy for one network device. Additionally,
+the filter does not render milliseconds properly (eg, SPF throttle timers)
+which reduced my confidence in its overall accuracy.

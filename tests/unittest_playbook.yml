@@ -3,6 +3,8 @@
 # for the introduction of any regressions during development.
 - name: "Perform automated filter (unit) testing"
   hosts: localhost
+  environment:
+    ANSIBLE_CONFIG: "../ansible.cfg"
   tasks:
 
     # All test files, which are lists of ansible tasks, begin with the
@@ -18,7 +20,7 @@
     # This is uncommonly used and should be avoided for general purpose tests.
     - name: "SYS >> Get files matching {{ TASKS | quote }}"
       find:
-        path: "{{ playbook_dir }}/tests"
+        path: "{{ playbook_dir }}"
         patterns: "{{ TASKS }}"
       register: FIND_LIST
 

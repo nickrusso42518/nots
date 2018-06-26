@@ -24,7 +24,7 @@
       - "data[0].state == 'full'"
       - "data[0].role == '-'"
       - "data[0].deadtime == '00:00:35'"
-      - "data[0].deadsec == 35"
+      - "data[0].deadtime_sec == 35"
       - "data[0].peer == '10.125.95.7'"
       - "data[0].intf == 'gigabiteth0/1'"
 
@@ -36,7 +36,7 @@
       - "data[1].state == 'full'"
       - "data[1].role == 'dr'"
       - "data[1].deadtime == '00:00:34'"
-      - "data[1].deadsec == 34"
+      - "data[1].deadtime_sec == 34"
       - "data[1].peer == '10.125.95.137'"
       - "data[1].intf == 'port-chan8.33'"
 
@@ -48,7 +48,7 @@
       - "data[2].state == '2way'"
       - "data[2].role == 'drother'"
       - "data[2].deadtime == '11:22:33'"
-      - "data[2].deadsec == 40953"
+      - "data[2].deadtime_sec == 40953"
       - "data[2].peer == '10.108.0.0'"
       - "data[2].intf == 'nve8'"
 ...

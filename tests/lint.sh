@@ -14,7 +14,7 @@ echo "YAML linting started"
 for f in $(find . -name "*.yml"); do
   # Print the filename, then run 'yamllist' in strict mode
   echo "checking $f"
-  yamllint -s $f
+  yamllint --strict $f
   # Sum the rc from yamllint with the sum
   rc=$((rc + $?))
 done
@@ -25,7 +25,7 @@ echo "Python linting started"
 for f in $(find . -name "*.py"); do
   # Print the filename, then run 'pylint'
   echo "checking $f"
-  pylint $f
+  pylint --score n $f
   # Sum the rc from pylint with the sum
   rc=$((rc + $?))
 done

@@ -40,6 +40,13 @@ class FilterModule(object):
 
     @staticmethod
     def _read_match(match, key_filler_list=None):
+        '''
+        Helper function which consumes a match object and an optional
+        list of keys to populate with None values if match is invalid.
+        Many operations follow this basic workflow, which iterates over
+        the items captured in the match, attempts to make them integers
+        whenever possible, and returns the resulting dict.
+        '''
         return_dict = None
         if match:
             return_dict = match.groupdict()
@@ -54,12 +61,16 @@ class FilterModule(object):
 
     @staticmethod
     def _get_match_items(pattern, text, extra_flags=0):
+        '''
+        Helper function that can perform iterative block matching
+        given a pattern and input text. Additional regex flags (re.DOTALL, etc)
+        can be optionally specified. Any fields that can be parsed as
+        integers are converted and the list of dictionaries containing the
+        matches of each block is returned.
+        '''
         regex = re.compile(pattern, re.VERBOSE + extra_flags)
         items = [match.groupdict() for match in regex.finditer(text)]
         for item in items:
-            # If there is an 'intf' key, make it lowercase
-            #if 'intf' in item:
-             #   item['intf'] = item['intf'].lower()
             for key in item.keys():
                 item[key] = FilterModule._try_int(item[key])
 
@@ -68,7 +79,7 @@ class FilterModule(object):
     @staticmethod
     def nxos_ospf_traffic(text):
         '''
-        Parses information from the Cisco IOS-XR "show ip ospf traffic" command
+        Parses information from the Cisco NXOS "show ip ospf traffic" command
         family. This is useful for verifying various characteristics of
         an OSPF process/area statistics for troubleshooting.
         '''
@@ -112,11 +123,10 @@ class FilterModule(object):
     @staticmethod
     def nxos_ospf_dbsum(text):
         '''
-        Parses information from the Cisco IOS
+        Parses information from the Cisco NXOS
         "show ip ospf database database-summary" command family.
         This is useful for verifying various characteristics of
         an OSPF database to count LSAs for simple verification.
-        Note that this parser is generic enough to cover Cisco IOS-XR also.
         '''
         return_dict = {}
         process_pattern = r"""
@@ -156,6 +166,7 @@ class FilterModule(object):
 
         return_dict.update({'areas': areas})
         return return_dict
+
     @staticmethod
     def nxos_ospf_neighbor(text):
         '''
@@ -172,25 +183,7 @@ class FilterModule(object):
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
         """
-        regex = re.compile(pattern, re.VERBOSE)
-        ospf_neighbors = []
-        for s in text.split('\n'):
-            m = regex.search(s)
-            if m:
-                d = m.groupdict()
-                d['priority'] = FilterModule._try_int(d['priority'])
-                d['state'] = d['state'].lower()
-                d['role'] = d['role'].lower()
-                d['intf'] = d['intf'].lower()
-
-                up_times = d['uptime'].split(':')
-                times = [FilterModule._try_int(t) for t in up_times]
-                upsec = times[0] * 3600 + times[1] * 60 + times[2]
-                d.update({'upsec': upsec})
-
-                ospf_neighbors.append(d)
-
-        return ospf_neighbors
+        return FilterModule._ospf_neighbor(pattern, text, ['uptime'])
 
     @staticmethod
     def nxos_ospf_basic(text):
@@ -237,7 +230,8 @@ class FilterModule(object):
         areas = [match.groupdict() for match in regex.finditer(text)]
         for area in areas:
             area['num_intfs'] = FilterModule._try_int(area['num_intfs'])
-            area['id'] = FilterModule._try_int(ipaddress.IPv4Address(area['id_dd']))
+            converted_dd = ipaddress.IPv4Address(area['id_dd'])
+            area['id'] = FilterModule._try_int(converted_dd)
             if not area['type']:
                 area['type'] = 'standard'
             else:
@@ -275,25 +269,7 @@ class FilterModule(object):
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
         """
-        regex = re.compile(pattern, re.VERBOSE)
-        ospf_neighbors = []
-        for s in text.split('\n'):
-            m = regex.search(s)
-            if m:
-                d = m.groupdict()
-                d['priority'] = FilterModule._try_int(d['priority'])
-                d['state'] = d['state'].lower()
-                d['role'] = d['role'].lower()
-                d['intf'] = d['intf'].lower()
-
-                dead_times = d['deadtime'].split(':')
-                times = [FilterModule._try_int(t) for t in dead_times]
-                deadsec = times[0] * 3600 + times[1] * 60 + times[2]
-                d.update({'deadsec': deadsec})
-
-                ospf_neighbors.append(d)
-
-        return ospf_neighbors
+        return FilterModule._ospf_neighbor(pattern, text, ['deadtime'])
 
     @staticmethod
     def ios_ospf_basic(text):
@@ -456,18 +432,18 @@ class FilterModule(object):
         """
         regex = re.compile(pattern, re.VERBOSE)
         frr_area_dict = {}
-        for s in text.split('\n'):
-            m = regex.search(s)
-            if m:
-                d = m.groupdict()
-                area = 'area' + d['id']
-                d['id'] = FilterModule._try_int(d['id'])
-                d['rlfa'] = d['rlfa'].lower() == 'yes'
-                d['tilfa'] = d['tilfa'].lower() == 'yes'
-                d['pref_pri'] = d['pref_pri'].lower()
-                d['topology'] = d['topology'].lower()
+        for line in text.split('\n'):
+            match = regex.search(line)
+            if match:
+                gdict = match.groupdict()
+                area = 'area' + gdict['id']
+                gdict['id'] = FilterModule._try_int(gdict['id'])
+                gdict['rlfa'] = gdict['rlfa'].lower() == 'yes'
+                gdict['tilfa'] = gdict['tilfa'].lower() == 'yes'
+                gdict['pref_pri'] = gdict['pref_pri'].lower()
+                gdict['topology'] = gdict['topology'].lower()
 
-                frr_area_dict.update({area: d})
+                frr_area_dict.update({area: gdict})
 
         return frr_area_dict
 
@@ -489,17 +465,17 @@ class FilterModule(object):
         """
         regex = re.compile(pattern, re.VERBOSE)
         bfd_neighbors = []
-        for s in text.split('\n'):
-            m = regex.search(s)
-            if m:
-                d = m.groupdict()
-                d['ld'] = FilterModule._try_int(d['ld'])
-                d['rd'] = FilterModule._try_int(d['rd'])
-                d['rhrs'] = d['rhrs'].lower()
-                d['state'] = d['state'].lower()
-                d['intf'] = d['intf'].lower()
+        for line in text.split('\n'):
+            match = regex.search(line)
+            if match:
+                gdict = match.groupdict()
+                gdict['ld'] = FilterModule._try_int(gdict['ld'])
+                gdict['rd'] = FilterModule._try_int(gdict['rd'])
+                gdict['rhrs'] = gdict['rhrs'].lower()
+                gdict['state'] = gdict['state'].lower()
+                gdict['intf'] = gdict['intf'].lower()
 
-                bfd_neighbors.append(d)
+                bfd_neighbors.append(gdict)
 
         return bfd_neighbors
 
@@ -518,7 +494,7 @@ class FilterModule(object):
                 is_up = bfd_nbr['state'] == 'up' and bfd_nbr['rhrs'] == 'up'
                 return is_up
 
-        raise ValueError('Peer {0} not found in bfd_nbr_list'.format(ospf_nbr['peer']))
+        raise ValueError('{0} not in bfd_nbr_list'.format(ospf_nbr['peer']))
 
     @staticmethod
     def iosxr_ospf_neighbor(text):
@@ -537,28 +513,40 @@ class FilterModule(object):
             (?P<uptime>[0-9:]+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
         """
+        return FilterModule._ospf_neighbor(
+            pattern, text, ['deadtime', 'uptime'])
+
+    @staticmethod
+    def _ospf_neighbor(pattern, text, time_keys=None):
+        '''
+        Helper function specific to OSPF neighbor parsing. Each device type
+        is slightly different in terms of the information provided, but
+        most fields are the same. The time_keys parameter is a list of keys
+        which are expected to have values in the format "hh:mm:ss". These
+        are commonly uptime, deadtime, etc ... and are most useful when
+        converted into seconds as an integer for comparative purposes.
+        '''
         regex = re.compile(pattern, re.VERBOSE)
         ospf_neighbors = []
-        for s in text.split('\n'):
-            m = regex.search(s)
-            if m:
-                d = m.groupdict()
-                d['priority'] = FilterModule._try_int(d['priority'])
-                d['state'] = d['state'].lower()
-                d['role'] = d['role'].lower()
-                d['intf'] = d['intf'].lower()
+        for line in text.split('\n'):
+            match = regex.search(line)
+            if match:
+                gdict = match.groupdict()
+                gdict['priority'] = FilterModule._try_int(gdict['priority'])
+                gdict['state'] = gdict['state'].lower()
+                gdict['role'] = gdict['role'].lower()
+                gdict['intf'] = gdict['intf'].lower()
 
-                dead_times = d['deadtime'].split(':')
-                times = [FilterModule._try_int(t) for t in dead_times]
-                deadsec = times[0] * 3600 + times[1] * 60 + times[2]
-                d.update({'deadsec': deadsec})
+                # If time keys is specified, iterate over the keys and perform
+                # the math to convert hh:mm:ss to an integer of summed seconds.
+                if time_keys:
+                    for k in time_keys:
+                        times = gdict[k].split(':')
+                        parts = [FilterModule._try_int(t) for t in times]
+                        totalsec = parts[0] * 3600 + parts[1] * 60 + parts[2]
+                        gdict.update({k + '_sec': totalsec})
 
-                up_times = d['uptime'].split(':')
-                times = [FilterModule._try_int(t) for t in up_times]
-                upsec = times[0] * 3600 + times[1] * 60 + times[2]
-                d.update({'upsec': upsec})
-
-                ospf_neighbors.append(d)
+                ospf_neighbors.append(gdict)
 
         return ospf_neighbors
 
@@ -572,11 +560,14 @@ class FilterModule(object):
         return_dict = {}
 
         process_pattern = r"""
-            Routing\s+Process\s+"ospf\s+(?P<id>\d+)"\s+with\s+ID\s+(?P<rid>\d+\.\d+\.\d+\.\d+)
+            Routing\s+Process\s+"ospf\s+(?P<id>\d+)"\s+with\s+ID\s+
+            (?P<rid>\d+\.\d+\.\d+\.\d+)
             .*
             \s*Initial\s+SPF\s+schedule\s+delay\s+(?P<init_spf>\d+)\s+msecs
-            \s*Minimum\s+hold\s+time\s+between\s+two\s+consecutive\s+SPFs\s+(?P<min_spf>\d+)\s+msecs
-            \s*Maximum\s+wait\s+time\s+between\s+two\s+consecutive\s+SPFs\s+(?P<max_spf>\d+)\s+msecs
+            \s*Minimum\s+hold\s+time\s+between\s+two\s+consecutive
+            \s+SPFs\s+(?P<min_spf>\d+)\s+msecs
+            \s*Maximum\s+wait\s+time\s+between\s+two\s+consecutive
+            \s+SPFs\s+(?P<max_spf>\d+)\s+msecs
         """
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
