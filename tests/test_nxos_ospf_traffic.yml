@@ -1,0 +1,63 @@
+---
+- name: "Store NXOS OSPF traffic stats text"
+  set_fact:
+    text: |-
+      OSPF Process ID 65535 VRF default, Packet Counters (cleared 00:26:37 ago)
+      Total: 184 in, 343 out
+      LSU transmissions: first 4, rxmit 2, for req 2 nbr xmit 0
+      Flooding packets output throttled (IP/tokens): 0 (0/0)
+      Ignored LSAs: 1, LSAs dropped during SPF: 2
+      LSAs dropped during graceful restart: 3
+      Errors: drops in        4, drops out       5, errors in       6,
+              errors out      7, hellos in       8, dbds in         9,
+              lsreq in        10, lsu in          11, lsacks in       12,
+              unknown in      13, unknown out     14, no ospf         15,
+              bad version     16, bad crc         17, dup rid         18,
+              dup src         19, invalid src     20, invalid dst     21,
+              no nbr          22, passive         23, wrong area      24,
+              pkt length      25, nbr changed rid/ip addr            26
+              bad auth        27, no vrf          28
+     
+                hellos       dbds     lsreqs       lsus       acks
+       In:        164          7          2          8          3
+      Out:        167        163          2          8          3
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | nxos_ospf_traffic }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing of traffic element succeeded"
+  assert:
+    that:
+      - "data[0].pid == 65535"
+      - "data[0].drops_in == 4"
+      - "data[0].drops_out == 5"
+      - "data[0].errors_in == 6"
+      - "data[0].errors_out == 7"
+      - "data[0].hellos_in == 8"
+      - "data[0].dbds_in == 9"
+      - "data[0].lsreq_in == 10"
+      - "data[0].lsu_in == 11"
+      - "data[0].lsacks_in == 12"
+      - "data[0].unk_in == 13"
+      - "data[0].unk_out == 14"
+      - "data[0].no_ospf == 15"
+      - "data[0].bad_ver == 16"
+      - "data[0].bad_crc == 17"
+      - "data[0].dup_rid == 18"
+      - "data[0].dup_src == 19"
+      - "data[0].inv_src == 20"
+      - "data[0].inv_dst == 21"
+      - "data[0].no_nbr == 22"
+      - "data[0].passive == 23"
+      - "data[0].wrong_area == 24"
+      - "data[0].pkt_len == 25"
+      - "data[0].nbr_change == 26"
+      - "data[0].bad_auth == 27"
+      - "data[0].no_vrf == 28"
+    msg: "parsing failed; see JSON dump from previous task"
+...

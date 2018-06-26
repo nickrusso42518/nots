@@ -61,28 +61,54 @@ class FilterModule(object):
         an OSPF process/area statistics for troubleshooting.
         '''
 
-        interface_pattern = r"""
-            Interface\s+(?P<intf>\S+)\s+
-            Process\s+ID\s+(?P<pid>\d+)\s+
-            Area\s+(?P<area_id>\d+)\s+
+        process_pattern = r"""
+            OSPF\s+Process\s+ID\s+(?P<pid>\d+)\s+
             .*?
-            OSPF\s+Header\s+Errors
-            \s+Version\s+(?P<version>\d+)
-            \s+LLS\s+(?P<lls>\d+)
-            \s+Type\s+(?P<type>\d+)
-
-            \s+Unspecified\s+TX\s+(?P<unspec_tx>\d+)
-            \s+Socket\s+(?P<socket>\d+)
+            Ignored\s+LSAs:\s+(?P<ignore_lsa>\d+),\s+
+            LSAs\s+dropped\s+during\s+SPF:\s+(?P<lsa_drop_spf>\d+)\s+
+            LSAs\s+dropped\s+during\s+graceful\s+restart:\s+(?P<lsa_drop_gr>\d+)
+            \s+Errors:\s+
+            drops\s+in\s+(?P<drops_in>\d+),\s+
+            drops\s+out\s+(?P<drops_out>\d+),\s+
+            errors\s+in\s+(?P<errors_in>\d+),\s+
+            errors\s+out\s+(?P<errors_out>\d+),\s+
+            hellos\s+in\s+(?P<hellos_in>\d+),\s+
+            dbds\s+in\s+(?P<dbds_in>\d+),\s+
+            lsreq\s+in\s+(?P<lsreq_in>\d+),\s+
+            lsu\s+in\s+(?P<lsu_in>\d+),\s+
+            lsacks\s+in\s+(?P<lsacks_in>\d+),\s+
+            unknown\s+in\s+(?P<unk_in>\d+),\s+
+            unknown\s+out\s+(?P<unk_out>\d+),\s+
+            no\s+ospf\s+(?P<no_ospf>\d+),\s+
+            bad\s+version\s+(?P<bad_ver>\d+),\s+
+            bad\s+crc\s+(?P<bad_crc>\d+),\s+
+            dup\s+rid\s+(?P<dup_rid>\d+),\s+
+            dup\s+src\s+(?P<dup_src>\d+),\s+
+            invalid\s+src\s+(?P<inv_src>\d+),\s+
+            invalid\s+dst\s+(?P<inv_dst>\d+),\s+
+            no\s+nbr\s+(?P<no_nbr>\d+),\s+
+            passive\s+(?P<passive>\d+),\s+
+            wrong\s+area\s+(?P<wrong_area>\d+),\s+
+            pkt\s+length\s+(?P<pkt_len>\d+),\s+
+            nbr\s+changed\s+rid/ip\s+addr\s+(?P<nbr_change>\d+)\s+
+            bad\s+auth\s+(?P<bad_auth>\d+),\s+
+            no\s+vrf\s+(?P<no_vrf>\d+)
         """
 
-        regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
-        intfs = [match.groupdict() for match in regex.finditer(text)]
-        for intf in intfs:
-            intf['intf'] = intf['intf'].lower()
-            for key in intf.keys():
-                intf[key] = FilterModule._try_int(intf[key])
+        return FilterModule._ospf_dbsum(process_pattern, text)
 
-        return intfs
+    @staticmethod
+    def _ospf_dbsum(pattern, text):
+        regex = re.compile(pattern, re.VERBOSE + re.DOTALL)
+        items = [match.groupdict() for match in regex.finditer(text)]
+        for item in items:
+            # If there is an 'intf' key, make it lowercase
+            if 'intf' in item:
+                item['intf'] = item['intf'].lower()
+            for key in item.keys():
+                item[key] = FilterModule._try_int(item[key])
+
+        return items
 
     @staticmethod
     def nxos_ospf_dbsum(text):
@@ -445,14 +471,7 @@ class FilterModule(object):
             \s+Checksum\s+(?P<lsa_checksum>\d+)
         """
 
-        regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
-        intfs = [match.groupdict() for match in regex.finditer(text)]
-        for intf in intfs:
-            intf['intf'] = intf['intf'].lower()
-            for key in intf.keys():
-                intf[key] = FilterModule._try_int(intf[key])
-
-        return intfs
+        return FilterModule._ospf_dbsum(interface_pattern, text)
 
     @staticmethod
     def ios_ospf_frr(text):
@@ -677,11 +696,4 @@ class FilterModule(object):
             \s+Socket\s+(?P<socket>\d+)
         """
 
-        regex = re.compile(interface_pattern, re.VERBOSE + re.DOTALL)
-        intfs = [match.groupdict() for match in regex.finditer(text)]
-        for intf in intfs:
-            intf['intf'] = intf['intf'].lower()
-            for key in intf.keys():
-                intf[key] = FilterModule._try_int(intf[key])
-
-        return intfs
+        return FilterModule._ospf_dbsum(interface_pattern, text)

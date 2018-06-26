@@ -14,8 +14,6 @@
     OSPF_NBR: "{{ CLI_OUTPUT.stdout[1] | nxos_ospf_neighbor }}"
     OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | nxos_ospf_dbsum }}"
     OSPF_TRAF: "{{ CLI_OUTPUT.stdout[3] | nxos_ospf_traffic }}"
-    OSPF_FRR: "{{ CLI_OUTPUT.stdout[4] | nxos_ospf_frr }}"
-    BFD_NBR: "{{ CLI_OUTPUT.stdout[5] | nxos_bfd_neighbor }}"
 
 - name: "SYS >> Sanity: Check that process ID {{ process.id }} matches"
   assert:
@@ -28,7 +26,7 @@
 
 - name: "INCLUDE >> Detailed OSPF statistics processing"
   include_tasks: "stats.yml"
-  when: "process.stats is defined and not 'oopback' in item.intf"
+  when: "process.stats is defined"  # not intf-specific, no loopback check
   with_items: "{{ OSPF_TRAF }}"
   loop_control:
     label: "intf:{{ item.intf }}"
@@ -54,18 +52,6 @@
   loop_control:
     label: "nbr:{{ item.rid }}  state:{{ item.state }}  role:{{ item.role }}"
 
-- name: "SYS >> Ensure all OSPF neighbors are also BFD neighbors"
-  assert:
-    that: "BFD_NBR | check_bfd_up(item)"
-    msg: |-
-      Could not find OSPF neighbor in list of BFD neighbors.
-      expected OSPF neighbor {{ item | to_nice_json }}
-      in list of BFD neighbors {{ BFD_NBR | to_nice_json }}
-  when: "process.has_bfd is defined and process.has_bfd"
-  with_items: "{{ OSPF_NBR }}"
-  loop_control:
-    label: "peer:{{ item.peer }}"
-
 - name: "SYS >> Check process ID {{ process.id }} SPF tuning timers"
   assert:
     that:
@@ -87,30 +73,6 @@
       Mismatched reference bandwidth from specification.
       expected {{ process.ref_bw }}, saw {{ OSPF_BASIC.process.ref_bw }}
   when: "process.ref_bw is defined"
-
-- name: "SYS >> Check iSPF enabled {{ process.has_ispf | default('-') }}"
-  assert:
-    that: "process.has_ispf == OSPF_BASIC.process.has_ispf"
-    msg: |-
-      Mismatched iSPF configuration from specification.
-      expected {{ process.has_ispf }}, saw {{ OSPF_BASIC.process.has_ispf }}
-  when: "process.has_ispf is defined"
-
-- name: "SYS >> Check BFD enabled {{ process.has_bfd | default('-') }}"
-  assert:
-    that: "process.has_bfd == OSPF_BASIC.process.has_bfd"
-    msg: |-
-      Mismatched BFD configuration from specification.
-      expected {{ process.has_bfd }}, saw {{ OSPF_BASIC.process.has_bfd }}
-  when: "process.has_bfd is defined"
-
-- name: "SYS >> Check TTL-sec enabled {{ process.has_ttlsec | default('-') }}"
-  assert:
-    that: "process.has_ttlsec == OSPF_BASIC.process.has_ttlsec"
-    msg: |-
-      Mismatched TTL security configuration from specification.
-      expected {{ process.has_ttlsec }}, saw {{ OSPF_BASIC.process.has_ttlsec }}
-  when: "process.has_ttlsec is defined"
 
 - name: "SYS >> Dynamically determine if router should be an ABR"
   set_fact:
@@ -168,16 +130,4 @@
     msg: >-
       too many LSA5 {{ OSPF_DB.process.total_lsa5 }} < {{ process.max_lsa5 }}
   when: "process.max_lsa5 is defined"
-
-- name: "Check FRR status in each relevant area"
-  assert:
-    that: "item.value.has_frr == OSPF_FRR[item.key] is defined"
-    msg: |-
-      FRR config mismatches between expected and actual
-      expected {{ item.value.has_frr }}
-      saw {{ OSPF_FRR[item.key] | to_nice_json }}
-  when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
-  with_dict: "{{ all_areas }}"
-  loop_control:
-    label: "area_id:{{ item.key }}"
 ...

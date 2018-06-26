@@ -31,7 +31,7 @@ The following test cases apply only to Cisco IOS and IOS-XE devices.
     * `nbr_ignored`: Number of packets received from an ignored neighbor.
     * `no_sl`: Number of packets received for a non-existent sham link.
     * `no_vl`: Number of packets received for a non-existent virtual link.
-    * `self_orig`: It is not clear what this is measuring.
+    * `self_orig`: LSAs received by router that were originated by this router.
     * `test_discard`: It is not clear what this is measuring.
     * `ttlsec_fail`: Number of packets not meeting the TTL-security hop count.
     * `unk_nbr`: Number of packets received from an unknown neighbor.

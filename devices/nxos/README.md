@@ -22,8 +22,11 @@ The following test cases apply only to Cisco NXOS devices.
     * `error_in`: Packets received with errors.
     * `error_out`: Packets sent with errors.
     * `hello_in`: Malformed OSPF hello packets received.
-    * `inv_crc`: Invalid CRC packets. Unclear how it differs from `bad_src`.
-    * `inv_dest`: OSPF packets with invalid destination IP addresses.
+    * `ignore_lsa`: LSAs received from a neighbor that were ignored.
+    * `inv_src`: OSPF packets with invalid source IP addresses.
+    * `inv_dst`: OSPF packets with invalid destination IP addresses.
+    * `lsa_drop_gr`: LSAs dropped during a graceful restart run.
+    * `lsa_drop_spf`: LSAs dropped during an SPF run.
     * `lsacks_in`: Malformed link state acknowledgements received.
     * `lsreq_in`: Malformed link state requests received.
     * `lsu_in`:  Malformed link state updates received.

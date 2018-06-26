@@ -32,7 +32,7 @@ The following test cases apply only to IOS-XR devices.
     * `unspec_rx`: It is not clear what this is measuring.
     * `socket`: Number of packets dropped due to a socket error.
     * `area_mismatch`: Number of packets received with mismatched area IDs.
-    * `self_orig`: It is not clear what this is measuring.
+    * `self_orig`: LSAs received by router that were originated by this router.
     * `dup_rid`: Number of packets received with duplicate router IDs.
     * `gshut`: Number of graceful shutdown packets received.
     * `passive_intf`: Nubmer of packets received on a passive interface.
