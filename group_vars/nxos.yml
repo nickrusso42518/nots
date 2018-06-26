@@ -25,11 +25,14 @@ process:
     drops_out: 0
     dup_rid: 0
     dup_src: 0
-    error_in: 0
-    error_out: 0
-    hello_in: 0
-    inv_crc: 0
-    inv_dest: 0
+    errors_in: 0
+    errors_out: 0
+    hellos_in: 0
+    ignore_lsa: 0
+    inv_dst: 0
+    inv_src: 0
+    lsa_drop_gr: 0
+    lsa_drop_spf: 0
     lsacks_in: 0
     lsreq_in: 0
     lsu_in: 0

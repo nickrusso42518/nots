@@ -19,9 +19,9 @@ The following test cases apply only to Cisco NXOS devices.
     * `drops_out`: Outbound packets that were dropped.
     * `dup_rid`: Number of packets received with duplicate router IDs.
     * `dup_src`: Number of duplicated source address packets received.
-    * `error_in`: Packets received with errors.
-    * `error_out`: Packets sent with errors.
-    * `hello_in`: Malformed OSPF hello packets received.
+    * `errors_in`: Packets received with errors.
+    * `errors_out`: Packets sent with errors.
+    * `hellos_in`: Malformed OSPF hello packets received.
     * `ignore_lsa`: LSAs received from a neighbor that were ignored.
     * `inv_src`: OSPF packets with invalid source IP addresses.
     * `inv_dst`: OSPF packets with invalid destination IP addresses.

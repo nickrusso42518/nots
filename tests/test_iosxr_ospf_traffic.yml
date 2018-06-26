@@ -77,7 +77,7 @@
 - name: "Ensure parsing of first element succeeded"
   assert:
     that:
-      - "data[0].intf == 'gigabitethernet0/0/0/0.511'"
+      - "data[0].intf | lower == 'gigabitethernet0/0/0/0.511'"
       - "data[0].version == 1"
       - "data[0].type == 2"
       - "data[0].length == 3"
@@ -111,7 +111,7 @@
 - name: "Ensure parsing of second element succeeded"
   assert:
     that:
-      - "data[1].intf == 'tunnel-ip105'"
+      - "data[1].intf | lower == 'tunnel-ip105'"
       - "data[1].version == 10"
       - "data[1].type == 2"
       - "data[1].length == 3"

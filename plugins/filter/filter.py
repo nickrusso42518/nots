@@ -9,6 +9,7 @@ https://www.ansible.com/
 from __future__ import print_function
 import string
 import re
+import ipaddress
 from StringIO import StringIO
 
 class FilterModule(object):
@@ -52,6 +53,19 @@ class FilterModule(object):
                 return_dict.update({key, None})
 
         return return_dict
+
+    @staticmethod
+    def _get_match_items(pattern, text, extra_flags=0):
+        regex = re.compile(pattern, re.VERBOSE + extra_flags)
+        items = [match.groupdict() for match in regex.finditer(text)]
+        for item in items:
+            # If there is an 'intf' key, make it lowercase
+            #if 'intf' in item:
+             #   item['intf'] = item['intf'].lower()
+            for key in item.keys():
+                item[key] = FilterModule._try_int(item[key])
+
+        return items
     
     @staticmethod
     def nxos_ospf_traffic(text):
@@ -95,10 +109,10 @@ class FilterModule(object):
             no\s+vrf\s+(?P<no_vrf>\d+)
         """
 
-        return FilterModule._ospf_dbsum(process_pattern, text)
+        return FilterModule._get_match_items(process_pattern, text, re.DOTALL)
 
     @staticmethod
-    def _ospf_dbsum(pattern, text):
+    def _ospf_traffic(pattern, text):
         regex = re.compile(pattern, re.VERBOSE + re.DOTALL)
         items = [match.groupdict() for match in regex.finditer(text)]
         for item in items:
@@ -109,6 +123,12 @@ class FilterModule(object):
                 item[key] = FilterModule._try_int(item[key])
 
         return items
+
+        regex = re.compile(area_pattern, re.VERBOSE)
+        areas = [match.groupdict() for match in regex.finditer(text)]
+        for area in areas:
+            for key in area.keys():
+                area[key] = FilterModule._try_int(area[key])
 
     @staticmethod
     def nxos_ospf_dbsum(text):
@@ -153,11 +173,7 @@ class FilterModule(object):
             Type-7\s+AS\s+External\s+(?P<num_lsa7>\d+)\s+
         """
 
-        regex = re.compile(area_pattern, re.VERBOSE)
-        areas = [match.groupdict() for match in regex.finditer(text)]
-        for area in areas:
-            for key in area.keys():
-                area[key] = FilterModule._try_int(area[key])
+        areas = FilterModule._get_match_items(area_pattern, text)
 
         return_dict.update({'areas': areas})
         return return_dict
@@ -231,7 +247,7 @@ class FilterModule(object):
             return_dict.update({'process': process})
         
         area_pattern = r"""
-            Area\s+(?:BACKBONE)?\((?P<id>\d+\.\d+\.\d+\.\d+)\)\s+
+            Area\s+(?:BACKBONE)?\((?P<id_dd>\d+\.\d+\.\d+\.\d+)\)\s+
             \s+(?:Area\s+has\s+existed.*)\n
             \s+Interfaces\s+in\s+this\s+area:\s+(?P<num_intfs>\d+).*\n
             \s+(?:Passive.*)\n
@@ -242,7 +258,7 @@ class FilterModule(object):
         areas = [match.groupdict() for match in regex.finditer(text)]
         for area in areas:
             area['num_intfs'] = FilterModule._try_int(area['num_intfs'])
-            area['id'] = FilterModule._try_int(area['id'])
+            area['id'] = FilterModule._try_int(ipaddress.IPv4Address(area['id_dd']))
             if not area['type']:
                 area['type'] = 'standard'
             else:
@@ -250,7 +266,6 @@ class FilterModule(object):
 
         return_dict.update({'areas': areas})
         return return_dict
-
 
 #16843009
     @staticmethod
@@ -422,11 +437,7 @@ class FilterModule(object):
             Type-7\s+Ext\s+(?P<num_lsa7>\d+)
         """
 
-        regex = re.compile(area_pattern, re.VERBOSE)
-        areas = [match.groupdict() for match in regex.finditer(text)]
-        for area in areas:
-            for key in area.keys():
-                area[key] = FilterModule._try_int(area[key])
+        areas = FilterModule._get_match_items(area_pattern, text)
 
         return_dict.update({'areas': areas})
         return return_dict
@@ -471,7 +482,7 @@ class FilterModule(object):
             \s+Checksum\s+(?P<lsa_checksum>\d+)
         """
 
-        return FilterModule._ospf_dbsum(interface_pattern, text)
+        return FilterModule._get_match_items(interface_pattern, text, re.DOTALL)
 
     @staticmethod
     def ios_ospf_frr(text):
@@ -696,4 +707,4 @@ class FilterModule(object):
             \s+Socket\s+(?P<socket>\d+)
         """
 
-        return FilterModule._ospf_dbsum(interface_pattern, text)
+        return FilterModule._get_match_items(interface_pattern, text, re.DOTALL)

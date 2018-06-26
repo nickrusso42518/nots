@@ -1,5 +1,5 @@
 ---
-- name: "SYS >> Check bad_auth errors on intf {{ item.intf }}"
+- name: "SYS >> Check bad_auth errors on pid {{ item.pid }}"
   assert:
     that: "item.bad_auth <= process.stats.bad_auth"
     msg: |-
@@ -11,7 +11,7 @@
       saw {{ item.bad_auth }} errors on device
   when: "process.stats.bad_auth is defined"
 
-- name: "SYS >> Check bad_crc errors on intf {{ item.intf }}"
+- name: "SYS >> Check bad_crc errors on pid {{ item.pid }}"
   assert:
     that: "item.bad_crc <= process.stats.bad_crc"
     msg: |-
@@ -23,7 +23,7 @@
       saw {{ item.bad_crc }} errors on device
   when: "process.stats.bad_crc is defined"
 
-- name: "SYS >> Check bad_ver errors on intf {{ item.intf }}"
+- name: "SYS >> Check bad_ver errors on pid {{ item.pid }}"
   assert:
     that: "item.bad_ver <= process.stats.bad_ver"
     msg: |-
@@ -35,7 +35,7 @@
       saw {{ item.bad_ver }} errors on device
   when: "process.stats.bad_ver is defined"
 
-- name: "SYS >> Check dbds_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check dbds_in errors on pid {{ item.pid }}"
   assert:
     that: "item.dbds_in <= process.stats.dbds_in"
     msg: |-
@@ -47,7 +47,7 @@
       saw {{ item.dbds_in }} errors on device
   when: "process.stats.dbds_in is defined"
 
-- name: "SYS >> Check drops_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check drops_in errors on pid {{ item.pid }}"
   assert:
     that: "item.drops_in <= process.stats.drops_in"
     msg: |-
@@ -59,7 +59,7 @@
       saw {{ item.drops_in }} errors on device
   when: "process.stats.drops_in is defined"
 
-- name: "SYS >> Check drops_out errors on intf {{ item.intf }}"
+- name: "SYS >> Check drops_out errors on pid {{ item.pid }}"
   assert:
     that: "item.drops_out <= process.stats.drops_out"
     msg: |-
@@ -71,7 +71,7 @@
       saw {{ item.drops_out }} errors on device
   when: "process.stats.drops_out is defined"
 
-- name: "SYS >> Check dup_rid errors on intf {{ item.intf }}"
+- name: "SYS >> Check dup_rid errors on pid {{ item.pid }}"
   assert:
     that: "item.dup_rid <= process.stats.dup_rid"
     msg: |-
@@ -83,7 +83,7 @@
       saw {{ item.dup_rid }} errors on device
   when: "process.stats.dup_rid is defined"
 
-- name: "SYS >> Check dup_src errors on intf {{ item.intf }}"
+- name: "SYS >> Check dup_src errors on pid {{ item.pid }}"
   assert:
     that: "item.dup_src <= process.stats.dup_src"
     msg: |-
@@ -95,7 +95,7 @@
       saw {{ item.dup_src }} errors on device
   when: "process.stats.dup_src is defined"
 
-- name: "SYS >> Check errors_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check errors_in errors on pid {{ item.pid }}"
   assert:
     that: "item.errors_in <= process.stats.errors_in"
     msg: |-
@@ -107,7 +107,7 @@
       saw {{ item.errors_in }} errors on device
   when: "process.stats.errors_in is defined"
 
-- name: "SYS >> Check errors_out errors on intf {{ item.intf }}"
+- name: "SYS >> Check errors_out errors on pid {{ item.pid }}"
   assert:
     that: "item.errors_out <= process.stats.errors_out"
     msg: |-
@@ -119,7 +119,7 @@
       saw {{ item.errors_out }} errors on device
   when: "process.stats.errors_out is defined"
 
-- name: "SYS >> Check hellos_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check hellos_in errors on pid {{ item.pid }}"
   assert:
     that: "item.hellos_in <= process.stats.hellos_in"
     msg: |-
@@ -131,7 +131,7 @@
       saw {{ item.hellos_in }} errors on device
   when: "process.stats.hellos_in is defined"
 
-- name: "SYS >> Check inv_dst errors on intf {{ item.intf }}"
+- name: "SYS >> Check inv_dst errors on pid {{ item.pid }}"
   assert:
     that: "item.inv_dst <= process.stats.inv_dst"
     msg: |-
@@ -143,7 +143,7 @@
       saw {{ item.inv_dst }} errors on device
   when: "process.stats.inv_dst is defined"
 
-- name: "SYS >> Check inv_src errors on intf {{ item.intf }}"
+- name: "SYS >> Check inv_src errors on pid {{ item.pid }}"
   assert:
     that: "item.inv_src <= process.stats.inv_src"
     msg: |-
@@ -155,7 +155,7 @@
       saw {{ item.inv_src }} errors on device
   when: "process.stats.inv_src is defined"
 
-- name: "SYS >> Check lsacks_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check lsacks_in errors on pid {{ item.pid }}"
   assert:
     that: "item.lsacks_in <= process.stats.lsacks_in"
     msg: |-
@@ -167,7 +167,7 @@
       saw {{ item.lsacks_in }} errors on device
   when: "process.stats.lsacks_in is defined"
 
-- name: "SYS >> Check lsreq_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check lsreq_in errors on pid {{ item.pid }}"
   assert:
     that: "item.lsreq_in <= process.stats.lsreq_in"
     msg: |-
@@ -179,7 +179,7 @@
       saw {{ item.lsreq_in }} errors on device
   when: "process.stats.lsreq_in is defined"
 
-- name: "SYS >> Check lsu_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check lsu_in errors on pid {{ item.pid }}"
   assert:
     that: "item.lsu_in <= process.stats.lsu_in"
     msg: |-
@@ -191,7 +191,7 @@
       saw {{ item.lsu_in }} errors on device
   when: "process.stats.lsu_in is defined"
 
-- name: "SYS >> Check nbr_change errors on intf {{ item.intf }}"
+- name: "SYS >> Check nbr_change errors on pid {{ item.pid }}"
   assert:
     that: "item.nbr_change <= process.stats.nbr_change"
     msg: |-
@@ -203,7 +203,7 @@
       saw {{ item.nbr_change }} errors on device
   when: "process.stats.nbr_change is defined"
 
-- name: "SYS >> Check no_nbr errors on intf {{ item.intf }}"
+- name: "SYS >> Check no_nbr errors on pid {{ item.pid }}"
   assert:
     that: "item.no_nbr <= process.stats.no_nbr"
     msg: |-
@@ -215,7 +215,7 @@
       saw {{ item.no_nbr }} errors on device
   when: "process.stats.no_nbr is defined"
 
-- name: "SYS >> Check no_ospf errors on intf {{ item.intf }}"
+- name: "SYS >> Check no_ospf errors on pid {{ item.pid }}"
   assert:
     that: "item.no_ospf <= process.stats.no_ospf"
     msg: |-
@@ -227,7 +227,7 @@
       saw {{ item.no_ospf }} errors on device
   when: "process.stats.no_ospf is defined"
 
-- name: "SYS >> Check no_vrf errors on intf {{ item.intf }}"
+- name: "SYS >> Check no_vrf errors on pid {{ item.pid }}"
   assert:
     that: "item.no_vrf <= process.stats.no_vrf"
     msg: |-
@@ -239,7 +239,7 @@
       saw {{ item.no_vrf }} errors on device
   when: "process.stats.no_vrf is defined"
 
-- name: "SYS >> Check passive errors on intf {{ item.intf }}"
+- name: "SYS >> Check passive errors on pid {{ item.pid }}"
   assert:
     that: "item.passive <= process.stats.passive"
     msg: |-
@@ -251,7 +251,7 @@
       saw {{ item.passive }} errors on device
   when: "process.stats.passive is defined"
 
-- name: "SYS >> Check pkt_len errors on intf {{ item.intf }}"
+- name: "SYS >> Check pkt_len errors on pid {{ item.pid }}"
   assert:
     that: "item.pkt_len <= process.stats.pkt_len"
     msg: |-
@@ -263,7 +263,7 @@
       saw {{ item.pkt_len }} errors on device
   when: "process.stats.pkt_len is defined"
 
-- name: "SYS >> Check unk_in errors on intf {{ item.intf }}"
+- name: "SYS >> Check unk_in errors on pid {{ item.pid }}"
   assert:
     that: "item.unk_in <= process.stats.unk_in"
     msg: |-
@@ -275,7 +275,7 @@
       saw {{ item.unk_in }} errors on device
   when: "process.stats.unk_in is defined"
 
-- name: "SYS >> Check unk_out errors on intf {{ item.intf }}"
+- name: "SYS >> Check unk_out errors on pid {{ item.pid }}"
   assert:
     that: "item.unk_out <= process.stats.unk_out"
     msg: |-
@@ -287,7 +287,7 @@
       saw {{ item.unk_out }} errors on device
   when: "process.stats.unk_out is defined"
 
-- name: "SYS >> Check wrong_area errors on intf {{ item.intf }}"
+- name: "SYS >> Check wrong_area errors on pid {{ item.pid }}"
   assert:
     that: "item.wrong_area <= process.stats.wrong_area"
     msg: |-

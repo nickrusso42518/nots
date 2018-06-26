@@ -76,12 +76,16 @@
   assert:
     that:
       - "data.areas | length == 2"
+      - "data.areas[0].id_dd == '0.0.0.0'"
+      - "data.areas[0].id == 0"
       - "data.areas[0].type == 'standard'"
       - "data.areas[0].num_intfs == 1"
 
 - name: "Ensure parsing success for area 4369 (0.0.17.17)"
   assert:
     that:
+      - "data.areas[1].id_dd == '0.0.17.17'"
+      - "data.areas[1].id == 4369"
       - "data.areas[1].type == 'stub'"
       - "data.areas[1].num_intfs == 17"
 ...

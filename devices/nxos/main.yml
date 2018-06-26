@@ -29,7 +29,7 @@
   when: "process.stats is defined"  # not intf-specific, no loopback check
   with_items: "{{ OSPF_TRAF }}"
   loop_control:
-    label: "intf:{{ item.intf }}"
+    label: "pid:{{ item.pid }}"
 
 - name: "SYS >> Ensure router has {{ my_nbr_count | default('-') }} neighbors"
   assert:
@@ -39,13 +39,14 @@
       expected {{ my_nbr_count }}, saw {{ OSPF_NBR | length }}
   when: "my_nbr_count is defined"
 
+# nxos uses "twoway" not "2way" like the others
 - name: "SYS >> Assert that all OSPF neighbors are up and healthy"
   assert:
     that: >-
       item.state | lower == 'full' or
-      (item.state | lower == '2way' and item.role | lower == 'drother')
+      (item.state | lower == 'twoway' and item.role | lower == 'drother')
     msg: |-
-      Invalid neighbor. state must be full or a combination of 2way plus
+      Invalid neighbor. state must be full or a combination of twoway plus
       the drother role to be considered valid.
       saw {{ item }}
   with_items: "{{ OSPF_NBR }}"

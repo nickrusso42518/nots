@@ -83,7 +83,7 @@
 - name: "Ensure parsing succeeded for first element"
   assert:
     that:
-      - "data[0].intf == 'tunnel102'"
+      - "data[0].intf | lower == 'tunnel102'"
       - "data[0].adj_throttle == 19"
       - "data[0].area_mismatch == 8"
       - "data[0].auth == 17"
@@ -114,7 +114,7 @@
 - name: "Ensure parsing succeeded for second element"
   assert:
     that:
-      - "data[1].intf == 'gigabitethernet1/2/3.456'"
+      - "data[1].intf | lower == 'gigabitethernet1/2/3.456'"
       - "data[1].adj_throttle == 19"
       - "data[1].area_mismatch == 8"
       - "data[1].auth == 17"
