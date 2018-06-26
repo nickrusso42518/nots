@@ -5,8 +5,8 @@
       OSPF Process ID 1 VRF default
       Total number of neighbors: 2
       Neighbor ID     Pri State      Up Time  Address       Interface
-      2.2.2.2           1 FULL/ -    00:06:47 192.168.0.2   Eth1/43 
-      2.255.2.0       255 2WAY/BDR   21:01:05 10.192.17.6   Port-Cha1 
+      2.2.2.2           1 FULL/ -    00:06:47 192.168.0.2   Eth1/43
+      2.255.2.0       255 2WAY/BDR   21:01:05 10.192.17.6   Port-Cha1
 
 - name: "Perform parsing"
   set_fact:

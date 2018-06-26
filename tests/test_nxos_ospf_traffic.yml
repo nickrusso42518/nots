@@ -10,14 +10,14 @@
       LSAs dropped during graceful restart: 3
       Errors: drops in        4, drops out       5, errors in       6,
               errors out      7, hellos in       8, dbds in         9,
-              lsreq in        10, lsu in          11, lsacks in       12,
-              unknown in      13, unknown out     14, no ospf         15,
-              bad version     16, bad crc         17, dup rid         18,
-              dup src         19, invalid src     20, invalid dst     21,
-              no nbr          22, passive         23, wrong area      24,
-              pkt length      25, nbr changed rid/ip addr            26
-              bad auth        27, no vrf          28
-     
+              lsreq in        10, lsu in         11, lsacks in      12,
+              unknown in      13, unknown out    14, no ospf        15,
+              bad version     16, bad crc        17, dup rid        18,
+              dup src         19, invalid src    20, invalid dst    21,
+              no nbr          22, passive        23, wrong area     24,
+              pkt length      25, nbr changed rid/ip addr           26
+              bad auth        27, no vrf         28
+
                 hellos       dbds     lsreqs       lsus       acks
        In:        164          7          2          8          3
       Out:        167        163          2          8          3

@@ -6,7 +6,7 @@
        Routing Process Instance Number 2
        Stateful High Availability enabled
        Graceful-restart is configured
-         Grace period: 90 state: Inactive 
+         Grace period: 90 state: Inactive
          Last graceful restart exit status: None
        Supports only single TOS(TOS0) routes
        Supports opaque LSA
@@ -14,10 +14,10 @@
        Administrative distance 110
        Reference Bandwidth is 321 Mbps
        SPF throttling delay time of 123.000 msecs,
-         SPF throttling hold time of 456.000 msecs, 
+         SPF throttling hold time of 456.000 msecs,
          SPF throttling maximum wait time of 789.000 msecs
        LSA throttling start time of 0.000 msecs,
-         LSA throttling hold interval of 5000.000 msecs, 
+         LSA throttling hold interval of 5000.000 msecs,
          LSA throttling maximum wait time of 5000.000 msecs
        Minimum LSA arrival 1000.000 msec
        LSA group pacing timer 10 secs
@@ -30,7 +30,7 @@
        Number of active areas is 2, 1 normal, 1 stub, 0 nssa
        Install discard route for summarized external routes.
        Install discard route for summarized internal routes.
-         Area BACKBONE(0.0.0.0) 
+         Area BACKBONE(0.0.0.0)
               Area has existed for 00:23:58
               Interfaces in this area: 1 Active interfaces: 1
               Passive interfaces: 0  Loopback interfaces: 0
@@ -39,7 +39,7 @@
                Last SPF ran for 0.000139s
               Area ranges are
               Number of LSAs: 4, checksum sum 0x2d757
-         Area (0.0.17.17) 
+         Area (0.0.17.17)
               Area has existed for 00:03:50
               Interfaces in this area: 17 Active interfaces: 1
               Passive interfaces: 14  Loopback interfaces: 2

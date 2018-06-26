@@ -7,10 +7,8 @@ https://www.ansible.com/
 '''
 
 from __future__ import print_function
-import string
 import re
 import ipaddress
-from StringIO import StringIO
 
 class FilterModule(object):
     '''
@@ -66,7 +64,7 @@ class FilterModule(object):
                 item[key] = FilterModule._try_int(item[key])
 
         return items
-    
+
     @staticmethod
     def nxos_ospf_traffic(text):
         '''
@@ -110,25 +108,6 @@ class FilterModule(object):
         """
 
         return FilterModule._get_match_items(process_pattern, text, re.DOTALL)
-
-    @staticmethod
-    def _ospf_traffic(pattern, text):
-        regex = re.compile(pattern, re.VERBOSE + re.DOTALL)
-        items = [match.groupdict() for match in regex.finditer(text)]
-        for item in items:
-            # If there is an 'intf' key, make it lowercase
-            if 'intf' in item:
-                item['intf'] = item['intf'].lower()
-            for key in item.keys():
-                item[key] = FilterModule._try_int(item[key])
-
-        return items
-
-        regex = re.compile(area_pattern, re.VERBOSE)
-        areas = [match.groupdict() for match in regex.finditer(text)]
-        for area in areas:
-            for key in area.keys():
-                area[key] = FilterModule._try_int(area[key])
 
     @staticmethod
     def nxos_ospf_dbsum(text):
@@ -245,7 +224,7 @@ class FilterModule(object):
                 'is_stub_rtr': is_stub_rtr
             })
             return_dict.update({'process': process})
-        
+
         area_pattern = r"""
             Area\s+(?:BACKBONE)?\((?P<id_dd>\d+\.\d+\.\d+\.\d+)\)\s+
             \s+(?:Area\s+has\s+existed.*)\n
@@ -266,30 +245,6 @@ class FilterModule(object):
 
         return_dict.update({'areas': areas})
         return return_dict
-
-#16843009
-    @staticmethod
-    def _int_to_dotdec(num):
-        if isinstance(num, int):
-            area_str = ''
-            for i in range(3,-1,-1):
-                area_str += str(num/(256**i)) + '.'
-                num = num % 256**i
-            return area_str[:-1]
-        else:
-            return False
-        
-    @staticmethod
-    def _dotdec_to_int(text):
-        if text.count('.') == 3:
-            octets = text.split('.')
-            area_id = 0
-            for i, octet in enumerate(octets):
-                area_id += int(octet) * 256**(3-i)
-            return area_id
-        else:
-            return False
-        
 
     @staticmethod
     def _try_int(text):
@@ -378,7 +333,7 @@ class FilterModule(object):
                 'has_ttlsec': has_ttlsec
             })
             return_dict.update({'process': process})
-        
+
         area_pattern = r"""
             Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
             Number\s+of\s+interfaces\s+in\s+this\s+area\s+is\s+(?P<num_intfs>\d+).*\n
@@ -564,7 +519,6 @@ class FilterModule(object):
                 return is_up
 
         raise ValueError('Peer {0} not found in bfd_nbr_list'.format(ospf_nbr['peer']))
-    
 
     @staticmethod
     def iosxr_ospf_neighbor(text):

@@ -9,7 +9,7 @@
           setup:
             filter: "ansible_date_time"
             gather_subset: "!all"
-    
+
         - name: "LOG >> Store DTG as fact"
           set_fact:
             DTG: "{{ ansible_date_time.iso8601_basic_short }}"
@@ -19,11 +19,11 @@
             path: "logs"
             state: directory
           changed_when: false
-    
+
         - name: "LOG >> Store the log directory for this run"
           set_fact:
             LOG_PATH: "logs/nots_{{ DTG }}/"
-    
+
         - name: "LOG >> Build logging directory with path {{ LOG_PATH }}"
           file:
             path: "{{ LOG_PATH }}"

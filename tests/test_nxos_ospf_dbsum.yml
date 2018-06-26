@@ -5,40 +5,40 @@
       OSPF Router with ID (10.0.0.3) (Process ID 1 VRF default)
 
       Area 0.0.0.0 database summary
-        LSA Type            Count 
-        Opaque Link         999     
-        Router              1   
-        Network             2     
-        Summary Network     3     
-        Summary ASBR        4     
-        Type-7 AS External  7     
-        Opaque Area         888     
-        Subtotal            4     
+        LSA Type            Count
+        Opaque Link         999
+        Router              1
+        Network             2
+        Summary Network     3
+        Summary ASBR        4
+        Type-7 AS External  7
+        Opaque Area         888
+        Subtotal            4
 
       Area 0.0.17.17 database summary
-        LSA Type            Count 
-        Opaque Link         999     
-        Router              11     
-        Network             22     
-        Summary Network     33     
-        Summary ASBR        44     
-        Type-7 AS External  77     
-        Opaque Area         888     
-        Subtotal            6     
+        LSA Type            Count
+        Opaque Link         999
+        Router              11
+        Network             22
+        Summary Network     33
+        Summary ASBR        44
+        Type-7 AS External  77
+        Opaque Area         888
+        Subtotal            6
 
       Process 1 database summary
-        LSA Type            Count 
-        Opaque Link         999     
-        Router              111     
-        Network             222     
-        Summary Network     333     
-        Summary ASBR        444     
-        Type-7 AS External  777     
-        Opaque Area         888     
-        Type-5 AS External  555     
-        Opaque AS           0     
-        Non-self            5     
-        Total               10  
+        LSA Type            Count
+        Opaque Link         999
+        Router              111
+        Network             222
+        Summary Network     333
+        Summary ASBR        444
+        Type-7 AS External  777
+        Opaque Area         888
+        Type-5 AS External  555
+        Opaque AS           0
+        Non-self            5
+        Total               10
 
 - name: "Perform parsing"
   set_fact:
