@@ -12,10 +12,10 @@
        Supports opaque LSA
        This router is an area border
        Administrative distance 110
-       Reference Bandwidth is 40000 Mbps
-       SPF throttling delay time of 200.000 msecs,
-         SPF throttling hold time of 1000.000 msecs, 
-         SPF throttling maximum wait time of 5000.000 msecs
+       Reference Bandwidth is 321 Mbps
+       SPF throttling delay time of 123.000 msecs,
+         SPF throttling hold time of 456.000 msecs, 
+         SPF throttling maximum wait time of 789.000 msecs
        LSA throttling start time of 0.000 msecs,
          LSA throttling hold interval of 5000.000 msecs, 
          LSA throttling maximum wait time of 5000.000 msecs
@@ -41,8 +41,8 @@
               Number of LSAs: 4, checksum sum 0x2d757
          Area (0.0.17.17) 
               Area has existed for 00:03:50
-              Interfaces in this area: 1 Active interfaces: 1
-              Passive interfaces: 0  Loopback interfaces: 0
+              Interfaces in this area: 17 Active interfaces: 1
+              Passive interfaces: 14  Loopback interfaces: 2
               This area is a STUB area
               Generates stub default route with cost 1
               No authentication available
@@ -63,33 +63,25 @@
   assert:
     that:
       - "data.process.id == 1"
-      - "data.process.rid == '10.0.0.5'"
-      - "not data.process.has_ispf"
-      - "not data.process.has_bfd"
-      - "not data.process.has_ttlsec"
+      - "data.process.rid == '10.0.0.3'"
       - "data.process.is_abr"
-      - "data.process.is_asbr"
+      - "data.process.is_stub_rtr"
+      - "not data.process.is_asbr"
       - "data.process.init_spf == 123"
       - "data.process.min_spf == 456"
       - "data.process.max_spf == 789"
       - "data.process.ref_bw == 321"
 
-- name: "Ensure parsing success for area 0"
+- name: "Ensure parsing success for area 0 (0.0.0.0)"
   assert:
     that:
-      - "data.areas | length == 3"
+      - "data.areas | length == 2"
       - "data.areas[0].type == 'standard'"
-      - "data.areas[0].num_intfs == 3"
+      - "data.areas[0].num_intfs == 1"
 
-- name: "Ensure parsing success for area 2"
+- name: "Ensure parsing success for area 4369 (0.0.17.17)"
   assert:
     that:
       - "data.areas[1].type == 'stub'"
-      - "data.areas[1].num_intfs == 2"
-
-- name: "Ensure parsing success for area 4"
-  assert:
-    that:
-      - "data.areas[2].type == 'nssa'"
-      - "data.areas[2].num_intfs == 4"
+      - "data.areas[1].num_intfs == 17"
 ...

@@ -1,0 +1,78 @@
+---
+- name: "Store NXOS database summary text"
+  set_fact:
+    text: |-
+      OSPF Router with ID (10.0.0.3) (Process ID 1 VRF default)
+
+      Area 0.0.0.0 database summary
+        LSA Type            Count 
+        Opaque Link         999     
+        Router              1   
+        Network             2     
+        Summary Network     3     
+        Summary ASBR        4     
+        Type-7 AS External  7     
+        Opaque Area         888     
+        Subtotal            4     
+
+      Area 0.0.17.17 database summary
+        LSA Type            Count 
+        Opaque Link         999     
+        Router              11     
+        Network             22     
+        Summary Network     33     
+        Summary ASBR        44     
+        Type-7 AS External  77     
+        Opaque Area         888     
+        Subtotal            6     
+
+      Process 1 database summary
+        LSA Type            Count 
+        Opaque Link         999     
+        Router              111     
+        Network             222     
+        Summary Network     333     
+        Summary ASBR        444     
+        Type-7 AS External  777     
+        Opaque Area         888     
+        Type-5 AS External  555     
+        Opaque AS           0     
+        Non-self            5     
+        Total               10  
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | nxos_ospf_dbsum }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing succeeded for area 0"
+  assert:
+    that:
+      - "data.areas[0].num_lsa1 == 1"
+      - "data.areas[0].num_lsa2 == 2"
+      - "data.areas[0].num_lsa3 == 3"
+      - "data.areas[0].num_lsa4 == 4"
+      - "data.areas[0].num_lsa7 == 7"
+
+- name: "Ensure parsing succeeded for area 51"
+  assert:
+    that:
+      - "data.areas[1].num_lsa1 == 11"
+      - "data.areas[1].num_lsa2 == 22"
+      - "data.areas[1].num_lsa3 == 33"
+      - "data.areas[1].num_lsa4 == 44"
+      - "data.areas[1].num_lsa7 == 77"
+
+- name: "Ensure parsing succeeded at the process level"
+  assert:
+    that:
+      - "data.process.total_lsa1 == 111"
+      - "data.process.total_lsa2 == 222"
+      - "data.process.total_lsa3 == 333"
+      - "data.process.total_lsa4 == 444"
+      - "data.process.total_lsa7 == 777"
+      - "data.process.total_lsa5 == 555"
+...

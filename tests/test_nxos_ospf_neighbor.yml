@@ -1,0 +1,43 @@
+---
+- name: "Store NXOS OSPF neighbor text"
+  set_fact:
+    text: |-
+      OSPF Process ID 1 VRF default
+      Total number of neighbors: 2
+      Neighbor ID     Pri State      Up Time  Address       Interface
+      2.2.2.2           1 FULL/ -    00:06:47 192.168.0.2   Eth1/43 
+      2.255.2.0       255 2WAY/BDR   21:01:05 10.192.17.6   Port-Cha1 
+
+- name: "Perform parsing"
+  set_fact:
+    data: "{{ text | nxos_ospf_neighbor }}"
+
+- name: "Print structured data"
+  debug:
+    var: data
+
+- name: "Ensure parsing succeeded for first neighbor"
+  assert:
+    that:
+      - "data | length == 2"
+      - "data[0].rid == '2.2.2.2'"
+      - "data[0].priority == 1"
+      - "data[0].state == 'full'"
+      - "data[0].role == '-'"
+      - "data[0].uptime == '00:06:47'"
+      - "data[0].upsec == 407"
+      - "data[0].peer == '192.168.0.2'"
+      - "data[0].intf == 'eth1/43'"
+
+- name: "Ensure parsing succeeded for second neighbor"
+  assert:
+    that:
+      - "data[1].rid == '2.255.2.0'"
+      - "data[1].priority == 255"
+      - "data[1].state == '2way'"
+      - "data[1].role == 'bdr'"
+      - "data[1].uptime == '21:01:05'"
+      - "data[1].upsec == 75665"
+      - "data[1].peer == '10.192.17.6'"
+      - "data[1].intf == 'port-cha1'"
+...
