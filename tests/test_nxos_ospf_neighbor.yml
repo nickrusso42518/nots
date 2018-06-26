@@ -5,7 +5,7 @@
       OSPF Process ID 1 VRF default
       Total number of neighbors: 2
       Neighbor ID     Pri State      Up Time  Address       Interface
-      2.2.2.2           1 FULL/ -    00:06:47 192.168.0.2   Eth1/43
+      2.2.2.2           1 FULL/ -    1y2w3d4h 192.168.0.2   Eth1/43
       2.255.2.0       255 2WAY/BDR   21:01:05 10.192.17.6   Port-Cha1
 
 - name: "Perform parsing"
@@ -24,8 +24,8 @@
       - "data[0].priority == 1"
       - "data[0].state == 'full'"
       - "data[0].role == '-'"
-      - "data[0].uptime == '00:06:47'"
-      - "data[0].uptime_sec == 407"
+      - "data[0].uptime == '1y2w3d4h'"
+      - "data[0].uptime_sec == 0"  # issue #1
       - "data[0].peer == '192.168.0.2'"
       - "data[0].intf == 'eth1/43'"
 

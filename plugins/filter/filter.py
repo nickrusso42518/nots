@@ -179,7 +179,7 @@ class FilterModule(object):
             (?P<priority>\d+)\s+
             (?P<state>\w+)/\s*
             (?P<role>[A-Z-]+)\s+
-            (?P<uptime>[0-9:]+)\s+
+            (?P<uptime>[0-9:hdwy]+)\s+
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
         """
@@ -510,7 +510,7 @@ class FilterModule(object):
             (?P<role>[A-Z-]+)\s+
             (?P<deadtime>[0-9:]+)\s+
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
-            (?P<uptime>[0-9:]+)\s+
+            (?P<uptime>[0-9:hdwy]+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
         """
         return FilterModule._ospf_neighbor(
@@ -541,10 +541,15 @@ class FilterModule(object):
                 # the math to convert hh:mm:ss to an integer of summed seconds.
                 if time_keys:
                     for k in time_keys:
-                        times = gdict[k].split(':')
-                        parts = [FilterModule._try_int(t) for t in times]
-                        totalsec = parts[0] * 3600 + parts[1] * 60 + parts[2]
-                        gdict.update({k + '_sec': totalsec})
+                        if gdict[k].count(':') == 2:
+                            times = gdict[k].split(':')
+                            parts = [FilterModule._try_int(t) for t in times]
+                            secsum = parts[0] * 3600 + parts[1] * 60 + parts[2]
+                            gdict.update({k + '_sec': secsum})
+                        else:
+                            # Issue #1, short term fix, static value of 0.
+                            # This information isn't used anywhere yet.
+                            gdict.update({k + '_sec': 0})
 
                 ospf_neighbors.append(gdict)
 
