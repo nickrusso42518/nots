@@ -5,8 +5,8 @@ extensive preparatory configuration for individual host state checking.
 It is powerful because despite not having the aforementioned level of
 granularity, it rapidly discovers the vast majority of OSPF problems.
 
-> Contact information:
-> Email:    njrusmc@gmail.com
+> Contact information:\
+> Email:    njrusmc@gmail.com\
 > Twitter:  @nickrusso42518
 
   * [Supported platforms](#supported-platforms)
@@ -237,13 +237,13 @@ Neighbor ID     Pri   State           Dead Time   Address         Interface
 ```
 
 ## FAQ
-__Q__: Most code between IOS, IOS-XR, and NX-OS is the same. Why not combine it?
+__Q__: Most code across IOS, IOS-XR, and NX-OS is the same. Why not combine it?\
 __A__: The goal is to support more platforms in the future such as Cisco
 ASA-OS, and possibly non-Cisco devices. These devices will likely return
 different sets of information. This tool is designed to be __simple__,
 not particularly advanced through layered abstractions.
 
-__Q__: Why not use an API like RESTCONF or NETCONF instead of SSH + CLI?
+__Q__: Why not use an API like RESTCONF or NETCONF instead of SSH + CLI?\
 __A__: This tool is designed for risk-averse users or managers that are not
 rapidly migrating to API-based management. It is not an infrastructure-as-code
 solution and does not manage device configurations. All of the commands used
@@ -251,7 +251,7 @@ in the playbook can be issued at privilege level 1 to further reduce risk.
 With the exception of updating the login credentials and populating the
 necessary variables, there is no complex setup work required.
 
-__Q__: Why not parse the OSPF interfaces? Many errors occur at this level.
+__Q__: Why not parse the OSPF interfaces? Many errors occur at this level.\
 __A__: Parsing individual interfaces would require state declarations on a
 per-host basis to determine what each interface __should__ have. This defeats
 the purpose of a simple, low-effort solution which uses only area and process
@@ -260,7 +260,7 @@ checking will alert the user to many errors (authentication, MTU mismatch, etc)
 at a more general level. The user can check the logs to see the exact commands,
 which includes the non-parsed interface text.
 
-__Q__: For NX-OS why didn't you use the `| json` filter from the CLI?
+__Q__: For NX-OS why didn't you use the `| json` filter from the CLI?\
 __A__: While this would have saved a lot of parsing code, I did not want to
 have an inconsistent overall strategy for one network device. Additionally,
 the filter does not render milliseconds properly (eg, SPF throttle timers)
