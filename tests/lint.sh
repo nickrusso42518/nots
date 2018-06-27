@@ -23,9 +23,10 @@ echo "YAML linting complete"
 #
 echo "Python linting started"
 for f in $(find . -name "*.py"); do
-  # Print the filename, then run 'pylint'
+  # Print the filename, then run 'pylint' and 'bandit'
   echo "checking $f"
   pylint --score n $f
+  bandit $f
   # Sum the rc from pylint with the sum
   rc=$((rc + $?))
 done

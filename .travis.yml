@@ -1,0 +1,16 @@
+---
+install:
+  - pip install ansible==2.4.3.0
+  - pip install pylint
+  - pip install yamllint
+  - pip install pymarkdownlint
+  - pip install bandit
+
+before_script:
+  - ./tests/lint.sh
+  - ansible-playbook tests/unittest_playbook.yml
+
+script:
+  # - ansible-playbook nots_playbook.yml -i mock.yml
+  - /bin/true
+...
