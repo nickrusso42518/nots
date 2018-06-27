@@ -9,6 +9,8 @@
 #
 # Return code used to sum the rc from individual lint tests
 rc=0
+# Identify banned Ansible modules/directives
+declare -a banned_keys=("become:" "shell:" "raw:")
 #
 echo "YAML linting started"
 for f in $(find . -name "*.yml"); do
@@ -17,6 +19,13 @@ for f in $(find . -name "*.yml"); do
   yamllint --strict $f
   # Sum the rc from yamllint with the sum
   rc=$((rc + $?))
+  for b in ${banned_keys[@]}; do
+   echo "  looking for banned key $b"
+    grep $b $f
+    test $? -eq 1
+    # Sum the rc from banned key checking with the sum
+    rc=$((rc + $?))
+  done
 done
 echo "YAML linting complete"
 #
@@ -26,8 +35,10 @@ for f in $(find . -name "*.py"); do
   # Print the filename, then run 'pylint' and 'bandit'
   echo "checking $f"
   pylint --score n $f
-  bandit $f
   # Sum the rc from pylint with the sum
+  rc=$((rc + $?))
+  bandit $f
+  # Sum the rc from bandit with the sum
   rc=$((rc + $?))
 done
 echo "Python linting complete"
