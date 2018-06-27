@@ -4,9 +4,11 @@ install:
 
 before_script:
   - ./tests/lint.sh
+  - echo "brkrst3310" >> ~/vault_pass_file.txt
   - ansible-playbook tests/unittest_playbook.yml
 
 script:
   # - ansible-playbook nots_playbook.yml -i mock.yml
+  # coming soon!
   - /bin/true
 ...
