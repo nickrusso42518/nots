@@ -1,0 +1,120 @@
+---
+OSPF_BASIC:
+  process:
+    id: 1
+    init_spf: 50
+    is_abr: false
+    is_asbr: true
+    is_stub_rtr: true
+    max_spf: 5000
+    min_spf: 200
+    rid: "10.0.0.4"
+  areas:
+    - id: 4369
+      num_intfs: 2
+      frr_intfs: 2
+      type: "nssa"
+
+OSPF_NBR:
+  - deadtime: "00:00:35"
+    deadtime_sec: 35
+    intf: "fastethernet4/0"
+    peer: "10.0.0.1"
+    priority: 0
+    rid: "10.0.0.1"
+    role: "-"
+    state: "full"
+    uptime: "1y1w4d2h"
+    uptime_sec: 0
+  - deadtime: "00:01:35"
+    deadtime_sec: 95
+    intf: "bundle-ether1.45"
+    peer: "10.0.0.5"
+    priority: 0
+    rid: "10.0.0.5"
+    role: "-"
+    state: "full"
+    uptime: "01:01:01"
+    uptime_sec: 3661
+
+OSPF_DB:
+  areas:
+    - id: 4369
+      num_lsa1: 3
+      num_lsa2: 0
+      num_lsa3: 30
+      num_lsa4: 0
+      num_lsa7: 70
+  process:
+    process_id: 1
+    total_lsa1: 3
+    total_lsa2: 0
+    total_lsa3: 30
+    total_lsa4: 0
+    total_lsa5: 0
+    total_lsa7: 70
+
+OSPF_TRAF:
+  - area_id: 0
+    area_mismatch: 0
+    auth_rx: 0
+    auth_tx: 0
+    bad_src: 0
+    checksum: 0
+    disable_intf: 0
+    dup_rid: 0
+    enq_hello: 0
+    enq_rtr: 0
+    gshut: 0
+    intf: "fastethernet4/0"
+    length: 0
+    lls: 0
+    lsa_checksum: 0
+    lsa_data: 0
+    lsa_length: 0
+    lsa_type: 0
+    nbr_ignored: 0
+    no_dr_bdr: 0
+    no_sl: 0
+    no_vl: 0
+    passive_intf: 0
+    pid: 0
+    self_orig: 0
+    socket: 0
+    type: 0
+    unk_nbr: 0
+    unspec_rx: 0
+    unspec_tx: 0
+    version: 0
+  - area_id: 0
+    area_mismatch: 0
+    auth_rx: 0
+    auth_tx: 0
+    bad_src: 0
+    checksum: 0
+    disable_intf: 0
+    dup_rid: 0
+    enq_hello: 0
+    enq_rtr: 0
+    gshut: 0
+    intf: "bundle-ether1.45"
+    length: 0
+    lls: 0
+    lsa_checksum: 0
+    lsa_data: 0
+    lsa_length: 0
+    lsa_type: 0
+    nbr_ignored: 0
+    no_dr_bdr: 0
+    no_sl: 0
+    no_vl: 0
+    passive_intf: 0
+    pid: 0
+    self_orig: 0
+    socket: 0
+    type: 0
+    unk_nbr: 0
+    unspec_rx: 0
+    unspec_tx: 0
+    version: 0
+...

@@ -10,7 +10,7 @@ commands:
   - "show version"  # not parsed
 process:
   id: 1
-  max_lsa5: 5
+  max_lsa5: 5000
   spf:
     init: 50
     min: 200

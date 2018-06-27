@@ -1,0 +1,85 @@
+---
+OSPF_BASIC:
+  process:
+    has_bfd: false
+    has_ispf: false
+    has_ttlsec: false
+    id: 1
+    init_spf: 50
+    is_abr: false
+    is_asbr: false
+    is_stub_rtr: true
+    max_spf: 5000
+    min_spf: 200
+    ref_bw: 1000
+    rid: "10.0.0.2"
+  areas:
+    - id: 2
+      num_intfs: 1
+      type: "stub"
+
+OSPF_NBR:
+  - deadtime: "00:00:35"
+    deadtime_sec: 35
+    intf: "gigabitethernet0/3"
+    peer: "10.3.3.3"
+    priority: 255
+    rid: "10.0.0.3"
+    role: "dr"
+    state: "full"
+
+OSPF_DB:
+  areas:
+    - id: 2
+      num_lsa1: 2
+      num_lsa2: 1
+      num_lsa3: 33
+      num_lsa4: 0
+      num_lsa7: 0
+  process:
+    process_id: 1
+    total_lsa1: 2
+    total_lsa2: 1
+    total_lsa3: 33
+    total_lsa4: 0
+    total_lsa5: 0
+    total_lsa7: 0
+
+OSPF_TRAF:
+  - adj_throttle: 0
+    area_mismatch: 0
+    auth: 0
+    auth_type: 0
+    bad_src: 0
+    bfd: 0
+    checksum: 0
+    dup_rid: 0
+    hello_pkt: 0
+    instance_id: 0
+    intf: "gigabitethernet0/3"
+    length: 0
+    lls: 0
+    lsa_checksum: 0
+    lsa_data: 0
+    lsa_length: 0
+    lsa_type: 0
+    mtu_mismatch: 0
+    nbr_ignored: 0
+    no_sl: 0
+    no_vl: 0
+    self_orig: 0
+    test_discard: 0
+    ttlsec_fail: 0
+    unk_nbr: 0
+    version: 0
+
+OSPF_FRR: {}
+
+BFD_NBR:
+  - intf: "gi0/3"
+    ld: 4097
+    peer: "10.3.3.3"
+    rd: 4106
+    rhrs: "up"
+    state: "up"
+...

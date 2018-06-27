@@ -1,0 +1,102 @@
+---
+OSPF_BASIC:
+  process:
+    id: 1
+    init_spf: 50
+    is_abr: true
+    is_asbr: false
+    is_stub_rtr: true
+    max_spf: 5000
+    min_spf: 200
+    ref_bw: 1000
+    rid: "10.0.0.5"
+  areas:
+    - id: 0
+      id_dd: "0.0.0.0"
+      num_intfs: 2
+      type: "standard"
+    - id: 4369
+      id_dd: "0.0.17.17"
+      num_intfs: 1
+      type: "nssa"
+
+OSPF_NBR:
+  - intf: "ethernet1/15"
+    peer: "10.0.0.1"
+    priority: 240
+    rid: "10.0.0.1"
+    role: "-"
+    state: "full"
+    uptime: "1y1w4d2h"
+    uptime_sec: 0
+  - intf: "ethernet1/45"
+    peer: "10.0.0.4"
+    priority: 0
+    rid: "10.0.0.4"
+    role: "-"
+    state: "full"
+    uptime: "1y1w4d2h"
+    uptime_sec: 0
+  - intf: "vlan35"
+    peer: "10.0.0.3"
+    priority: 128
+    rid: "10.0.0.3"
+    role: "dr"
+    state: "full"
+    uptime: "01:01:01"
+    uptime_sec: 3661
+
+OSPF_DB:
+  areas:
+    - id: 0
+      num_lsa1: 3
+      num_lsa2: 1
+      num_lsa3: 30
+      num_lsa4: 4
+      num_lsa7: 0
+    - id: 4369
+      num_lsa1: 3
+      num_lsa2: 0
+      num_lsa3: 3
+      num_lsa4: 0
+      num_lsa7: 70
+  process:
+    process_id: 1
+    total_lsa1: 6
+    total_lsa2: 1
+    total_lsa3: 33
+    total_lsa4: 4
+    total_lsa5: 55
+    total_lsa7: 70
+
+OSPF_TRAF:
+  - bad_auth: 0
+    bad_crc: 0
+    bad_ver: 0
+    dbds_in: 0
+    drops_in: 0
+    drops_out: 0
+    dup_rid: 0
+    dup_src: 0
+    errors_in: 0
+    errors_out: 0
+    hellos_in: 0
+    ignore_lsa: 0
+    inv_dst: 0
+    inv_src: 0
+    lsa_drop_gr: 0
+    lsa_drop_spf: 0
+    lsacks_in: 0
+    lsreq_in: 0
+    lsu_in: 0
+    nbr_change: 0
+    no_nbr: 0
+    no_ospf: 0
+    no_vrf: 0
+    passive: 0
+    pid: 1
+    pkt_len: 0
+    unk_in: 0
+    unk_out: 0
+    wrong_area: 0
+...

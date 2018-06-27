@@ -1,19 +1,38 @@
 ---
-- name: "NXOS >> Collect OSPF PID {{ process.id }} info from routers"
-  nxos_command:
-    provider: "{{ login_creds }}"
-    commands: "{{ commands }}"
-  register: CLI_OUTPUT
+- name: "BLOCK >> Get data, log, and parse from device"
+  block:
+    - name: "NXOS >> Collect OSPF PID {{ process.id }} info from switches"
+      nxos_command:
+        provider: "{{ login_creds }}"
+        commands: "{{ commands }}"
+      register: CLI_OUTPUT
 
-- name: "INCLUDE >> Run CLI output logging tasks"
-  include_tasks: "../log.yml"
+    - name: "INCLUDE >> Run CLI output logging tasks"
+      include_tasks: "../log.yml"
 
-- name: "SYS >> Parse NXOS text output into structured data"
-  set_fact:
-    OSPF_BASIC: "{{ CLI_OUTPUT.stdout[0] | nxos_ospf_basic }}"
-    OSPF_NBR: "{{ CLI_OUTPUT.stdout[1] | nxos_ospf_neighbor }}"
-    OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | nxos_ospf_dbsum }}"
-    OSPF_TRAF: "{{ CLI_OUTPUT.stdout[3] | nxos_ospf_traffic }}"
+    - name: "SYS >> Parse NXOS text output into structured data"
+      set_fact:
+        OSPF_BASIC: "{{ CLI_OUTPUT.stdout[0] | nxos_ospf_basic }}"
+        OSPF_NBR: "{{ CLI_OUTPUT.stdout[1] | nxos_ospf_neighbor }}"
+        OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | nxos_ospf_dbsum }}"
+        OSPF_TRAF: "{{ CLI_OUTPUT.stdout[3] | nxos_ospf_traffic }}"
+  when: "not hostvars.localhost.ci_test"
+
+- name: "BLOCK >> Substitute mock CI variables of parsed data"
+  block:
+    - name: "INCLUDE >> Load variables for this specific device"
+      include_vars:
+        file: "tests/vars/mock_{{ inventory_hostname }}.yml"
+
+    - name: "SYS >> Ensure all variables are defined"
+      assert:
+        that:
+          - "OSPF_BASIC is defined"
+          - "OSPF_NBR is defined"
+          - "OSPF_DB is defined"
+          - "OSPF_TRAF is defined"
+        msg: "Variable loading failed; not all data structures were defined"
+  when: "hostvars.localhost.ci_test"
 
 - name: "SYS >> Sanity: Check that process ID {{ process.id }} matches"
   assert:

@@ -1,14 +1,17 @@
 ---
+# Install python packages for ansible and linters.
 install:
-  - sudo pip install -r requirements.txt
+  - "sudo pip install -r requirements.txt"
 
+# Execute linting and unit tests before running the main playbook.
+# If any of these tasks fail, the entire build fails immediately.
 before_script:
-  - ./tests/lint.sh
-  - echo "brkrst3310" >> ~/vault_pass_file.txt
-  - ansible-playbook tests/unittest_playbook.yml
+  - "./tests/lint.sh"
+  - "echo 'brkrst3310' >> ~/vault_pass_file.txt"
+  - "ansible-playbook tests/unittest_playbook.yml"
 
+# Run the playbook with mock inputs to validate the OSPF tests.
+# Mock inputs are stored in tests/vars with one per test host.
 script:
-  # - ansible-playbook nots_playbook.yml -i mock.yml
-  # coming soon!
-  - /bin/true
+  - "ansible-playbook nots_playbook.yml -e 'ci_test=true'"
 ...
