@@ -12,9 +12,9 @@ commands:
   - "show version"  # not parsed
 process:
   id: 1
-  # has_ispf: false
-  # has_bfd: false
-  # has_ttlsec: true
+  has_ispf: true
+  has_bfd: true
+  has_ttlsec: true
   ref_bw: 1000
   max_lsa5: 5000
   spf:

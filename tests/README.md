@@ -7,14 +7,14 @@ three distinct stages in this project:
   2. [Unit tests](#unit-tests)
   3. [Playbook tests](#playbook-tests)
 
-## Stage 1: Linting code
+## Linting code
 All source code is linted before any code is actively executed. The
 file `tests/lint.sh` is a bash script which checks all YAML, Python, and
 markdown files for syntax and styling issues. Additionally, static code
 analysis is applied to Python code to identify any security issues before
 execution.
 
-## Stage 2: Unit tests
+## Unit tests
 All custom Python filters (which are individual, independent functions) are
 tested next. The `tests/tasks` directory contains an Ansible task list for
 each function. These are the parsers used to transform CLI output (text)
@@ -38,7 +38,7 @@ test IOS-XR related filters, use this command:
 
 `ansible-playbook unittest_playbook.yml -e "TASKS=test_iosxr*"`
 
-## Stage 3: Playbook tests
+## Playbook tests
 Test the entire playbook for all supported platforms using mock data
 to simulate virtual devices. This is a faster and lower cost way to test
 the playbook compared to spinning up virtual devices. The test topology

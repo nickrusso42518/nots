@@ -1,9 +1,9 @@
 ---
 OSPF_BASIC:
   process:
-    has_bfd: false
-    has_ispf: false
-    has_ttlsec: false
+    has_bfd: true
+    has_ispf: true
+    has_ttlsec: true
     id: 1
     init_spf: 50
     is_abr: false

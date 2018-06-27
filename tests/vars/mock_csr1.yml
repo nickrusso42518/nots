@@ -1,9 +1,9 @@
 ---
 OSPF_BASIC:
   process:
-    has_bfd: false
-    has_ispf: false
-    has_ttlsec: false
+    has_bfd: true
+    has_ispf: true
+    has_ttlsec: true
     id: 1
     init_spf: 50
     is_abr: true
@@ -28,7 +28,7 @@ OSPF_NBR:
   - deadtime: "00:00:35"
     deadtime_sec: 35
     intf: "gigabitethernet0/3"
-    peer: "10.0.0.3"
+    peer: "10.3.3.3"
     priority: 0
     rid: "10.0.0.3"
     role: "-"
@@ -36,7 +36,7 @@ OSPF_NBR:
   - deadtime: "00:00:34"
     deadtime_sec: 34
     intf: "fastethernet4/0"
-    peer: "10.0.0.4"
+    peer: "10.4.4.4"
     priority: 0
     rid: "10.0.0.4"
     role: "-"
@@ -44,7 +44,7 @@ OSPF_NBR:
   - deadtime: "00:01:34"
     deadtime_sec: 94
     intf: "tunnel15"
-    peer: "10.0.0.5"
+    peer: "10.5.5.5"
     priority: 0
     rid: "10.0.0.5"
     role: "-"
@@ -52,7 +52,7 @@ OSPF_NBR:
   - deadtime: "02:02:34"
     deadtime_sec: 7344
     intf: "port-channel1.16"
-    peer: "10.0.0.6"
+    peer: "10.6.6.6"
     priority: 0
     rid: "10.0.0.6"
     role: "-"
@@ -201,5 +201,29 @@ OSPF_FRR:
     tilfa: false
     topology: "base"
 
-BFD_NBR: []
+BFD_NBR:
+  - intf: "gi0/3"
+    ld: 4096
+    peer: "10.3.3.3"
+    rd: 4196
+    rhrs: "up"
+    state: "up"
+  - intf: "fa4/0"
+    ld: 4097
+    peer: "10.4.4.4"
+    rd: 4197
+    rhrs: "up"
+    state: "up"
+  - intf: "tu15"
+    ld: 4098
+    peer: "10.5.5.5"
+    rd: 4198
+    rhrs: "up"
+    state: "up"
+  - intf: "po1.16"
+    ld: 4099
+    peer: "10.6.6.6"
+    rd: 4199
+    rhrs: "up"
+    state: "up"
 ...
