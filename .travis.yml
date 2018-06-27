@@ -1,10 +1,6 @@
 ---
 install:
-  - pip install ansible==2.4.3.0
-  - pip install pylint
-  - pip install yamllint
-  - pip install pymarkdownlint
-  - pip install bandit
+  - sudo pip install -r requirements.txt
 
 before_script:
   - ./tests/lint.sh
