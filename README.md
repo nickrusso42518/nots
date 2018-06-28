@@ -1,6 +1,6 @@
-[![Build Status][1]][2]
-[1]: https://travis-ci.org/nickrusso42518/nots.svg?branch=master
-[2]: https://travis-ci.org/nickrusso42518/nots
+[![Build Status](
+https://travis-ci.org/nickrusso42518/nots.svg?branch=master)](
+https://travis-ci.org/nickrusso42518/nots)
 
 # Nick's OSPF TroubleShooter (nots)
 A simple but powerful Ansible playbook to troubleshoot OSPF network problems
