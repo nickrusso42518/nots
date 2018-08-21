@@ -3,7 +3,6 @@
   block:
     - name: "IOSXR >> Collect OSPF PID {{ process.id }} info from routers"
       iosxr_command:
-        provider: "{{ login_creds }}"
         commands: "{{ commands }}"
       register: CLI_OUTPUT
 

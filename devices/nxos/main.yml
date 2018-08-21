@@ -3,7 +3,6 @@
   block:
     - name: "NXOS >> Collect OSPF PID {{ process.id }} info from switches"
       nxos_command:
-        provider: "{{ login_creds }}"
         commands: "{{ commands }}"
       register: CLI_OUTPUT
 

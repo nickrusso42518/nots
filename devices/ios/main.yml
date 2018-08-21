@@ -3,7 +3,6 @@
   block:
     - name: "IOS >> Collect OSPF PID {{ process.id }} info from routers"
       ios_command:
-        provider: "{{ login_creds }}"
         commands: "{{ commands }}"
       register: CLI_OUTPUT
 
@@ -192,11 +191,11 @@
 
 - name: "Check FRR status in each relevant area"
   assert:
-    that: "item.value.has_frr == OSPF_FRR[item.key] is defined"
+    that: "item.value.has_frr == (OSPF_FRR[item.key] is defined)"
     msg: |-
       FRR config mismatches between expected and actual
       expected {{ item.value.has_frr }}
-      saw {{ OSPF_FRR[item.key] | to_nice_json }}
+      saw {{ OSPF_FRR | to_nice_json }}
   when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
   with_dict: "{{ all_areas }}"
   loop_control:
