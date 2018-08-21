@@ -1,5 +1,5 @@
 ---
-device_type: ios
+ansible_network_os: "ios"
 commands:
   - "show ip ospf {{ process.id }}"
   - "show ip ospf {{ process.id }} neighbor"

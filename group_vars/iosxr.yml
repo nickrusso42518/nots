@@ -1,5 +1,5 @@
 ---
-device_type: iosxr
+ansible_network_os: "iosxr"
 commands:
   - "show ospf {{ process.id }}"
   - "show ospf {{ process.id }} neighbor area-sorted"

@@ -1,7 +1,7 @@
 ---
 # nots_playbook.yaml
-- name: "Perform control machine setup"
-  hosts: localhost
+- name: "Collect network information and perform device-specific tests"
+  hosts: ospf_routers
   tasks:
     - name: "BLOCK >> Perform logging preparation"
       block:
@@ -29,13 +29,10 @@
             path: "{{ LOG_PATH }}"
             state: directory
           changed_when: false
-      when: "log"
+      when: "hostvars.localhost.log"
+      run_once: true
+      delegate_to: localhost
 
-- name: "Collect network information and perform device-specific tests"
-  hosts: ospf_routers
-  vars_files:
-    - "login_creds.vault"
-  tasks:
     - name: "SYS >> Ensure mandatory keys are specified"
       assert:
         that:
@@ -45,41 +42,31 @@
           - "all_areas is defined and all_areas.keys() | length > 0"
         msg: "Mandatory keys incorrectly formatted or omitted (see README.md)"
 
-    - name: "SYS >> Ensure login_creds is defined with non-empty 'host' field"
-      assert:
-        that:
-          - "login_creds is defined and login_creds.keys() | length"
-          - "login_creds.host is defined and login_creds.host"
-        msg: |-
-          login_creds is malformed. This could signify a problem with the
-          vault or variable inclusion. For an insecure workaround, you can
-          define the 'login_creds' dictionary at the play variables level
-          with plain-text passwords.
+    - name: "INCLUDE >> Load commands for {{ ansible_network_os }} device"
+      include_tasks: "devices/{{ ansible_network_os }}/main.yml"
 
-    - name: "INCLUDE >> Use correct commands for {{ device_type }} device"
-      include_tasks: "devices/{{ device_type }}/main.yml"
+    - name: "BLOCK >> Perform network-wide validation tests"
+      block:
+        - name: "SYS >> Store empty OSPF RID list for future comparison"
+          set_fact:
+            OSPF_RIDS: []
 
-- name: "Perform network-wide validation tests"
-  hosts: localhost
-  tasks:
-    - name: "SYS >> Store empty OSPF RID list for future comparison"
-      set_fact:
-        OSPF_RIDS: []
+        - name: "SYS >> Build OSPF RID list by iterating through hostvars"
+          set_fact:
+            OSPF_RIDS: "{{ OSPF_RIDS + [item.value.OSPF_BASIC.process.rid] }}"
+          when: >-
+            item.key in groups.ospf_routers and
+            item.value.OSPF_BASIC is defined
+          with_dict: "{{ hostvars }}"
+          loop_control:
+            label: "host:{{ item.key }}"
 
-    - name: "SYS >> Build OSPF RID list by iterating through hostvars"
-      set_fact:
-        OSPF_RIDS: "{{ OSPF_RIDS + [item.value.OSPF_BASIC.process.rid] }}"
-      when: >-
-        item.key in groups.ospf_routers and
-        item.value.OSPF_BASIC is defined
-      with_dict: "{{ hostvars }}"
-      loop_control:
-        label: "host:{{ item.key }}"
-
-    - name: "SYS >> Assert that there are no duplicate OSPF RIDs"
-      assert:
-        that: "OSPF_RIDS | unique | length == OSPF_RIDS | length"
-        msg: |-
-          OSPF_RIDS contained duplicates. Check the logs to find the bad nodes.
-          {{ OSPF_RIDS | to_nice_json }}
+        - name: "SYS >> Assert that there are no duplicate OSPF RIDs"
+          assert:
+            that: "OSPF_RIDS | unique | length == OSPF_RIDS | length"
+            msg: |-
+              OSPF_RIDS contained duplicates. Check the logs to find bad nodes.
+              {{ OSPF_RIDS | to_nice_json }}
+      run_once: true
+      delegate_to: localhost
 ...

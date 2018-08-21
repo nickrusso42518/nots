@@ -3,6 +3,7 @@
 # for the introduction of any regressions during development.
 - name: "Perform automated filter (unit) testing"
   hosts: localhost
+  connection: local
   tasks:
 
     # All test files, which are lists of ansible tasks, begin with the

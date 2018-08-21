@@ -16,7 +16,7 @@
         OSPF_NBR: "{{ CLI_OUTPUT.stdout[1] | iosxr_ospf_neighbor }}"
         OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | ios_ospf_dbsum }}"
         OSPF_TRAF: "{{ CLI_OUTPUT.stdout[3] | iosxr_ospf_traffic }}"
-  when: "not hostvars.localhost.ci_test"
+  when: "not ci_test"
 
 - name: "BLOCK >> Substitute mock CI variables of parsed data"
   block:
@@ -32,7 +32,7 @@
           - "OSPF_DB is defined"
           - "OSPF_TRAF is defined"
         msg: "Variable loading failed; not all data structures were defined"
-  when: "hostvars.localhost.ci_test"
+  when: "ci_test"
 
 - name: "SYS >> Sanity: Check that process ID {{ process.id }} matches"
   assert:

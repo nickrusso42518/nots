@@ -1,5 +1,5 @@
 ---
-device_type: nxos
+ansible_network_os: "nxos"
 commands:
   - "show ip ospf {{ process.id }}"
   - "show ip ospf {{ process.id }} neighbor"

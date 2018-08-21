@@ -7,10 +7,10 @@
 - name: "LOG >> Write CLI output (stdout) to log path"
   template:
     src: "templates/log.j2"
-    dest: "{{ hostvars.localhost.LOG_PATH }}{{ inventory_hostname }}.txt"
+    dest: "{{ LOG_PATH }}{{ inventory_hostname }}.txt"
     mode: 0444
     force: false
-    newline_sequence: "\r\n"
+    newline_sequence: '\r\n'
   when: "hostvars.localhost.log"
   changed_when: false
 ...
