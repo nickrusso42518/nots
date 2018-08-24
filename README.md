@@ -14,7 +14,7 @@ granularity, it rapidly discovers the vast majority of OSPF problems.
 > Twitter:  @nickrusso42518
 
   * [Supported platforms](#supported-platforms)
-  * [Summarized-test cases](#summarzed-test-cases)
+  * [Summarized-test cases](#summarized-test-cases)
   * [Variables](#variables)
   * [Logging](#logging)
   * [FAQ](#faq)
