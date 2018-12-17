@@ -2,6 +2,10 @@
 https://travis-ci.org/nickrusso42518/nots.svg?branch=master)](
 https://travis-ci.org/nickrusso42518/nots)
 
+[![published](
+http://cs.co/codeex-badge)](
+https://developer.cisco.com/codeexchange/github/repo/nickrusso42518/stig)
+
 # Nick's OSPF TroubleShooter (nots)
 A simple but powerful Ansible playbook to troubleshoot OSPF network problems
 on a variety of platforms. It is simple because it does not require
