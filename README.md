@@ -4,7 +4,7 @@ https://travis-ci.org/nickrusso42518/nots)
 
 [![published](
 http://cs.co/codeex-badge)](
-https://developer.cisco.com/codeexchange/github/repo/nickrusso42518/stig)
+https://developer.cisco.com/codeexchange/github/repo/nickrusso42518/nots)
 
 # Nick's OSPF TroubleShooter (nots)
 A simple but powerful Ansible playbook to troubleshoot OSPF network problems
