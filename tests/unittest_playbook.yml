@@ -37,5 +37,5 @@
     # Iteratively include each file (sequence does not matter) and run
     # the tests included in that file.
     - include_tasks: "{{ item }}"
-      with_items: "{{ FILE_LIST }}"
+      loop: "{{ FILE_LIST }}"
 ...

@@ -1,26 +1,26 @@
 #!/usr/bin/python
-'''
+"""
 Author: Nick Russo <njrusmc@gmail.com>
 
 File contains custom filters for use in Ansible playbooks.
 https://www.ansible.com/
-'''
+"""
 
 from __future__ import print_function
 import re
 import ipaddress
 
 class FilterModule(object):
-    '''
+    """
     Defines a filter module object.
-    '''
+    """
 
     @staticmethod
     def filters():
-        '''
+        """
         Return a list of hashes where the key is the filter
         name exposed to playbooks and the value is the function.
-        '''
+        """
         return {
             'ios_ospf_neighbor': FilterModule.ios_ospf_neighbor,
             'ios_ospf_basic': FilterModule.ios_ospf_basic,
@@ -40,13 +40,13 @@ class FilterModule(object):
 
     @staticmethod
     def _read_match(match, key_filler_list=None):
-        '''
+        """
         Helper function which consumes a match object and an optional
         list of keys to populate with None values if match is invalid.
         Many operations follow this basic workflow, which iterates over
         the items captured in the match, attempts to make them integers
         whenever possible, and returns the resulting dict.
-        '''
+        """
         return_dict = None
         if match:
             return_dict = match.groupdict()
@@ -61,13 +61,13 @@ class FilterModule(object):
 
     @staticmethod
     def _get_match_items(pattern, text, extra_flags=0):
-        '''
+        """
         Helper function that can perform iterative block matching
         given a pattern and input text. Additional regex flags (re.DOTALL, etc)
         can be optionally specified. Any fields that can be parsed as
         integers are converted and the list of dictionaries containing the
         matches of each block is returned.
-        '''
+        """
         regex = re.compile(pattern, re.VERBOSE + extra_flags)
         items = [match.groupdict() for match in regex.finditer(text)]
         for item in items:
@@ -78,13 +78,13 @@ class FilterModule(object):
 
     @staticmethod
     def nxos_ospf_traffic(text):
-        '''
+        """
         Parses information from the Cisco NXOS "show ip ospf traffic" command
         family. This is useful for verifying various characteristics of
         an OSPF process/area statistics for troubleshooting.
-        '''
+        """
 
-        process_pattern = r"""
+        process_pattern = r'''
             OSPF\s+Process\s+ID\s+(?P<pid>\d+)\s+
             .*?
             Ignored\s+LSAs:\s+(?P<ignore_lsa>\d+),\s+
@@ -116,20 +116,20 @@ class FilterModule(object):
             nbr\s+changed\s+rid/ip\s+addr\s+(?P<nbr_change>\d+)\s+
             bad\s+auth\s+(?P<bad_auth>\d+),\s+
             no\s+vrf\s+(?P<no_vrf>\d+)
-        """
+        '''
 
         return FilterModule._get_match_items(process_pattern, text, re.DOTALL)
 
     @staticmethod
     def nxos_ospf_dbsum(text):
-        '''
+        """
         Parses information from the Cisco NXOS
         "show ip ospf database database-summary" command family.
         This is useful for verifying various characteristics of
         an OSPF database to count LSAs for simple verification.
-        '''
+        """
         return_dict = {}
-        process_pattern = r"""
+        process_pattern = r'''
             Process\s+(?P<process_id>\d+)\s+database\s+summary\s+
             LSA\s+Type\s+Count\s+
             Opaque\s+Link\s+\d+\s+
@@ -140,7 +140,7 @@ class FilterModule(object):
             Type-7\s+AS\s+External\s+(?P<total_lsa7>\d+)\s+
             Opaque\s+Area\s+\d+\s+
             Type-5\s+AS\s+External\s+(?P<total_lsa5>\d+)
-        """
+        '''
         regex = re.compile(process_pattern, re.VERBOSE)
         match = regex.search(text)
         key_filler_list = [
@@ -151,7 +151,7 @@ class FilterModule(object):
 
         return_dict.update({'process': process})
 
-        area_pattern = r"""
+        area_pattern = r'''
             Area\s+(?P<id>\d+\.\d+\.\d+\.\d+)\s+database\s+summary\s+
             LSA\s+Type\s+Count\s+
             Opaque\s+Link\s+\d+\s+
@@ -160,7 +160,7 @@ class FilterModule(object):
             Summary\s+Network\s+(?P<num_lsa3>\d+)\s+
             Summary\s+ASBR\s+(?P<num_lsa4>\d+)\s+
             Type-7\s+AS\s+External\s+(?P<num_lsa7>\d+)\s+
-        """
+        '''
 
         areas = FilterModule._get_match_items(area_pattern, text)
 
@@ -169,12 +169,12 @@ class FilterModule(object):
 
     @staticmethod
     def nxos_ospf_neighbor(text):
-        '''
+        """
         Parses information from the Cisco NXOS "show ip ospf neighbor" command
         family. This is useful for verifying various characteristics of
         an OSPF neighbor's state.
-        '''
-        pattern = r"""
+        """
+        pattern = r'''
             (?P<rid>\d+\.\d+\.\d+\.\d+)\s+
             (?P<priority>\d+)\s+
             (?P<state>\w+)/\s*
@@ -182,19 +182,19 @@ class FilterModule(object):
             (?P<uptime>[0-9:hdwy]+)\s+
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
-        """
+        '''
         return FilterModule._ospf_neighbor(pattern, text, ['uptime'])
 
     @staticmethod
     def nxos_ospf_basic(text):
-        '''
+        """
         Parses information from the Cisco NXOS "show ospf" command
         family. This is useful for verifying various characteristics of
         an OSPF process and its basic configuration.
-        '''
+        """
         return_dict = {}
 
-        process_pattern = r"""
+        process_pattern = r'''
             Routing\s+Process\s+(?P<id>\d+)\s+with\s+ID\s+(?P<rid>\d+\.\d+\.\d+\.\d+)
             .*
             \s*Reference\s+Bandwidth\s+is\s+(?P<ref_bw>\d+)\s+Mbps
@@ -202,7 +202,7 @@ class FilterModule(object):
             \s*SPF\s+throttling\s+delay\s+time\s+of\s+(?P<init_spf>\d+)(?:\.\d+)\s+msecs,
             \s*SPF\s+throttling\s+hold\s+time\s+of\s+(?P<min_spf>\d+)(?:\.\d+)\s+msecs,
             \s*SPF\s+throttling\s+maximum\s+wait\s+time\s+of\s+(?P<max_spf>\d+)(?:\.\d+)\s+msecs
-        """
+        '''
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
         process = FilterModule._read_match(match, ['process'])
@@ -218,13 +218,13 @@ class FilterModule(object):
             })
             return_dict.update({'process': process})
 
-        area_pattern = r"""
+        area_pattern = r'''
             Area\s+(?:BACKBONE)?\((?P<id_dd>\d+\.\d+\.\d+\.\d+)\)\s+
             \s+(?:Area\s+has\s+existed.*)\n
             \s+Interfaces\s+in\s+this\s+area:\s+(?P<num_intfs>\d+).*\n
             \s+(?:Passive.*)\n
             \s+(?:This\s+area\s+is\s+a\s+(?P<type>\w+)\s+area)?
-        """
+        '''
 
         regex = re.compile(area_pattern, re.VERBOSE)
         areas = [match.groupdict() for match in regex.finditer(text)]
@@ -242,12 +242,12 @@ class FilterModule(object):
 
     @staticmethod
     def _try_int(text):
-        '''
+        """
         Attempts to parse an integer from the input text. If it fails, just
         return the text as it was passed in. This is useful for iterating
         across structures with many integers which should be stored as
         integers, not strings.
-        '''
+        """
         try:
             return int(text)
         except ValueError:
@@ -255,12 +255,12 @@ class FilterModule(object):
 
     @staticmethod
     def ios_ospf_neighbor(text):
-        '''
+        """
         Parses information from the Cisco IOS "show ip ospf neighbor" command
         family. This is useful for verifying various characteristics of
         an OSPF neighbor's state.
-        '''
-        pattern = r"""
+        """
+        pattern = r'''
             (?P<rid>\d+\.\d+\.\d+\.\d+)\s+
             (?P<priority>\d+)\s+
             (?P<state>\w+)/\s*
@@ -268,19 +268,19 @@ class FilterModule(object):
             (?P<deadtime>[0-9:]+)\s+
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
-        """
+        '''
         return FilterModule._ospf_neighbor(pattern, text, ['deadtime'])
 
     @staticmethod
     def ios_ospf_basic(text):
-        '''
+        """
         Parses information from the Cisco IOS "show ospf" command
         family. This is useful for verifying various characteristics of
         an OSPF process and its basic configuration.
-        '''
+        """
         return_dict = {}
 
-        process_pattern = r"""
+        process_pattern = r'''
             Routing\s+Process\s+"ospf\s+(?P<id>\d+)"\s+with\s+ID\s+(?P<rid>\d+\.\d+\.\d+\.\d+)
             .*
             \s*Initial\s+SPF\s+schedule\s+delay\s+(?P<init_spf>\d+)\s+msecs
@@ -288,33 +288,26 @@ class FilterModule(object):
             \s*Maximum\s+wait\s+time\s+between\s+two\s+consecutive\s+SPFs\s+(?P<max_spf>\d+)\s+msecs
             .*
             \s*Reference\s+bandwidth\s+unit\s+is\s+(?P<ref_bw>\d+)\s+mbps
-        """
+        '''
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
         process = FilterModule._read_match(match, ['process'])
         if process:
-            is_abr = text.find('area border') != -1
-            is_asbr = text.find('autonomous system boundary') != -1
-            is_stub_rtr = text.find('Originating router-LSAs with max') != -1
-            has_ispf = text.find('Incremental-SPF enabled') != -1
-            has_bfd = text.find('BFD is enabled') != -1
-            has_ttlsec = text.find('Strict TTL checking enabled') != -1
-
             process.update({
-                'is_abr': is_abr,
-                'is_asbr': is_asbr,
-                'is_stub_rtr': is_stub_rtr,
-                'has_ispf': has_ispf,
-                'has_bfd': has_bfd,
-                'has_ttlsec': has_ttlsec
+                'is_abr': text.find('area border') != -1,
+                'is_asbr': text.find('autonomous system boundary') != -1,
+                'is_stub_rtr': text.find('Originating router-LSAs with max') != -1,
+                'has_ispf': text.find('Incremental-SPF enabled') != -1,
+                'has_bfd': text.find('BFD is enabled') != -1,
+                'has_ttlsec': text.find('Strict TTL checking enabled') != -1
             })
             return_dict.update({'process': process})
 
-        area_pattern = r"""
+        area_pattern = r'''
             Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
             Number\s+of\s+interfaces\s+in\s+this\s+area\s+is\s+(?P<num_intfs>\d+).*\n
             \s+(?:It\s+is\s+a\s+(?P<type>\w+)\s+area)?
-        """
+        '''
 
         regex = re.compile(area_pattern, re.VERBOSE)
         areas = [match.groupdict() for match in regex.finditer(text)]
@@ -331,15 +324,15 @@ class FilterModule(object):
 
     @staticmethod
     def ios_ospf_dbsum(text):
-        '''
+        """
         Parses information from the Cisco IOS
         "show ip ospf database database-summary" command family.
         This is useful for verifying various characteristics of
         an OSPF database to count LSAs for simple verification.
         Note that this parser is generic enough to cover Cisco IOS-XR also.
-        '''
+        """
         return_dict = {}
-        process_pattern = r"""
+        process_pattern = r'''
             Process\s+(?P<process_id>\d+)\s+database\s+summary\s+
             (?:LSA\s+Type\s+Count\s+Delete\s+Maxage\s+)?
             Router\s+(?P<total_lsa1>\d+).*\n\s+
@@ -348,7 +341,7 @@ class FilterModule(object):
             Summary\s+ASBR\s+(?P<total_lsa4>\d+).*\n\s+
             Type-7\s+Ext\s+(?P<total_lsa7>\d+).*
             \s+Type-5\s+Ext\s+(?P<total_lsa5>\d+)
-        """
+        '''
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
         key_filler_list = [
@@ -358,7 +351,7 @@ class FilterModule(object):
         process = FilterModule._read_match(match, key_filler_list)
         return_dict.update({'process': process})
 
-        area_pattern = r"""
+        area_pattern = r'''
             Area\s+(?P<id>\d+)\s+database\s+summary\s+
             (?:LSA\s+Type\s+Count\s+Delete\s+Maxage\s+)?
             Router\s+(?P<num_lsa1>\d+).*\n\s+
@@ -366,7 +359,7 @@ class FilterModule(object):
             Summary\s+Net\s+(?P<num_lsa3>\d+).*\n\s+
             Summary\s+ASBR\s+(?P<num_lsa4>\d+).*\n\s+
             Type-7\s+Ext\s+(?P<num_lsa7>\d+)
-        """
+        '''
 
         areas = FilterModule._get_match_items(area_pattern, text)
 
@@ -375,13 +368,13 @@ class FilterModule(object):
 
     @staticmethod
     def ios_ospf_traffic(text):
-        '''
+        """
         Parses information from the Cisco IOS "show ip ospf traffic" command
         family. This is useful for verifying various characteristics of
         an OSPF process/area statistics for troubleshooting.
-        '''
+        """
 
-        interface_pattern = r"""
+        interface_pattern = r'''
             Interface\s+(?P<intf>[^s]\S+)\s+
             .*?
             OSPF\s+header\s+errors
@@ -411,25 +404,25 @@ class FilterModule(object):
             \s+Length\s+(?P<lsa_length>\d+),
             \s+Data\s+(?P<lsa_data>\d+),
             \s+Checksum\s+(?P<lsa_checksum>\d+)
-        """
+        '''
 
         return FilterModule._get_match_items(interface_pattern, text, re.DOTALL)
 
     @staticmethod
     def ios_ospf_frr(text):
-        '''
+        """
         Parses information from the Cisco IOS "show ip ospf fast-reroute"
         command family. This is useful for verifying various characteristics of
         OSPF FRR/LFA configuration to ensure it is configured correctly.
-        '''
+        """
 
-        pattern = r"""
+        pattern = r'''
             (?P<id>\d+)\s+
             (?P<topology>\w+)\s+
             (?P<pref_pri>(High|Low))\s+
             (?P<rlfa>(Yes|No))\s+
             (?P<tilfa>(Yes|No))
-        """
+        '''
         regex = re.compile(pattern, re.VERBOSE)
         frr_area_dict = {}
         for line in text.split('\n'):
@@ -449,20 +442,20 @@ class FilterModule(object):
 
     @staticmethod
     def ios_bfd_neighbor(text):
-        '''
+        """
         Parses information from the Cisco IOS "show bfd neighbor" command
         family. This is useful for verifying various characteristics of
         an BFD neighbor's state.
-        '''
+        """
 
-        pattern = r"""
+        pattern = r'''
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<ld>\d+)/
             (?P<rd>\d+)\s+
             (?P<rhrs>\w+)\s+
             (?P<state>\w+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
-        """
+        '''
         regex = re.compile(pattern, re.VERBOSE)
         bfd_neighbors = []
         for line in text.split('\n'):
@@ -481,13 +474,13 @@ class FilterModule(object):
 
     @staticmethod
     def check_bfd_up(bfd_nbr_list, ospf_nbr):
-        '''
+        """
         Used to check if a specific OSPF neighbor (dictionary returned from
         ios_ospf_neighbor function) is present in the BFD neighbor list. This
         compares the OSPF neighbor interface IP, not router ID, against the
         BFD peer IP. It uses a simple linear search as the number of OSPF/BFD
         neighbors on a device tends to be small (few hundred).
-        '''
+        """
 
         for bfd_nbr in bfd_nbr_list:
             if ospf_nbr['peer'] == bfd_nbr['peer']:
@@ -498,12 +491,12 @@ class FilterModule(object):
 
     @staticmethod
     def iosxr_ospf_neighbor(text):
-        '''
+        """
         Parses information from the Cisco IOS-XR "show ospf neighbor" command
         family. This is useful for verifying various characteristics of
         an OSPF neighbor's state.
-        '''
-        pattern = r"""
+        """
+        pattern = r'''
             (?P<rid>\d+\.\d+\.\d+\.\d+)\s+
             (?P<priority>\d+)\s+
             (?P<state>\w+)/\s*
@@ -512,20 +505,20 @@ class FilterModule(object):
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<uptime>[0-9:hdwy]+)\s+
             (?P<intf>[0-9A-Za-z./-]+)
-        """
+        '''
         return FilterModule._ospf_neighbor(
             pattern, text, ['deadtime', 'uptime'])
 
     @staticmethod
     def _ospf_neighbor(pattern, text, time_keys=None):
-        '''
+        """
         Helper function specific to OSPF neighbor parsing. Each device type
         is slightly different in terms of the information provided, but
         most fields are the same. The time_keys parameter is a list of keys
         which are expected to have values in the format "hh:mm:ss". These
         are commonly uptime, deadtime, etc ... and are most useful when
         converted into seconds as an integer for comparative purposes.
-        '''
+        """
         regex = re.compile(pattern, re.VERBOSE)
         ospf_neighbors = []
         for line in text.split('\n'):
@@ -557,14 +550,14 @@ class FilterModule(object):
 
     @staticmethod
     def iosxr_ospf_basic(text):
-        '''
+        """
         Parses information from the Cisco IOS-XR "show ospf" command
         family. This is useful for verifying various characteristics of
         an OSPF process and its basic configuration.
-        '''
+        """
         return_dict = {}
 
-        process_pattern = r"""
+        process_pattern = r'''
             Routing\s+Process\s+"ospf\s+(?P<id>\d+)"\s+with\s+ID\s+
             (?P<rid>\d+\.\d+\.\d+\.\d+)
             .*
@@ -573,7 +566,7 @@ class FilterModule(object):
             \s+SPFs\s+(?P<min_spf>\d+)\s+msecs
             \s*Maximum\s+wait\s+time\s+between\s+two\s+consecutive
             \s+SPFs\s+(?P<max_spf>\d+)\s+msecs
-        """
+        '''
         regex = re.compile(process_pattern, re.VERBOSE + re.DOTALL)
         match = regex.search(text)
         process = FilterModule._read_match(match, ['process'])
@@ -589,13 +582,13 @@ class FilterModule(object):
             })
             return_dict.update({'process': process})
 
-        area_pattern = r"""
+        area_pattern = r'''
             Area\s+(?:BACKBONE\()?(?P<id>\d+)(?:\))?\s+
             Number\s+of\s+interfaces\s+in\s+this\s+area\s+is\s+(?P<num_intfs>\d+).*?\n
             \s+(?:It\s+is\s+a\s+(?P<type>\w+)\s+area)?
             .*?
             Number\s+of\s+LFA\s+enabled\s+interfaces\s+(?P<frr_intfs>\d+)
-        """
+        '''
 
         regex = re.compile(area_pattern, re.VERBOSE + re.DOTALL)
         areas = [match.groupdict() for match in regex.finditer(text)]
@@ -613,13 +606,13 @@ class FilterModule(object):
 
     @staticmethod
     def iosxr_ospf_traffic(text):
-        '''
+        """
         Parses information from the Cisco IOS-XR "show ip ospf traffic" command
         family. This is useful for verifying various characteristics of
         an OSPF process/area statistics for troubleshooting.
-        '''
+        """
 
-        interface_pattern = r"""
+        interface_pattern = r'''
             Interface\s+(?P<intf>\S+)\s+
             Process\s+ID\s+(?P<pid>\d+)\s+
             Area\s+(?P<area_id>\d+)\s+
@@ -655,6 +648,6 @@ class FilterModule(object):
             \s+Unspecified\s+RX\s+(?P<unspec_rx>\d+)
             \s+Unspecified\s+TX\s+(?P<unspec_tx>\d+)
             \s+Socket\s+(?P<socket>\d+)
-        """
+        '''
 
         return FilterModule._get_match_items(interface_pattern, text, re.DOTALL)

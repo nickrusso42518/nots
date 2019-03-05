@@ -1,9 +1,4 @@
 ---
-# areas.yml
-# with_together:
-#   - "{{ my_areas }}"
-#   - "{{ OSPF_DB.areas }}"
-#   - "{{ OSPF_BASIC.areas }}"
 - name: "SYS >> Store current area targets from all_areas dict"
   set_fact:
     AREA_TARGETS: "{{ all_areas['area' ~ (item.0 | string)] }}"

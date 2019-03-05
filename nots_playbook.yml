@@ -29,7 +29,7 @@
             path: "{{ LOG_PATH }}"
             state: directory
           changed_when: false
-      when: "hostvars.localhost.log"
+      when: "log"
       run_once: true
       delegate_to: localhost
 
@@ -57,7 +57,7 @@
           when: >-
             item.key in groups.ospf_routers and
             item.value.OSPF_BASIC is defined
-          with_dict: "{{ hostvars }}"
+          with_dict: "{{ hostvars }}"  # loop and dict2items not working
           loop_control:
             label: "host:{{ item.key }}"
 

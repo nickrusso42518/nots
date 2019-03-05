@@ -6,6 +6,7 @@
 # than using '-e' from the CI build specifications.
 - import_playbook: "../nots_playbook.yml"
   vars:
+    log: false
     ci_test: true
     ansible_connection: "local"
 ...

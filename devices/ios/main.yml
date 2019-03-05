@@ -49,7 +49,7 @@
 - name: "INCLUDE >> Detailed OSPF statistics processing"
   include_tasks: "stats.yml"
   when: "process.stats is defined and not 'oopback' in item.intf"
-  with_items: "{{ OSPF_TRAF }}"
+  loop: "{{ OSPF_TRAF }}"
   loop_control:
     label: "intf:{{ item.intf }}"
 
@@ -70,7 +70,7 @@
       Invalid neighbor. state must be full or a combination of 2way plus
       the drother role to be considered valid.
       saw {{ item }}
-  with_items: "{{ OSPF_NBR }}"
+  loop: "{{ OSPF_NBR }}"
   loop_control:
     label: "nbr:{{ item.rid }}  state:{{ item.state }}  role:{{ item.role }}"
 
@@ -82,7 +82,7 @@
       expected OSPF neighbor {{ item | to_nice_json }}
       in list of BFD neighbors {{ BFD_NBR | to_nice_json }}
   when: "process.has_bfd is defined and process.has_bfd"
-  with_items: "{{ OSPF_NBR }}"
+  loop: "{{ OSPF_NBR }}"
   loop_control:
     label: "peer:{{ item.peer }}"
 
@@ -173,12 +173,10 @@
       saw OSPF_DB.areas:{{ OSPF_DB.areas | length }}
       saw OSPF_BASIC.areas:{{ OSPF_BASIC.areas | length }}
 
+# Old with_together
 - name: "INCLUDE >> Perform iterative checks on area-specific parameters"
   include_tasks: "areas.yml"
-  with_together:
-    - "{{ my_areas }}"
-    - "{{ OSPF_DB.areas }}"
-    - "{{ OSPF_BASIC.areas }}"
+  loop: "{{ my_areas | zip(OSPF_DB.areas, OSPF_BASIC.areas) | list }}"
   loop_control:
     label: "area_id:{{ item.0 }}"
 
@@ -189,6 +187,7 @@
       too many LSA5 {{ OSPF_DB.process.total_lsa5 }} < {{ process.max_lsa5 }}
   when: "process.max_lsa5 is defined"
 
+# old with_dict
 - name: "Check FRR status in each relevant area"
   assert:
     that: "item.value.has_frr == (OSPF_FRR[item.key] is defined)"
@@ -197,7 +196,7 @@
       expected {{ item.value.has_frr }}
       saw {{ OSPF_FRR | to_nice_json }}
   when: "item.value.has_frr is defined and item.key[4:] | int in my_areas"
-  with_dict: "{{ all_areas }}"
+  loop: "{{ all_areas | dict2items }}"
   loop_control:
     label: "area_id:{{ item.key }}"
 ...
