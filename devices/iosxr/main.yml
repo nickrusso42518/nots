@@ -127,10 +127,7 @@
 
 - name: "INCLUDE >> Perform iterative checks on area-specific parameters"
   include_tasks: "areas.yml"
-  with_together:
-    - "{{ my_areas }}"
-    - "{{ OSPF_DB.areas }}"
-    - "{{ OSPF_BASIC.areas }}"
+  loop: "{{ my_areas | zip(OSPF_DB.areas, OSPF_BASIC.areas) | list }}"
   loop_control:
     label: "area_id:{{ item.0 }}"
 

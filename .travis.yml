@@ -1,21 +1,22 @@
 ---
-language: python
+# Test both Python 2.7 and 3.6 versions.
+language: "python"
 python:
   - "2.7"
+  - "3.6"
 
 # Install python packages for ansible and linters.
 install:
-  - "pip install -r requirements.txt"
+  - "make setup"
 
 # Execute linting and unit tests before running the main playbook.
 # If any of these tasks fail, the entire build fails immediately.
 before_script:
-  - "./tests/lint.sh"
-  - "echo 'brkrst3310' >> ~/vault_pass_file.txt"
-  - "ansible-playbook tests/unittest_playbook.yml"
+  - "make lint"
+  - "make unit"
 
 # Run the playbook with mock inputs to validate the OSPF tests.
 # Mock inputs are stored in tests/vars with one per test host.
 script:
-  - "ansible-playbook tests/test_playbook.yml"
+  - "make int"
 ...

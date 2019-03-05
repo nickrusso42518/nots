@@ -45,7 +45,7 @@
 - name: "INCLUDE >> Detailed OSPF statistics processing"
   include_tasks: "stats.yml"
   when: "process.stats is defined"  # not intf-specific, no loopback check
-  with_items: "{{ OSPF_TRAF }}"
+  loop: "{{ OSPF_TRAF }}"
   loop_control:
     label: "pid:{{ item.pid }}"
 
@@ -67,7 +67,7 @@
       Invalid neighbor. state must be full or a combination of twoway plus
       the drother role to be considered valid.
       saw {{ item }}
-  with_items: "{{ OSPF_NBR }}"
+  loop: "{{ OSPF_NBR }}"
   loop_control:
     label: "nbr:{{ item.rid }}  state:{{ item.state }}  role:{{ item.role }}"
 
@@ -136,10 +136,7 @@
 
 - name: "INCLUDE >> Perform iterative checks on area-specific parameters"
   include_tasks: "areas.yml"
-  with_together:
-    - "{{ my_areas }}"
-    - "{{ OSPF_DB.areas }}"
-    - "{{ OSPF_BASIC.areas }}"
+  loop: "{{ my_areas | zip(OSPF_DB.areas, OSPF_BASIC.areas) | list }}"
   loop_control:
     label: "area_id:{{ item.0 }}"
 

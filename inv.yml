@@ -1,10 +1,9 @@
 ---
 all:
-  hosts:
-    localhost:
-      log: true
   children:
     ospf_routers:
+      vars:
+        log: true
       children:
         ios:
           hosts:
