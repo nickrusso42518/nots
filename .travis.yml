@@ -18,5 +18,5 @@ before_script:
 # Run the playbook with mock inputs to validate the OSPF tests.
 # Mock inputs are stored in tests/vars with one per test host.
 script:
-  - "make pb"
+  - "make int"
 ...
