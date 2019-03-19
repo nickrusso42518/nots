@@ -3,14 +3,20 @@ This project is automatically tested using [Travis CI](https://travis-ci.org)
 using the file `.travis.yml` in the previous directory. CI testing spans
 three distinct stages in this project:
 
-  1. [Linting code](#linting-code)
-  2. [Unit tests](#unit-tests)
-  3. [Playbook tests](#playbook-tests)
+  1. [Quick start](#quick-start)
+  2. [Linting code](#linting-code)
+  3. [Unit tests](#unit-tests)
+  4. [Integration tests](#integration-tests)
+
+
+## Quick start
+From the main `nots` directory, use the `make test` target and it will
+kick off all three of the test phases in the proper sequence.
 
 ## Linting code
-All source code is linted before any code is actively executed. The
-file `tests/lint.sh` is a bash script which checks all YAML, Python, and
-markdown files for syntax and styling issues. Additionally, static code
+All source code is linted before any code is actively executed. Using
+the `make lint` target from the main `nots` directory checks all YAML and Python
+files for syntax and styling issues. Additionally, static code
 analysis is applied to Python code to identify any security issues before
 execution.
 
@@ -21,24 +27,12 @@ each function. These are the parsers used to transform CLI output (text)
 from the network devices into structured data. Each test displays the
 structured data to stdout as JSON for troubleshooting and human validation.
 
-### Running tests
 The playbook called `tests/unittest_playbook.yml` automatically includes
 these task lists for execution. The tests are kept simple using static text
-input with bogus values to ensure the parsers function correctly.
+input with bogus values to ensure the parsers function correctly. Use
+the `make unit` target from the main `nots` directory to run unit tests.
 
-### Targeted testing
-If you only want to run a subset of unit tests, you can override the `TASKS`
-variable from the CLI using `-e` or `--extra-vars`. For example, to only test
-the IOS OSPF neighbor functionality, use this command:
-
-`ansible-playbook unittest_playbook.yml -e "TASKS=test_ios_ospf_neighbor.yml"`
-
-Since this string is a regex, quantifiers are supported. For example, to only
-test IOS-XR related filters, use this command:
-
-`ansible-playbook unittest_playbook.yml -e "TASKS=test_iosxr*"`
-
-## Playbook tests
+## Integration tests
 Test the entire playbook for all supported platforms using mock data
 to simulate virtual devices. This is a faster and lower cost way to test
 the playbook compared to spinning up virtual devices. The test topology
@@ -56,12 +50,8 @@ data has been written to be "right", and the diagram shows the full topology.
 All three pieces of information are telling the sames tory.
 
 ### Running tests
-The easiest way to manually run this test is to issue the command:
-
-`ansible-playbook nots_playbook.yml -e "ci_test=true"`
-
-This overrides the `ci_test` default value of `false` to `true`, which skips
-the network device data collection tasks. Instead, it loads the mock data
-defined previously, and continues on with the playbook as normal.
-Users can also modify the `ci_test` variable to `true` in `hosts.yml` if
-there is active development without any virtual routers.
+The easiest way to manually run this test is to use the `make integ` command
+from the main `nots` directory. Behind the scenes, this executes the
+`integration_playbook.yml` playbook and overrides two variables:
+  * `ci_test` is set to `true`, which skips logging into any network devices
+  * `log` is set to `false`, since there isn't any meaningful network data

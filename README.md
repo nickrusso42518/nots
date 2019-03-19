@@ -50,13 +50,13 @@ Linux ip-10-125-0-100.ec2.internal 3.10.0-693.el7.x86_64 #1 SMP
   Thu Jul 6 19:56:57 EDT 2017 x86_64 x86_64 x86_64 GNU/Linux
 
 $ ansible --version
-ansible 2.7.7
+ansible 2.6.2
   config file = /home/centos/code/nots/ansible.cfg
   configured module search path = ['/home/centos/.ansible/plugins/modules',
     '/usr/share/ansible/plugins/modules']
   ansible python module location =
-    /home/centos/environments/ans27/lib64/python3.6/site-packages/ansible
-  executable location = /home/centos/environments/ans27/bin/ansible
+    /home/centos/environments/ans262/lib64/python3.6/site-packages/ansible
+  executable location = /home/centos/environments/ans262/bin/ansible
   python version = 3.6.7 (default, Dec  5 2018, 15:02:05)
     [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
 ```
@@ -91,12 +91,12 @@ to be run N times rather than one time.
 ## Operations
 This solution uses a GNU `Makefile` to simplify setup and daily operations.
 The following `make` targets are supported.
-  * `make`: Same as `make all`
-  * `make all`: Runs the production playbook on live network
+  * `make`: Same as `make test`
+  * `make test`: Runs all testing (lint, unit, integ) in sequence
   * `make setup`: Installs packages and builds the vault password file
   * `make lint`: Runs YAML and Python linters
   * `make unit`: Runs function-level testing on Python filters
-  * `make int`: Runs the test playbook (integration test)
+  * `make integ`: Runs the test playbook (integration test)
 
 ## Variables
 The following subsections detail the different types of variables, their

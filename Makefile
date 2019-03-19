@@ -1,15 +1,14 @@
 # Makefile targets simplify daily operatons:
-#   make: Same as "make all"
-#   make all: Runs the production playbook on live network
+#   make: Same as "make test"
+#   make test: Runs all testing (lint, unit, integ) in sequence
 #   make setup: Installs packages and builds the vault password file
 #   make lint: Runs YAML and Python linters
 #   make unit: Runs function-level testing on Python filters
-#   make int: Runs the test playbook (integration test)
+#   make integ: Runs the test playbook (integration test)
 
-.DEFAULT_GOAL := all
-.PHONY: all
-all:
-	ansible-playbook nots_playbook.yml
+.DEFAULT_GOAL := test
+.PHONY: test
+test:	lint unit integ
 
 .PHONY: setup
 setup:
@@ -18,8 +17,6 @@ setup:
 	echo "brkrst3310" > ~/vault_pass_file.txt
 	@echo "Completed setup"
 
-.PHONY: test
-test:	lint unit int
 
 .PHONY: lint
 lint:
@@ -35,8 +32,8 @@ unit:
 	ansible-playbook tests/unittest_playbook.yml
 	@echo "Completed unit tests"
 
-.PHONY: int
-int:
-	@echo "Starting  playbook tests"
-	ansible-playbook tests/test_playbook.yml
-	@echo "Completed playbook tests"
+.PHONY: integ
+integ:
+	@echo "Starting  integration tests"
+	ansible-playbook tests/integration_playbook.yml
+	@echo "Completed integration tests"

@@ -2,11 +2,9 @@
 # Simple wrapper to call the main playbook with 'ci_test' set to true.
 # Because this particular playbook does not require dedicated test
 # playbook due to its simplicity, its easier just to invoke the main
-# one. This is also consistent and allows for future growth rather
-# than using '-e' from the CI build specifications.
+# one.
 - import_playbook: "../nots_playbook.yml"
   vars:
     log: false
     ci_test: true
-    ansible_connection: "local"
 ...

@@ -5,6 +5,8 @@
       nxos_command:
         commands: "{{ commands }}"
       register: CLI_OUTPUT
+      vars:
+        ansible_connection: "network_cli"
 
     - name: "INCLUDE >> Run CLI output logging tasks"
       include_tasks: "../log.yml"

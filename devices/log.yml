@@ -11,6 +11,6 @@
     mode: 0444
     force: false
     newline_sequence: '\r\n'
-  when: "hostvars.localhost.log"
+  when: "log"
   changed_when: false
 ...
