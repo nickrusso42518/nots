@@ -2,18 +2,19 @@
 all:
   children:
     ospf_routers:
-      vars:
-        log: true
       children:
         ios:
-          hosts:
-            csr1:
-              my_areas: [0, 3, 4369]
-              my_nbr_count: 4
-            csr2:
-              my_areas: [2]
-              my_nbr_count: 1
-              should_be_stub_rtr: true
+          children:
+            iosxe:
+              hosts:
+                csr1:
+                  my_areas: [0, 3, 4369]
+                  my_nbr_count: 4
+                csr2:
+                  my_areas: [2]
+                  my_nbr_count: 1
+                  should_be_stub_rtr: true
+            iosclassic:
         iosxr:
           hosts:
             xrv1:

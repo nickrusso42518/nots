@@ -1,5 +1,6 @@
 ---
 ci_test: false
+log: true
 ansible_user: "ansible"
 ansible_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
