@@ -6,6 +6,7 @@
       10.108.23.50   0   FULL/  -      00:00:35   10.125.95.7    GigabitEth0/1
       10.108.5.50  255   FULL/DR       00:00:34   10.125.95.137  Port-chan8.33
       10.255.6.50   23   2WAY/DROTHER  11:22:33   10.108.0.0     NVE8
+      10.0.0.11      0   FULL/  -        -        10.0.0.11      OSPF_VL0
 
 - name: "Perform parsing"
   set_fact:
@@ -18,7 +19,7 @@
 - name: "Ensure parsing succeeded for first neighbor"
   assert:
     that:
-      - "data | length == 3"
+      - "data | length == 4"
       - "data[0].rid == '10.108.23.50'"
       - "data[0].priority == 0"
       - "data[0].state == 'full'"
@@ -51,4 +52,16 @@
       - "data[2].deadtime_sec == 40953"
       - "data[2].peer == '10.108.0.0'"
       - "data[2].intf == 'nve8'"
+
+- name: "Ensure parsing succeeded for fourth neighbor (VL)"
+  assert:
+    that:
+      - "data[3].rid == '10.0.0.11'"
+      - "data[3].priority == 0"
+      - "data[3].state == 'full'"
+      - "data[3].role == '-'"
+      - "data[3].deadtime == '-'"
+      - "data[3].deadtime_sec == 0"
+      - "data[3].peer == '10.0.0.11'"
+      - "data[3].intf == 'ospf_vl0'"
 ...

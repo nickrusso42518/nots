@@ -37,6 +37,8 @@ playbook which begins the device-specific tasks.
 
 Testing was conducted on the following platforms and versions:
   * Cisco CSR1000v, version 16.07.01a, running in AWS
+  * Cisco CSR1000v, version 16.09.02, running in AWS
+  * Cisco IOSv, version 15.6M, running in GNS3
   * Cisco XRv9000, version 6.3.1, running in AWS
   * Cisco 3172T, version 6.0.2.U6.4a, hardware appliance
 
@@ -161,6 +163,32 @@ as their main purpose is abstraction, not user input.__
   * `commands`: A list of strings representing the CLI commands to be
     issued to the device. These collect information from the devices relevant
     to troubleshooting OSPF.
+
+One special consideration is extended to `ios`. Because classic IOS and
+IOS-XE have minor differences in the commands they support, they use
+difference command lists. The IOS-related group variables are as follows:
+  * `ios`: General IOS parameters, applying to classic and XE variants
+  * `iosclassic`: Command list specific to classic IOS devices
+  * `iosxe`: Command list specific to IOS-XE devices
+
+An example inventory might look like this:
+
+```
+all:
+  children:
+    ospf_routers:
+      children:
+        ios:
+          children:
+            iosxe:
+              hosts:
+                CSR1000:
+                ISR4451:
+            iosclassic:
+              hosts:
+                C3945E:
+                C3750X:
+```
 
 Note that some extra commands are appended to the end of the `commands` list
 which are used for collection only. The output from these commands is written

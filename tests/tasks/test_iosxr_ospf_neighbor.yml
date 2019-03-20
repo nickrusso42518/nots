@@ -10,6 +10,7 @@
       Neighbor ID   Pri State    Dead Time Address       Up Time  Interface
       192.168.0.11  0   FULL/DR  00:00:32  192.168.1.11  1y1w4d2h Gi0/0/0/0.511
       192.168.0.12  1   FULL/ -  00:01:32  192.168.1.12  01:18:57 Gi1/2/3/4.512
+      10.10.10.10   1   FULL/ -      -     10.10.10.10   00:01:01 OSPF_VL0
 
       Area 51
       Neighbor ID   Pri State    Dead Time Address       Up Time  Interface
@@ -26,7 +27,7 @@
 - name: "Ensure parsing succeed for first neighbor"
   assert:
     that:
-      - "data | length == 3"
+      - "data | length == 4"
       - "data[0].rid == '192.168.0.11'"
       - "data[0].priority == 0"
       - "data[0].state == 'full'"
@@ -54,18 +55,34 @@
       - "data[1].intf | lower == 'gi1/2/3/4.512'"
     msg: "parsing problem. see JSON dump from previous task"
 
-- name: "Ensure parsing succeed for third neighbor"
+- name: "Ensure parsing succeed for third neighbor (VL)"
   assert:
     that:
-      - "data[2].rid == '192.168.0.13'"
-      - "data[2].priority == 255"
-      - "data[2].state == 'init'"
+      - "data[2].rid == '10.10.10.10'"
+      - "data[2].priority == 1"
+      - "data[2].state == 'full'"
       - "data[2].role == '-'"
-      - "data[2].deadtime == '00:02:32'"
-      - "data[2].deadtime_sec == 152"
-      - "data[2].peer == '192.168.1.13'"
-      - "data[2].uptime == '02:18:57'"
-      - "data[2].uptime_sec == 8337"
-      - "data[2].intf | lower == 'tunnel-ip13'"
+      - "data[2].deadtime == '-'"
+      - "data[2].deadtime_sec == 0"
+      - "data[2].peer == '10.10.10.10'"
+      - "data[2].uptime == '00:01:01'"
+      - "data[2].uptime_sec == 61"
+      - "data[2].intf | lower == 'ospf_vl0'"
     msg: "parsing problem. see JSON dump from previous task"
+
+- name: "Ensure parsing succeed for fourth neighbor"
+  assert:
+    that:
+      - "data[3].rid == '192.168.0.13'"
+      - "data[3].priority == 255"
+      - "data[3].state == 'init'"
+      - "data[3].role == '-'"
+      - "data[3].deadtime == '00:02:32'"
+      - "data[3].deadtime_sec == 152"
+      - "data[3].peer == '192.168.1.13'"
+      - "data[3].uptime == '02:18:57'"
+      - "data[3].uptime_sec == 8337"
+      - "data[3].intf | lower == 'tunnel-ip13'"
+    msg: "parsing problem. see JSON dump from previous task"
+
 ...

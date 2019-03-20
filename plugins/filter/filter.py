@@ -179,9 +179,9 @@ class FilterModule(object):
             (?P<priority>\d+)\s+
             (?P<state>\w+)/\s*
             (?P<role>[A-Z-]+)\s+
-            (?P<uptime>[0-9:hdwy]+)\s+
+            (?P<uptime>[0-9:hdwy]+|-)\s+
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
-            (?P<intf>[0-9A-Za-z./-]+)
+            (?P<intf>[0-9A-Za-z./_-]+)
         '''
         return FilterModule._ospf_neighbor(pattern, text, ['uptime'])
 
@@ -265,9 +265,9 @@ class FilterModule(object):
             (?P<priority>\d+)\s+
             (?P<state>\w+)/\s*
             (?P<role>[A-Z-]+)\s+
-            (?P<deadtime>[0-9:]+)\s+
+            (?P<deadtime>[0-9:]+|-)\s+
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
-            (?P<intf>[0-9A-Za-z./-]+)
+            (?P<intf>[0-9A-Za-z./_-]+)
         '''
         return FilterModule._ospf_neighbor(pattern, text, ['deadtime'])
 
@@ -501,10 +501,10 @@ class FilterModule(object):
             (?P<priority>\d+)\s+
             (?P<state>\w+)/\s*
             (?P<role>[A-Z-]+)\s+
-            (?P<deadtime>[0-9:]+)\s+
+            (?P<deadtime>[0-9:]+|-)\s+
             (?P<peer>\d+\.\d+\.\d+\.\d+)\s+
             (?P<uptime>[0-9:hdwy]+)\s+
-            (?P<intf>[0-9A-Za-z./-]+)
+            (?P<intf>[0-9A-Za-z./_-]+)
         '''
         return FilterModule._ospf_neighbor(
             pattern, text, ['deadtime', 'uptime'])
