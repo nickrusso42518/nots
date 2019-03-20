@@ -55,7 +55,7 @@ class FilterModule(object):
         elif key_filler_list:
             return_dict = {}
             for key in key_filler_list:
-                return_dict.update({key, None})
+                return_dict.update({key: None})
 
         return return_dict
 

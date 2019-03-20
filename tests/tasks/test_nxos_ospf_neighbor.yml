@@ -1,6 +1,7 @@
 ---
 - name: "Store NXOS OSPF neighbor text"
   set_fact:
+    junk: "dummy text"
     text: |-
       OSPF Process ID 1 VRF default
       Total number of neighbors: 2
@@ -56,4 +57,16 @@
       - "data[2].peer == '4.2.5.18'"
       - "data[2].intf == 'vl0'"
     msg: "parsing problem. see JSON dump from previous task"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | nxos_ospf_neighbor }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty list"
+  assert:
+    that: "empty | length == 0"
 ...

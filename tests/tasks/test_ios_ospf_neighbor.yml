@@ -1,6 +1,7 @@
 ---
 - name: "Store IOS OSPF neighbor text"
   set_fact:
+    junk: "dummy text"
     text: |-
       Neighbor ID  Pri   State         Dead Time  Address        Interface
       10.108.23.50   0   FULL/  -      00:00:35   10.125.95.7    GigabitEth0/1
@@ -64,4 +65,16 @@
       - "data[3].deadtime_sec == 0"
       - "data[3].peer == '10.0.0.11'"
       - "data[3].intf == 'ospf_vl0'"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | ios_ospf_neighbor }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty list"
+  assert:
+    that: "empty | length == 0"
 ...

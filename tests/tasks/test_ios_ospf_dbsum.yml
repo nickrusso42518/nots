@@ -1,6 +1,7 @@
 ---
 - name: "Store IOS database summary text"
   set_fact:
+    junk: "dummy text"
     text: |-
       OSPF Router with ID (192.168.0.12) (Process ID 1)
 
@@ -77,4 +78,23 @@
       - "data.process.total_lsa4 == 44"
       - "data.process.total_lsa7 == 45"
       - "data.process.total_lsa5 == 48"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | ios_ospf_dbsum }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing failed at the process level"
+  assert:
+    that:
+      - "empty.areas | length == 0"
+      - "not empty.process.total_lsa1"
+      - "not empty.process.total_lsa2"
+      - "not empty.process.total_lsa3"
+      - "not empty.process.total_lsa4"
+      - "not empty.process.total_lsa5"
+      - "not empty.process.total_lsa7"
 ...

@@ -1,6 +1,7 @@
 ---
 - name: "Store NXOS OSPF basic text"
   set_fact:
+    junk: "dummy text"
     text: |-
        Routing Process 1 with ID 10.0.0.3 VRF default
        Routing Process Instance Number 2
@@ -88,4 +89,21 @@
       - "data.areas[1].id == 4369"
       - "data.areas[1].type == 'stub'"
       - "data.areas[1].num_intfs == 17"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | nxos_ospf_basic }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty structure"
+  assert:
+    that:
+      - "empty.areas | length == 0"
+      - "not empty.process.is_abr"
+      - "not empty.process.is_asbr"
+      - "not empty.process.is_stub_rtr"
+      - "not empty.process.process"
 ...

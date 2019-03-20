@@ -1,6 +1,7 @@
 ---
 - name: "Store IOS OSPF FRR text"
   set_fact:
+    junk: "dummy text"
     text: |-
       OSPF Router with ID (10.0.0.2) (Process ID 1)
       Microloop avoidance is enabled for protected prefixes, delay 5000 msec
@@ -37,4 +38,16 @@
       - "not data.area51.tilfa"
       - "data.area51.topology == 'fun'"
     msg: "parsing problem. check JSON dump from previous task"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | ios_ospf_frr }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty dict"
+  assert:
+    that: "empty | length == 0"
 ...
