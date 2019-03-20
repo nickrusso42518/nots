@@ -1,6 +1,7 @@
 ---
 - name: "Store IOS BFD neighbor text"
   set_fact:
+    junk: "dummy text"
     text: |-
       IPv4 Sessions
       NeighAddr                LD/RD         RH/RS     State     Int
@@ -46,4 +47,15 @@
       - "data[2].rhrs == 'up'"
       - "data[2].state == 'down'"
       - "data[2].intf == 'gi0/1/2'"
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | ios_bfd_neighbor }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty list"
+  assert:
+    that: "empty | length == 0"
 ...

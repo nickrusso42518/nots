@@ -1,6 +1,7 @@
 ---
 - name: "Store NXOS database summary text"
   set_fact:
+    junk: "dummy text"
     text: |-
       OSPF Router with ID (10.0.0.3) (Process ID 1 VRF default)
 
@@ -75,4 +76,23 @@
       - "data.process.total_lsa4 == 444"
       - "data.process.total_lsa7 == 777"
       - "data.process.total_lsa5 == 555"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | nxos_ospf_dbsum }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing failed at the process level"
+  assert:
+    that:
+      - "empty.areas | length == 0"
+      - "not empty.process.total_lsa1"
+      - "not empty.process.total_lsa2"
+      - "not empty.process.total_lsa3"
+      - "not empty.process.total_lsa4"
+      - "not empty.process.total_lsa5"
+      - "not empty.process.total_lsa7"
 ...

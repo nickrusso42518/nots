@@ -30,7 +30,7 @@
   assert:
     that: "bfd_nbrs | check_bfd_up(ospf_nbr)"
     msg: "not all OSPF neighbors showed up, check JSON above"
-  with_items: "{{ ospf_nbrs }}"
+  loop: "{{ ospf_nbrs }}"
   loop_control:
     loop_var: ospf_nbr
 ...

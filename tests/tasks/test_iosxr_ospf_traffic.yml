@@ -1,6 +1,7 @@
 ---
 - name: "Store IOSXR OSPF traffic stats text"
   set_fact:
+    junk: "dummy text"
     text: |-
       Interface GigabitEthernet0/0/0/0.511 Process ID 1 Area 0
 
@@ -141,4 +142,16 @@
       - "data[1].enq_rtr == 27"
       - "data[1].unspec_tx == 28"
     msg: "parsing failed; see JSON dump from previous task"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | iosxr_ospf_traffic }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty list"
+  assert:
+    that: "empty | length == 0"
 ...

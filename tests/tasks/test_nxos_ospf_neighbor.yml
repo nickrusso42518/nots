@@ -1,12 +1,14 @@
 ---
 - name: "Store NXOS OSPF neighbor text"
   set_fact:
+    junk: "dummy text"
     text: |-
       OSPF Process ID 1 VRF default
       Total number of neighbors: 2
       Neighbor ID     Pri State      Up Time  Address       Interface
       2.2.2.2           1 FULL/ -    1y2w3d4h 192.168.0.2   Eth1/43
       2.255.2.0       255 2WAY/BDR   21:01:05 10.192.17.6   Port-Cha1
+      4.2.5.18          0 FULL/ -    00:01:05 4.2.5.18      VL0
 
 - name: "Perform parsing"
   set_fact:
@@ -19,7 +21,7 @@
 - name: "Ensure parsing succeeded for first neighbor"
   assert:
     that:
-      - "data | length == 2"
+      - "data | length == 3"
       - "data[0].rid == '2.2.2.2'"
       - "data[0].priority == 1"
       - "data[0].state == 'full'"
@@ -28,6 +30,7 @@
       - "data[0].uptime_sec == 0"  # issue #1
       - "data[0].peer == '192.168.0.2'"
       - "data[0].intf == 'eth1/43'"
+    msg: "parsing problem. see JSON dump from previous task"
 
 - name: "Ensure parsing succeeded for second neighbor"
   assert:
@@ -40,4 +43,30 @@
       - "data[1].uptime_sec == 75665"
       - "data[1].peer == '10.192.17.6'"
       - "data[1].intf == 'port-cha1'"
+    msg: "parsing problem. see JSON dump from previous task"
+
+- name: "Ensure parsing succeeded for third neighbor (VL)"
+  assert:
+    that:
+      - "data[2].rid == '4.2.5.18'"
+      - "data[2].priority == 0"
+      - "data[2].state == 'full'"
+      - "data[2].role == '-'"
+      - "data[2].uptime == '00:01:05'"
+      - "data[2].uptime_sec == 65"
+      - "data[2].peer == '4.2.5.18'"
+      - "data[2].intf == 'vl0'"
+    msg: "parsing problem. see JSON dump from previous task"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | nxos_ospf_neighbor }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty list"
+  assert:
+    that: "empty | length == 0"
 ...

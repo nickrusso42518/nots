@@ -17,8 +17,13 @@
         OSPF_NBR: "{{ CLI_OUTPUT.stdout[1] | ios_ospf_neighbor }}"
         OSPF_DB: "{{ CLI_OUTPUT.stdout[2] | ios_ospf_dbsum }}"
         OSPF_TRAF: "{{ CLI_OUTPUT.stdout[3] | ios_ospf_traffic }}"
-        OSPF_FRR: "{{ CLI_OUTPUT.stdout[4] | ios_ospf_frr }}"
-        BFD_NBR: "{{ CLI_OUTPUT.stdout[5] | ios_bfd_neighbor }}"
+        BFD_NBR: "{{ CLI_OUTPUT.stdout[4] | ios_bfd_neighbor }}"
+
+    - name: "SYS >> Parse IOS-XE specific output into structured data"
+      set_fact:
+        OSPF_FRR: "{{ CLI_OUTPUT.stdout[5] | ios_ospf_frr }}"
+      when: "'iosxe' in group_names"
+
   when: "not ci_test"
 
 - name: "BLOCK >> Substitute mock CI variables of parsed data"

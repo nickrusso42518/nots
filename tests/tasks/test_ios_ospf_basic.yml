@@ -1,6 +1,7 @@
 ---
 - name: "Store IOS OSPF basic text"
   set_fact:
+    junk: "dummy text"
     text: |-
       Routing Process "ospf 1" with ID 10.0.0.5
       Start time: 00:00:17.043, Time elapsed: 00:00:30.262
@@ -115,4 +116,23 @@
     that:
       - "data.areas[2].type == 'nssa'"
       - "data.areas[2].num_intfs == 4"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | ios_ospf_basic }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty structure"
+  assert:
+    that:
+      - "not empty.process.has_bfd"
+      - "not empty.process.has_ispf"
+      - "not empty.process.has_ttlsec"
+      - "not empty.process.is_abr"
+      - "not empty.process.is_asbr"
+      - "not empty.process.is_stub_rtr"
+      - "not empty.process.process"
 ...

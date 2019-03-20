@@ -1,6 +1,7 @@
 ---
 - name: "Store IOSXR OSPF basic text"
   set_fact:
+    junk: "dummy text"
     text: |-
       Routing Process "ospf 42518" with ID 192.168.0.12
       Role: Primary Active
@@ -109,4 +110,20 @@
       - "data.areas[2].type == 'stub'"
       - "data.areas[2].num_intfs == 333"
       - "data.areas[2].frr_intfs == 33"
+
+- name: "Perform parsing of junk input"
+  set_fact:
+    empty: "{{ junk | iosxr_ospf_basic }}"
+
+- name: "Print empty data"
+  debug:
+    var: empty
+
+- name: "Ensure parsing results in an empty structure"
+  assert:
+    that:
+      - "not empty.process.is_abr"
+      - "not empty.process.is_asbr"
+      - "not empty.process.is_stub_rtr"
+      - "not empty.process.process"
 ...
