@@ -38,6 +38,7 @@ playbook which begins the device-specific tasks.
 Testing was conducted on the following platforms and versions:
   * Cisco CSR1000v, version 16.07.01a, running in AWS
   * Cisco CSR1000v, version 16.09.02, running in AWS
+  * Cisco CSR1000v, version 16.12.01a, running in AWS
   * Cisco IOSv, version 15.6M, running in GNS3
   * Cisco XRv9000, version 6.3.1, running in AWS
   * Cisco 3172T, version 6.0.2.U6.4a, hardware appliance
@@ -52,14 +53,14 @@ Linux ip-10-125-0-100.ec2.internal 3.10.0-693.el7.x86_64 #1 SMP
   Thu Jul 6 19:56:57 EDT 2017 x86_64 x86_64 x86_64 GNU/Linux
 
 $ ansible --version
-ansible 2.6.2
-  config file = /home/centos/code/nots/ansible.cfg
-  configured module search path = ['/home/centos/.ansible/plugins/modules',
+ansible 2.8.7
+  config file = /home/ec2-user/racc/ansible.cfg
+  configured module search path = ['/home/ec2-user/.ansible/plugins/modules',
     '/usr/share/ansible/plugins/modules']
   ansible python module location =
-    /home/centos/environments/ans262/lib64/python3.6/site-packages/ansible
-  executable location = /home/centos/environments/ans262/bin/ansible
-  python version = 3.6.7 (default, Dec  5 2018, 15:02:05)
+    /home/ec2-user/environments/racc287/lib/python3.7/site-packages/ansible
+  executable location = /home/ec2-user/environments/racc287/bin/ansible
+  python version = 3.7.3 (default, Aug 27 2019, 16:56:53)
     [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
 ```
 
@@ -96,7 +97,7 @@ The following `make` targets are supported.
   * `make`: Same as `make test`
   * `make test`: Runs all testing (lint, unit, integ) in sequence
   * `make setup`: Installs packages and builds the vault password file
-  * `make lint`: Runs YAML and Python linters
+  * `make lint`: Runs YAML and Python linters along with Python formatter
   * `make unit`: Runs function-level testing on Python filters
   * `make integ`: Runs the test playbook (integration test)
 

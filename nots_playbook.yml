@@ -1,7 +1,7 @@
 ---
 # nots_playbook.yaml
 - name: "Collect network information and perform device-specific tests"
-  hosts: ospf_routers
+  hosts: "ospf_routers"
   tasks:
     - name: "BLOCK >> Perform logging preparation"
       block:
@@ -17,7 +17,7 @@
         - name: "LOG >> Ensure output logging directory exists"
           file:
             path: "logs"
-            state: directory
+            state: "directory"
           changed_when: false
 
         - name: "LOG >> Store the log directory for this run"
@@ -27,7 +27,7 @@
         - name: "LOG >> Build logging directory with path {{ LOG_PATH }}"
           file:
             path: "{{ LOG_PATH }}"
-            state: directory
+            state: "directory"
           changed_when: false
       when: "log"
       run_once: true

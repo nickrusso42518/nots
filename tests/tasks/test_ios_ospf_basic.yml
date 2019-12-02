@@ -81,7 +81,7 @@
 
 - name: "Print structured data"
   debug:
-    var: data
+    var: "data"
 
 - name: "Ensure parsing success for process level data"
   assert:
@@ -123,7 +123,7 @@
 
 - name: "Print empty data"
   debug:
-    var: empty
+    var: "empty"
 
 - name: "Ensure parsing results in an empty structure"
   assert:

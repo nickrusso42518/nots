@@ -7,7 +7,7 @@
 
 - name: "Print OSPF neighbors"
   debug:
-    var: ospf_nbrs
+    var: "ospf_nbrs"
 
 - name: "Store BFD neighbor list"
   set_fact:
@@ -24,7 +24,7 @@
 
 - name: "Print BFD neighbors"
   debug:
-    var: bfd_nbrs
+    var: "bfd_nbrs"
 
 - name: "Ensure neighbor 1 is up"
   assert:
@@ -32,5 +32,5 @@
     msg: "not all OSPF neighbors showed up, check JSON above"
   loop: "{{ ospf_nbrs }}"
   loop_control:
-    loop_var: ospf_nbr
+    loop_var: "ospf_nbr"
 ...
