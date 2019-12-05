@@ -39,7 +39,7 @@ Testing was conducted on the following platforms and versions:
   * Cisco CSR1000v, version 16.07.01a, running in AWS
   * Cisco CSR1000v, version 16.09.02, running in AWS
   * Cisco CSR1000v, version 16.12.01a, running in AWS
-  * Cisco IOSv, version 15.6M, running in GNS3
+  * Cisco IOSv, version 15.6M, running on IOU
   * Cisco XRv9000, version 6.3.1, running in AWS
   * Cisco 3172T, version 6.0.2.U6.4a, hardware appliance
 

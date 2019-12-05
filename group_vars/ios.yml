@@ -2,7 +2,7 @@
 ansible_network_os: "ios"
 process:
   id: 1
-  has_ispf: true
+  has_ispf: false  # deprecated
   has_bfd: true
   has_ttlsec: true
   ref_bw: 1000
