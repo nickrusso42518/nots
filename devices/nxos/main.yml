@@ -4,7 +4,7 @@
     - name: "NXOS >> Collect OSPF PID {{ process.id }} info from switches"
       nxos_command:
         commands: "{{ commands }}"
-      register: CLI_OUTPUT
+      register: "CLI_OUTPUT"
       vars:
         ansible_connection: "network_cli"
 

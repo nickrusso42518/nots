@@ -1,9 +1,8 @@
 ---
-# Test both Python 2.7 and 3.6 versions.
+# Test on Python 3.7 (can add more versions if needed).
 language: "python"
 python:
-  - "2.7"
-  - "3.6"
+  - "3.7"
 
 # Install python packages for ansible and linters.
 install:

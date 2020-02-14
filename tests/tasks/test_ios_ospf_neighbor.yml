@@ -15,7 +15,7 @@
 
 - name: "Print structured data"
   debug:
-    var: data
+    var: "data"
 
 - name: "Ensure parsing succeeded for first neighbor"
   assert:
@@ -72,7 +72,7 @@
 
 - name: "Print empty data"
   debug:
-    var: empty
+    var: "empty"
 
 - name: "Ensure parsing results in an empty list"
   assert:

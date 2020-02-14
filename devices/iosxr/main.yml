@@ -4,7 +4,7 @@
     - name: "IOSXR >> Collect OSPF PID {{ process.id }} info from routers"
       iosxr_command:
         commands: "{{ commands }}"
-      register: CLI_OUTPUT
+      register: "CLI_OUTPUT"
       vars:
         ansible_connection: "network_cli"
 

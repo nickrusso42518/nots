@@ -2,8 +2,8 @@
 # Test all individual parsers using static text to check
 # for the introduction of any regressions during development.
 - name: "Perform automated filter (unit) testing"
-  hosts: localhost
-  connection: local
+  hosts: "localhost"
+  connection: "local"
   tasks:
 
     # All test files, which are lists of ansible tasks, begin with the
@@ -21,7 +21,7 @@
       find:
         path: "{{ playbook_dir }}/tasks"
         patterns: "{{ TASKS }}"
-      register: FIND_LIST
+      register: "FIND_LIST"
 
     # Build a list of strings with only the file paths to simplify
     # future iteration and troubleshooting.
@@ -32,7 +32,7 @@
     # Print the discovered file paths to ensure the regex matched.
     - name: "DEBUG >> Print file paths"
       debug:
-        var: FILE_LIST
+        var: "FILE_LIST"
 
     # Iteratively include each file (sequence does not matter) and run
     # the tests included in that file.

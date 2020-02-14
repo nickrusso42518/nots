@@ -5,7 +5,7 @@
 
 - name: "SYS >> Dump AREA_TARGETS"
   debug:
-    var: AREA_TARGETS
+    var: "AREA_TARGETS"
     verbosity: 1
 
 - name: "SYS >> Check type {{ AREA_TARGETS.type }} in area {{ item.0 }}"
